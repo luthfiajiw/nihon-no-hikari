@@ -112,7 +112,7 @@
 						<Sidebar.MenuButton
 							isActive={active}
 							tooltipContent={item.name}
-							class="h-10 rounded-xl px-3 text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-5 [&_svg]:shrink-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0!"
+							class="h-10 rounded-xl px-3 text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-4 [&_svg]:shrink-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0!"
 						>
 							{#snippet child({ props })}
 								<a href={resolve(item.url as Pathname)} {...props}>
@@ -121,13 +121,13 @@
 											src={active ? kanjiActiveIcon : kanjiIcon}
 											alt="Kanji"
 											class={cn(
-												"size-5 shrink-0 transition-all mr-1",
+												"size-4 shrink-0 transition-all mr-1",
 											)}
 										/>
 									{:else}
 										<item.icon
 											class={cn(
-												"size-5 shrink-0 transition-colors mr-1",
+												"size-4 shrink-0 transition-colors mr-1",
 												active ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"
 											)}
 										/>
