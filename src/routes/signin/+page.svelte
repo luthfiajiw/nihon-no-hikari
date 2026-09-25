@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { resolve } from "$app/paths";
-	import SignInView from "$features/signin/views/sign-in-view.svelte";
+	import SignInView from "$features/signin/presentation/sign-in-view.svelte";
 	import bgImg from "$lib/assets/images/signin-bg.png";
 </script>
 

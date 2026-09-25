@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CourseView from "$features/course/views/course-view.svelte";
+	import CourseView from "$features/course/presentation/views/course-view.svelte";
 </script>
 
 <svelte:head>

@@ -5,10 +5,10 @@
 		ClockIcon, 
 		BookOpenIcon, 
 		ArrowRightIcon,
-		CheckCircleIcon, 
 	} from "lucide-svelte";
 	import Separator from "$lib/components/ui/separator/separator.svelte";
-  import n5CourseBg from "$lib/assets/images/n5-course-bg.png";
+	import { goto } from "$app/navigation";
+	import { resolve } from "$app/paths";
 
 	interface Props {
 		/** Level title of the course, e.g. "N5", "N4", "N3" */
@@ -28,7 +28,7 @@
 		/** Category or difficulty badge text */
 		category?: string;
 		/** Callback when enroll button is clicked */
-		onEnroll?: () => void;
+		class?: string;
 	}
 
 	let {
@@ -40,7 +40,7 @@
 		coverImage,
 		isEnrolled = false,
 		category = "Pemula",
-		onEnroll
+		class: className = "",
 	}: Props = $props();
 
 	// Format display values for hours & materials
@@ -53,14 +53,10 @@
 </script>
 
 <div
-	class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900"
+	class={`group relative flex flex-col justify-between h-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900 ${className}`}
 >
-  <div 
-    class="w-full rounded-t-2xl bg-sky-500 py-20 bg-cover bg-no-repeat" 
-    style="background-image: url('{n5CourseBg}'); background-position: center top -150px;"
-  ></div>
 	<!-- Header / Top Section --> 
-	<div class="px-5 pt-5">
+	<div class="px-4 pt-5">
 		<!-- Top Meta: Level Tag & Category -->
 		<div class="mb-3.5 flex items-center justify-between gap-2">
       <!-- Level Badge (N5) -->
@@ -102,7 +98,9 @@
 		</p>
 	</div>
 
-  <Separator orientation="horizontal" class="h-px w-full"/>
+  <div class="px-4">
+		<Separator orientation="horizontal" class="h-px w-full"/>
+	</div>
 
 	<!-- Bottom Section: Stats & Action Button -->
 	<div class="flex items-center justify-between border-slate-100 pt-4 pb-5 px-5 dark:border-slate-800/80">
@@ -124,19 +122,18 @@
 		<!-- Enroll Button -->
 		<Button
 			type="button"
-			onclick={onEnroll}
-			disabled={isEnrolled}
+			onclick={() => goto(resolve('/courses/abcs'))}
 			class={`font-semibold transition-all duration-200 ${
 				isEnrolled
-					? "bg-slate-100 text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400"
+					? "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400"
 					: "text-white active:scale-[0.99]"
 			}`}
 		>
 			{#if isEnrolled}
-				<CheckCircleIcon class="mr-2 size-4 text-emerald-500" />
 				Sudah Terdaftar
+				<ArrowRightIcon class="ml-1.5 size-4 text-sky-500 transition-transform group-hover:translate-x-1" />
 			{:else}
-				Enroll Sekarang
+				Lihat Detail
 				<ArrowRightIcon class="ml-1.5 size-4 transition-transform group-hover:translate-x-1" />
 			{/if}
 		</Button>
