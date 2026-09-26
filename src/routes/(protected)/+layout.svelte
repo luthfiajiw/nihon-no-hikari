@@ -66,7 +66,7 @@
     >
       <div class="flex items-center gap-2 px-4">
         <Sidebar.Trigger />
-        <p class="pl-1 text-base">Ganbatte, Wicaksono!</p>
+        <p class="pl-1 text-base">Ganbare, Wicaksono!</p>
       </div>
 
 			<div class="flex items-center gap-2 pr-6">

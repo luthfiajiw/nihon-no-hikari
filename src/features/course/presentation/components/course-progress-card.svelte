@@ -2,7 +2,7 @@
 	import { Button } from "$lib/components/ui/button";
 	import * as Card from "$lib/components/ui/card";
 	import { Progress } from "$lib/components/ui/progress";
-	import { ChevronRightIcon, TrendingUpIcon } from "lucide-svelte";
+	import { ArrowRightIcon, TrendingUpIcon } from "lucide-svelte";
 	import villageBg from "$lib/assets/images/village-bg.png";
 
 	interface Props {
@@ -39,9 +39,9 @@
 			</div>
 			<Progress value={33} class="h-3 mb-3" />
 		</div>
-		<div class="flex justify-end pt-2">
-			<Button type="button" class="bg-sky-600 hover:bg-sky-700">
-				Lanjut Belajar <ChevronRightIcon class="size-4 text-white" />
+		<div class="group flex justify-end pt-2">
+			<Button type="button" class=" transition-all duration-200 bg-rose-500 hover:bg-rose-700">
+				Lanjut Belajar <ArrowRightIcon class="size-4 text-white transition-transform group-hover:translate-x-1" />
 			</Button>
 		</div>
 	</Card.Content>

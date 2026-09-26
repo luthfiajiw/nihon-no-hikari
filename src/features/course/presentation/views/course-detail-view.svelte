@@ -18,6 +18,8 @@
 
 
 	} from "lucide-svelte";
+	import { goto } from "$app/navigation";
+	import { resolve } from "$app/paths";
 
 	// Course Data structure
 	interface Lesson {
@@ -122,8 +124,8 @@
 	// Interactive state
 	let activeLessonId = $state(1);
 
-	const activeLesson = $derived(
-		lessons.find((l) => l.id === activeLessonId) ?? lessons[0]
+	const nextLesson = $derived(
+		lessons.find((l) => l.id === activeLessonId + 1) ?? lessons[0]
 	);
 
 	// Data array for Layerchart ArcChart
@@ -142,7 +144,7 @@
     >
       <ArrowLeftIcon />
     </Button>
-    <p class="font-semibold">Detail Kursus</p>
+    <p class="font-semibold text-base">Detail Kursus</p>
   </div>
 
 	<!-- Main Content Area: Row-by-Row Grid Layout -->
@@ -157,7 +159,7 @@
 							<Badge class="bg-emerald-500 text-white font-extrabold px-3 py-1 text-xs border-none rounded-lg shadow-xs shadow-emerald-500/30 hover:bg-emerald-600">
 								{courseInfo.level}
 							</Badge>
-							<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-3xl">
+							<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
 								{courseInfo.title}
 							</h1>
 						</div>
@@ -241,7 +243,6 @@
             {#each lessons.slice(0, 5) as lesson (lesson.id)}
               <button
                 type="button"
-                onclick={() => (activeLessonId = lesson.id)}
                 class={`w-full flex items-center justify-between p-4 text-left transition-colors sm:px-6 ${
                   activeLessonId === lesson.id
                     ? "bg-sky-50/50 dark:bg-sky-950/20"
@@ -291,8 +292,9 @@
             {/each}
           </Card.Content>
         </Card.Root>
-        <Card.Root class="border-sky-100 bg-gradient-to-r from-sky-50/80 via-blue-50/40 to-indigo-50/60 dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60">
-          <Card.Content class="flex flex-col items-center justify-between gap-4 sm:flex-row p-6">
+        
+        <Card.Root class="pt-4 pb-6 border-sky-100 bg-gradient-to-r from-sky-50/80 via-blue-50/40 to-indigo-50/60 dark:border-slate-800 dark:from-slate-900 dark:to-slate-800/60">
+          <Card.Content class="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div class="flex items-center gap-3">
               <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-2xs text-sky-600 dark:bg-slate-800 dark:text-sky-400">
                 <SparklesIcon class="size-5" />
@@ -333,22 +335,26 @@
 
 						<div>
 							<Card.Title class="text-xl font-bold text-slate-900 dark:text-slate-100">
-								{activeLesson.title}
+								{nextLesson.title}
 							</Card.Title>
 							<Card.Description class="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-								{activeLesson.description}
+								{nextLesson.description}
 							</Card.Description>
 						</div>
 					</div>
 
 					<!-- Actions -->
 					<div class="flex justify-between items-center pt-4">
-						<span class="text-sm font-medium text-slate-400">
-							{activeLesson.duration}
-						</span>
+						<div class="flex items-center gap-1">
+							<ClockIcon class="size-3 text-slate-500" />
+							<span class="text-xs font-medium text-slate-400">
+								{nextLesson.duration}
+							</span>
+						</div>
 						<Button
 							type="button"
-							class="bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-xl px-5 shadow-xs transition-transform active:scale-95"
+							onclick={() => goto(resolve(`/courses/${courseInfo.title}/lessons`))}
+							class="bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-xl shadow-xs"
 						>
 							Mulai Belajar
 							<ArrowRightIcon class="ml-1.5 size-4" />
