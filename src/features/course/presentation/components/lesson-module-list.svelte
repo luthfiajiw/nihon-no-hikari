@@ -61,8 +61,8 @@
 				onclick={() => toggleModule(mod.id)}
 			>
 				<div class="flex flex-col gap-0.5">
-					<span class="text-[11px] font-bold tracking-wider uppercase text-muted-foreground">{mod.title}</span>
-					<span class="text-[10px] text-muted-foreground/70">{mod.completedCount}</span>
+					<span class="text-xs font-bold tracking-wider uppercase text-muted-foreground">{mod.title}</span>
+					<span class="text-xs text-muted-foreground/70">{mod.completedCount}</span>
 				</div>
 				{#if isExpanded}
 					<ChevronDownIcon class="size-3.5 shrink-0 text-slate-400" />
@@ -95,10 +95,10 @@
 
 							<div class="flex flex-col gap-0.5 min-w-0">
 								<span class="text-xs leading-snug {isActive ? 'font-semibold text-sky-700 dark:text-sky-400' : 'font-normal text-foreground'}">{lesson.title}</span>
-								<span class="text-[11px] text-muted-foreground flex items-center gap-1.5">
+								<span class="text-xs text-muted-foreground flex items-center gap-1.5">
 									{lesson.order}
 									{#if lesson.isFree}
-										<span class="text-[10px] font-semibold text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-950/60 px-1.5 py-0.5 rounded">Gratis</span>
+										<span class="text-xs font-semibold text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-950/60 px-1.5 py-0.5 rounded">Gratis</span>
 									{/if}
 								</span>
 							</div>

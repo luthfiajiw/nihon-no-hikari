@@ -172,7 +172,7 @@
 						<div class="flex flex-wrap items-center gap-3 pt-2">
 							<div class="flex items-center gap-1.5 rounded-md text-slate-700 bg-white px-2.5 py-1.5 dark:bg-slate-800/60">
 								<BookOpenIcon class="size-4 text-sky-500" />
-								<span>{courseInfo.totalLessons} Pelajaran</span>
+								<span>{courseInfo.totalLessons} Modul</span>
 							</div>
 							<div class="flex items-center gap-1.5 rounded-md text-slate-700 bg-white px-2.5 py-1.5 dark:bg-slate-800/60">
 								<ClockIcon class="size-4 text-sky-500" />
@@ -217,7 +217,7 @@
 						<div class="flex-1 space-y-1">
 							<div class="flex items-center justify-between text-sm">
 								<span class="font-semibold text-slate-800 dark:text-slate-200">
-									{courseInfo.completedCount} / {courseInfo.totalLessons} Pelajaran
+									{courseInfo.completedCount} / {courseInfo.totalLessons} Modul
 								</span>
 							</div>
 							<p class="text-sm text-slate-400 dark:text-slate-500">
@@ -235,7 +235,7 @@
         <Card.Root class="w-full h-full flex flex-col justify-between">
           <Card.Header class="border-b border-slate-100 dark:border-slate-800">
             <Card.Title class="text-base font-bold text-slate-900 dark:text-slate-100">
-              Daftar Pelajaran
+              Daftar Modul
             </Card.Title>
           </Card.Header>
 

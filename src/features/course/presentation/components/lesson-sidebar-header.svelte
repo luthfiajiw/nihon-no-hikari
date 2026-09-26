@@ -18,13 +18,13 @@
 	);
 </script>
 
-<div class="p-4">
+<div class="px-4 pt-4 pb-3">
 	<h2 class="text-xs mb-3 sm:text-sm font-bold text-foreground leading-snug">{courseName}</h2>
 
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<span class="text-[11px] font-medium text-muted-foreground">{completedLessons} / {totalLessons} modul</span>
-			<span class="text-[11px] font-bold text-sky-600 dark:text-sky-400">{progressPercentage}%</span>
+			<span class="text-xs text-muted-foreground">{completedLessons} / {totalLessons} modul</span>
+			<span class="text-xs text-sky-600 dark:text-sky-400">{progressPercentage}%</span>
 		</div>
 		<Progress value={progressPercentage} max={100} class="h-1.5 bg-slate-100 dark:bg-slate-800" />
 	</div>

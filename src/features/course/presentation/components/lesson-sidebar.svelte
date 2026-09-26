@@ -70,7 +70,7 @@
 				{totalLessons}
 			/>
 
-			<div class="px-4 pb-4 border-b border-border">
+			<div class="px-4 pb-3 border-b border-border">
 				<LessonSidebarTabs
 					{activeTab}
 					onTabChange={(tab) => (activeTab = tab)}

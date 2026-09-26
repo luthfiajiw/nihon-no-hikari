@@ -17,8 +17,8 @@
 
 <div class="flex-1 min-w-0 h-full overflow-hidden">
 	<ScrollArea.Root class="h-full" orientation="vertical">
-		<article class="max-w-3xl mx-auto px-6 py-10 pb-16">
-			<h1 class="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight mb-7">{title}</h1>
+		<article class="max-w-4xl mx-auto px-6 pt-6 pb-16">
+			<h1 class="text-2xl font-extrabold text-foreground tracking-tight leading-tight mb-7">{title}</h1>
 
 			<div class="text-sm sm:text-base leading-relaxed text-foreground space-y-4">
 				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
