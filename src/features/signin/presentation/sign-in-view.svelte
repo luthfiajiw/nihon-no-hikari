@@ -7,19 +7,15 @@
 	import logo from '$lib/assets/images/nnh-logo.png';
 
 	import { createForm } from '@tanstack/svelte-form';
-	// import { SignInUseCase } from '../domain/usecases/sign-in.usecase';
-	// import type { AuthRepository } from '../domain/repositories/auth.repository';
-	// import { AuthRepositoryImpl } from '../data/repositories/auth.repository.impl';
+	import { SignInUseCase } from '../domain/usecases/sign-in.usecase';
+	import { AuthRepositoryImpl } from '../data/repositories/auth.repository.impl';
+	import { AuthSource } from '../data/sources/auth.source';
+	import { DomainError } from '../domain/entities/auth.entity';
+	import { capitalizeFirst } from '$lib/utils';
 
-	interface Props {
-		// authRepository?: AuthRepository;
-		onSuccess?: (accessToken: string) => void;
-	}
-
-	// let { authRepository = new AuthRepositoryImpl(), onSuccess }: Props = $props();
-	let { onSuccess }: Props = $props();
-
-	// const signInUseCase = $derived(new SignInUseCase(authRepository));
+	const authSource = new AuthSource()
+	const authRepository = new AuthRepositoryImpl(authSource)
+	const signInUseCase = $derived(new SignInUseCase(authRepository));
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -32,20 +28,14 @@
 		onSubmit: async ({ value }) => {
 			serverError = null;
 			successMessage = null;
-			// try {
-			// 	const result = await signInUseCase.execute({
-			// 		email: value.email,
-			// 		password: value.password
-			// 	});
-			// 	successMessage = 'Sign in berhasil! Mengalihkan...';
-				if (onSuccess) {
-					onSuccess(value.email);
-				}
-			// } catch (err) {
-			// 	if (err instanceof Error) {
-			// 		serverError = err.message || 'Terjadi kesalahan saat sign in.';
-			// 	}
-			// }
+			try {
+				await signInUseCase.exec({
+					email: value.email,
+					password: value.password
+				});
+			} catch (err) {
+				serverError = err instanceof DomainError ? capitalizeFirst(err.message) : 'Terjadi kesalahan saat sign in.';
+			}
 		}
 	}));
 </script>

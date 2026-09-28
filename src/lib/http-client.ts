@@ -4,7 +4,6 @@ export type RequestConfig = Omit<RequestInit, 'headers'> & {
 	params?: Record<string, string | number | boolean>;
 };
 
-
 export type OnRequestInterceptor = (
 	config: RequestConfig
 ) => RequestConfig | Promise<RequestConfig>;
@@ -21,6 +20,7 @@ export type OnErrorInterceptor = (
 
 export interface HttpClientOptions {
 	fetch?: typeof fetch;
+	baseUrl?: string;
 	headers?: Record<string, string>;
 }
 
@@ -35,12 +35,13 @@ export interface HttpResponse<T = unknown> {
 function getBaseUrl(): string {
 	const envUrl =
 		(typeof import.meta !== 'undefined' && import.meta.env?.API_BASE_URL) ||
-		(typeof process !== 'undefined' && process.env?.API_BASE_URL)
+		(typeof process !== 'undefined' && process.env?.API_BASE_URL);
 	return envUrl.replace(/\/$/, '');
 }
 
 export class HttpClient {
 	private customFetch: typeof fetch;
+	private baseUrl?: string;
 	private defaultHeaders: Record<string, string>;
 	private requestInterceptors: OnRequestInterceptor[] = [];
 	private responseInterceptors: OnResponseInterceptor[] = [];
@@ -48,6 +49,7 @@ export class HttpClient {
 
 	constructor(options: HttpClientOptions = {}) {
 		this.customFetch = options.fetch ?? ((...args) => fetch(...args));
+		this.baseUrl = options.baseUrl;
 		this.defaultHeaders = options.headers ?? {};
 	}
 
@@ -88,7 +90,7 @@ export class HttpClient {
 		endpoint: string,
 		options: RequestConfig = {}
 	): Promise<HttpResponse<T>> {
-		const baseUrl = getBaseUrl();
+		const baseUrl = this.baseUrl ?? getBaseUrl();
 		const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 		let url =
 			endpoint.startsWith('http://') || endpoint.startsWith('https://')

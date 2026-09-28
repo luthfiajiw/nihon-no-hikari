@@ -1,24 +1,33 @@
-export interface SignInForm {
+export interface AuthUser {
+	id: string;
+	email: string;
+	display_name: string;
+	avatar_url?: string;
+}
+
+export interface AuthSession {
+	id: string;
+	access_token: string;
+	access_token_expires_at: string;
+	refresh_token: string;
+	refresh_token_expires_at: string;
+}
+
+export interface SignInRequest {
 	email: string;
 	password: string;
 }
 
-export interface AuthUser {
-	id: number;
-	email: string;
-	name: string;
-}
-
-export interface AuthData {
-	accessToken: string;
-	tokenType: string;
-	user: AuthUser;
-}
-
-export interface AuthResponse {
-	success: boolean
-	message: string
-	data: AuthData
+export interface SignInResponse {
+	success: boolean;
+	message: string;
+	data: {
+		id: string;
+		email: string;
+		display_name: string;
+		avatar_url?: string;
+		session: AuthSession;
+	};
 }
 
 export class DomainError extends Error {

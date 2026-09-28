@@ -103,9 +103,9 @@
 	</div>
 
 	<!-- Bottom Section: Stats & Action Button -->
-	<div class="flex items-center justify-between border-slate-100 pt-4 pb-5 px-5 dark:border-slate-800/80">
+	<div class="flex items-center justify-between gap-2 border-slate-100 pt-4 pb-5 px-5 dark:border-slate-800/80">
 		<!-- Course Meta Info: Jam Belajar & Jumlah Materi -->
-		<div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+		<div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
 			<!-- Total Jam Belajar -->
 			<div class="flex items-center gap-1.5 rounded-md bg-slate-50 px-2.5 py-1.5 dark:bg-slate-800/60">
 				<ClockIcon class="size-4" />
@@ -130,7 +130,7 @@
 			}`}
 		>
 			{#if isEnrolled}
-				Sudah Terdaftar
+				Terdaftar
 				<ArrowRightIcon class="ml-1.5 size-4 text-sky-500 transition-transform group-hover:translate-x-1" />
 			{:else}
 				Lihat Detail

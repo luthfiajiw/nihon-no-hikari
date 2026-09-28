@@ -8,7 +8,7 @@ describe('SignInUseCase', () => {
 		const mockRepo: AuthRepository = { signIn: vi.fn() };
 		const useCase = new SignInUseCase(mockRepo);
 
-		await expect(useCase.execute({ email: '', password: 'password123' })).rejects.toThrow(
+		await expect(useCase.exec({ email: '', password: 'password123' })).rejects.toThrow(
 			DomainError
 		);
 		expect(mockRepo.signIn).not.toHaveBeenCalled();
@@ -18,7 +18,7 @@ describe('SignInUseCase', () => {
 		const mockRepo: AuthRepository = { signIn: vi.fn() };
 		const useCase = new SignInUseCase(mockRepo);
 
-		await expect(useCase.execute({ email: 'test@example.com', password: '' })).rejects.toThrow(
+		await expect(useCase.exec({ email: 'test@example.com', password: '' })).rejects.toThrow(
 			DomainError
 		);
 		expect(mockRepo.signIn).not.toHaveBeenCalled();
@@ -26,9 +26,13 @@ describe('SignInUseCase', () => {
 
 	it('should trim email and call authRepository.signIn with correct payload', async () => {
 		const mockAuthResult = {
-			accessToken: 'jwt_token_123',
-			tokenType: 'Bearer',
-			user: { id: '1', email: 'test@example.com', name: 'Test User' }
+			success: true,
+			message: 'Sign in berhasil.',
+			data: {
+				id: '1',
+				email: 'test@example.com',
+				display_name: 'Test User'
+			}
 		};
 
 		const mockRepo: AuthRepository = {
@@ -36,7 +40,7 @@ describe('SignInUseCase', () => {
 		};
 		const useCase = new SignInUseCase(mockRepo);
 
-		const result = await useCase.execute({
+		const result = await useCase.exec({
 			email: '  test@example.com  ',
 			password: 'secretpassword'
 		});
@@ -55,7 +59,7 @@ describe('SignInUseCase', () => {
 		const useCase = new SignInUseCase(mockRepo);
 
 		await expect(
-			useCase.execute({ email: 'test@example.com', password: 'wrongpassword' })
+			useCase.exec({ email: 'test@example.com', password: 'wrongpassword' })
 		).rejects.toThrow(InvalidCredentialsError);
 	});
 });

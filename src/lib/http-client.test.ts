@@ -10,7 +10,7 @@ describe('HttpClient', () => {
 			json: async () => ({ message: 'success' })
 		});
 
-		const client = new HttpClient({ fetch: mockFetch });
+		const client = new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8000/api' });
 
 		const res = await client.get<{ message: string }>('/users', {
 			params: { page: 1, limit: 10 }
@@ -32,7 +32,7 @@ describe('HttpClient', () => {
 			json: async () => ({ ok: true })
 		});
 
-		const client = new HttpClient({ fetch: mockFetch });
+		const client = new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8000/api' });
 
 		client.onRequest((config) => {
 			return {
