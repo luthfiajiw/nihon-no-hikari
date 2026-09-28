@@ -1,13 +1,40 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { authClient } from '$lib/auth-client';
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	import { Separator } from "$lib/components/ui/separator/index.js";
 	import AppSidebar from "$lib/components/app-sidebar.svelte";
 	import { Button } from "$lib/components/ui/button";
-	import { BellIcon, ChevronDownIcon } from "lucide-svelte";
+	import { BellIcon, ChevronDownIcon, LoaderCircle } from "lucide-svelte";
 
 	let { children } = $props();
+	let isSigningOut = $state(false);
+	let signOutError = $state(false);
+
+	async function handleSignOut() {
+		if (isSigningOut) return;
+
+		isSigningOut = true;
+		signOutError = false;
+
+		try {
+			const { error } = await authClient.signOut();
+
+			if (error) {
+				signOutError = true;
+				return;
+			}
+
+			await goto(resolve('/signin'), { invalidateAll: true });
+		} catch {
+			signOutError = true;
+		} finally {
+			isSigningOut = false;
+		}
+	}
 
 	/** Map from URL path segment to display name */
 	// const routeNameMap: Record<string, string> = {
@@ -102,8 +129,11 @@
 							</DropdownMenu.Item>
 						</DropdownMenu.Group>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item class="text-destructive">
-							Keluar
+						<DropdownMenu.Item variant="destructive" disabled={isSigningOut} onclick={handleSignOut}>
+							{#if isSigningOut}
+								<LoaderCircle class="animate-spin" />
+							{/if}
+							{signOutError ? 'Gagal keluar. Coba lagi.' : 'Keluar'}
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>

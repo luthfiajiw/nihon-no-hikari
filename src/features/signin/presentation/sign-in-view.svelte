@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { FieldGroup, Field, FieldLabel, FieldDescription } from '$lib/components/ui/field/index.js';
@@ -7,15 +8,10 @@
 	import logo from '$lib/assets/images/nnh-logo.png';
 
 	import { createForm } from '@tanstack/svelte-form';
-	import { SignInUseCase } from '../domain/usecases/sign-in.usecase';
-	import { AuthRepositoryImpl } from '../data/repositories/auth.repository.impl';
-	import { AuthSource } from '../data/sources/auth.source';
 	import { DomainError } from '../domain/entities/auth.entity';
 	import { capitalizeFirst } from '$lib/utils';
-
-	const authSource = new AuthSource()
-	const authRepository = new AuthRepositoryImpl(authSource)
-	const signInUseCase = $derived(new SignInUseCase(authRepository));
+	import { signInUseCase } from '$lib/dependencies/auth.dependency';
+	import { resolve } from '$app/paths';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -33,6 +29,8 @@
 					email: value.email,
 					password: value.password
 				});
+
+				await goto(resolve('/'), { invalidateAll: true });
 			} catch (err) {
 				serverError = err instanceof DomainError ? capitalizeFirst(err.message) : 'Terjadi kesalahan saat sign in.';
 			}
@@ -150,10 +148,8 @@
 							<Button type="submit" class="w-full" disabled={!canSubmit || isSubmitting}>
 								{#if isSubmitting}
 									<LoaderCircle class="mr-2 size-4 animate-spin" />
-									Memproses...
-								{:else}
-									Login
 								{/if}
+								Login
 							</Button>
 							<FieldDescription class="text-center">
 								Don't have an account? <a href="##">Sign up</a>
