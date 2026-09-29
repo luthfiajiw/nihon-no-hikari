@@ -10,7 +10,7 @@
 	import { createForm } from '@tanstack/svelte-form';
 	import { DomainError } from '../domain/entities/auth.entity';
 	import { capitalizeFirst } from '$lib/utils';
-	import { signInUseCase } from '$lib/dependencies/auth.dependency';
+	import { signInUseCase } from '../../../dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
 
 	let serverError = $state<string | null>(null);

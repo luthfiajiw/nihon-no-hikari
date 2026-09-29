@@ -12,7 +12,8 @@ describe('HttpClient', () => {
 
 		const client = new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8000/api' });
 
-		const res = await client.get<{ message: string }>('/users', {
+		const res = await client.request<{ message: string }>('/users', {
+			method: 'GET',
 			params: { page: 1, limit: 10 }
 		});
 
@@ -44,7 +45,11 @@ describe('HttpClient', () => {
 			};
 		});
 
-		await client.post('/items', { title: 'Test' });
+		await client.request('/items', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ title: 'Test' })
+		});
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			'http://localhost:8000/api/items',
@@ -71,7 +76,7 @@ describe('HttpClient', () => {
 
 		client.onResponse(interceptorSpy);
 
-		await client.get('https://api.example.com/data');
+		await client.request('https://api.example.com/data');
 
 		expect(interceptorSpy).toHaveBeenCalled();
 	});
@@ -93,7 +98,7 @@ describe('HttpClient', () => {
 
 		remove(); // Unregister interceptor
 
-		await client.get('https://api.example.com/test');
+		await client.request('https://api.example.com/test');
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			'https://api.example.com/test',
@@ -114,38 +119,9 @@ describe('HttpClient', () => {
 
 		client.onError(errorHandler);
 
-		await expect(client.get('https://api.example.com/error')).rejects.toThrow(
+		await expect(client.request('https://api.example.com/error')).rejects.toThrow(
 			'Handled: Network error'
 		);
 		expect(errorHandler).toHaveBeenCalled();
-	});
-
-	it('should support PUT, PATCH, and DELETE helpers', async () => {
-		const mockFetch = vi.fn().mockResolvedValue({
-			status: 204,
-			ok: true,
-			headers: new Headers(),
-			text: async () => ''
-		});
-
-		const client = new HttpClient({ fetch: mockFetch });
-
-		await client.put('https://api.example.com/1', { name: 'Updated' });
-		expect(mockFetch).toHaveBeenLastCalledWith(
-			'https://api.example.com/1',
-			expect.objectContaining({ method: 'PUT' })
-		);
-
-		await client.patch('https://api.example.com/1', { name: 'Patched' });
-		expect(mockFetch).toHaveBeenLastCalledWith(
-			'https://api.example.com/1',
-			expect.objectContaining({ method: 'PATCH' })
-		);
-
-		await client.delete('https://api.example.com/1');
-		expect(mockFetch).toHaveBeenLastCalledWith(
-			'https://api.example.com/1',
-			expect.objectContaining({ method: 'DELETE' })
-		);
 	});
 });

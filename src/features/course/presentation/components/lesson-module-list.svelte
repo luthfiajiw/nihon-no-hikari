@@ -61,13 +61,13 @@
 				onclick={() => toggleModule(mod.id)}
 			>
 				<div class="flex flex-col gap-0.5">
-					<span class="text-xs font-bold tracking-wider uppercase text-muted-foreground">{mod.title}</span>
+					<span class="text-sm font-bold tracking-wider uppercase text-muted-foreground">{mod.title}</span>
 					<span class="text-xs text-muted-foreground/70">{mod.completedCount}</span>
 				</div>
 				{#if isExpanded}
-					<ChevronDownIcon class="size-3.5 shrink-0 text-slate-400" />
+					<ChevronDownIcon class="size-4 shrink-0 text-slate-400" />
 				{:else}
-					<ChevronRightIcon class="size-3.5 shrink-0 text-slate-400" />
+					<ChevronRightIcon class="size-4 shrink-0 text-slate-400" />
 				{/if}
 			</button>
 
@@ -94,7 +94,7 @@
 							</span>
 
 							<div class="flex flex-col gap-0.5 min-w-0">
-								<span class="text-xs leading-snug {isActive ? 'font-semibold text-sky-700 dark:text-sky-400' : 'font-normal text-foreground'}">{lesson.title}</span>
+								<span class="text-sm leading-snug {isActive ? 'font-semibold text-sky-700 dark:text-sky-400' : 'font-normal text-foreground'}">{lesson.title}</span>
 								<span class="text-xs text-muted-foreground flex items-center gap-1.5">
 									{lesson.order}
 									{#if lesson.isFree}

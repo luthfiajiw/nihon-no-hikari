@@ -29,7 +29,7 @@ describe('AuthSource', () => {
 
 		const result = await service.signIn(credentials);
 
-		expect(mockFetch).toHaveBeenCalledWith('/api/auth/sign-in/api', {
+		expect(mockFetch).toHaveBeenCalledWith('/api/auth/signin', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',

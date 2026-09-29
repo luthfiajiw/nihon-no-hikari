@@ -5,17 +5,18 @@ import {
 } from '$features/signin/domain/entities/auth.entity';
 import { HttpClient } from '$lib/http-client';
 
-const sameOriginHttpClient = new HttpClient({ baseUrl: '' });
-
 export class AuthSource {
-	constructor(private readonly httpClient: HttpClient = sameOriginHttpClient) {}
+	constructor(private readonly httpClient: HttpClient) {}
 
 	async signIn(payload: SignInRequest): Promise<SignInResponse> {
 		// Meneruskan ke endpoint proxy better auth
-		const response = await this.httpClient.post<SignInResponse>('/api/auth/signin', payload, {
+		const response = await this.httpClient.request<SignInResponse>('/api/auth/signin', {
+			method: 'POST',
 			headers: {
-				Accept: 'application/json'
-			}
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
 		});
 
 		const json = response.data;

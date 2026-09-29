@@ -19,12 +19,12 @@
 </script>
 
 <div class="px-4 pt-4 pb-3">
-	<h2 class="text-xs mb-3 sm:text-sm font-bold text-foreground leading-snug">{courseName}</h2>
+	<h2 class="text-base mb-3 font-bold text-foreground leading-snug">{courseName}</h2>
 
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<span class="text-xs text-muted-foreground">{completedLessons} / {totalLessons} modul</span>
-			<span class="text-xs text-sky-600 dark:text-sky-400">{progressPercentage}%</span>
+			<span class="text-sm text-muted-foreground">{completedLessons} / {totalLessons} modul</span>
+			<span class="text-sm text-sky-600 dark:text-sky-400">{progressPercentage}%</span>
 		</div>
 		<Progress value={progressPercentage} max={100} class="h-1.5 bg-slate-100 dark:bg-slate-800" />
 	</div>

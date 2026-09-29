@@ -11,10 +11,10 @@
 
 <Tabs.Root value={activeTab} onValueChange={(v) => onTabChange?.(v)}>
 	<Tabs.List class="w-full">
-		<Tabs.Trigger value="modules" class="flex-1 text-xs">
+		<Tabs.Trigger value="modules" class="flex-1 text-sm">
 			Daftar Modul
 		</Tabs.Trigger>
-		<Tabs.Trigger value="askAI" class="flex-1 text-xs">
+		<Tabs.Trigger value="askAI" class="flex-1 text-sm">
 			Tanya AI
 		</Tabs.Trigger>
 	</Tabs.List>

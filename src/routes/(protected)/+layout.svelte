@@ -9,8 +9,10 @@
 	import AppSidebar from "$lib/components/app-sidebar.svelte";
 	import { Button } from "$lib/components/ui/button";
 	import { BellIcon, ChevronDownIcon, LoaderCircle } from "lucide-svelte";
+	import type { LayoutProps } from './$types';
 
-	let { children } = $props();
+	let { data, children }: LayoutProps = $props();
+
 	let isSigningOut = $state(false);
 	let signOutError = $state(false);
 
@@ -35,54 +37,6 @@
 			isSigningOut = false;
 		}
 	}
-
-	/** Map from URL path segment to display name */
-	// const routeNameMap: Record<string, string> = {
-	// 	"": "Dashboard",
-	// 	"courses": "Kursus",
-	// 	"latihan": "Latihan",
-	// 	"kosakata": "Kosakata",
-	// 	"tata-bahasa": "Tata Bahasa",
-	// 	"kanji": "Kanji",
-	// 	"ujian": "Ujian & Evaluasi",
-	// 	"progress": "Progress",
-	// 	"komunitas": "Komunitas",
-	// 	"pengaturan": "Pengaturan",
-	// 	"bantuan": "Bantuan",
-	// };
-
-	// function getSegmentName(segment: string): string {
-	// 	return routeNameMap[segment] ?? segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
-	// }
-
-	// interface BreadcrumbSegment {
-	// 	name: string;
-	// 	href: string;
-	// }
-
-	// function getBreadcrumbs(pathname: string): BreadcrumbSegment[] {
-	// 	const segments = pathname.split("/").filter(Boolean);
-
-	// 	// Root page → single "Dashboard" breadcrumb
-	// 	if (segments.length === 0) {
-	// 		return [{ name: "Dashboard", href: "/" }];
-	// 	}
-
-	// 	const crumbs: BreadcrumbSegment[] = [];
-	// 	let accumulated = "";
-
-	// 	for (const segment of segments) {
-	// 		accumulated += `/${segment}`;
-	// 		crumbs.push({
-	// 			name: getSegmentName(segment),
-	// 			href: accumulated,
-	// 		});
-	// 	}
-
-	// 	return crumbs;
-	// }
-
-	// let breadcrumbs = $derived(getBreadcrumbs(page.url.pathname));
 </script>
 
 <Sidebar.Provider>
@@ -93,7 +47,7 @@
     >
       <div class="flex items-center gap-2 px-4">
         <Sidebar.Trigger />
-        <p class="pl-1 text-base">Ganbare, Wicaksono!</p>
+        <p class="pl-1 text-base">Ganbare, {data.user.name.split(' ')[0]}!</p>
       </div>
 
 			<div class="flex items-center gap-2 pr-6">
@@ -106,12 +60,12 @@
 						{#snippet child({props})}
 							<div class="flex items-center cursor-pointer" {...props}>
 								<Avatar.Root>
-									<Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" />
+									<Avatar.Image src={data.user.image ?? 'https://github.com/shadcn.png'} alt="@shadcn" />
 									<Avatar.Fallback>CN</Avatar.Fallback>
 								</Avatar.Root>
 
 								<div class="flex flex-col items-start pl-3 pr-4">
-									<p class="font-medium text-sm">Luthfi Aji</p>
+									<p class="font-medium text-sm">{data.user.name}</p>
 									<p class="text-xs text-muted-foreground">Level Pemula</p>
 								</div>
 
