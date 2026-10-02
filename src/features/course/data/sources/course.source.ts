@@ -1,4 +1,4 @@
-import type { ListCourseResponse } from '../../domain/entities/course.entity';
+import type { CourseDetailResponse, ListCourseResponse } from '../../domain/entities/course.entity';
 import { HttpClient } from '$lib/http-client';
 
 export class CourseSource {
@@ -14,6 +14,24 @@ export class CourseSource {
 
 		if (!response.ok) {
 			throw new Error(response.data?.message || 'Gagal mengambil daftar kursus.');
+		}
+
+		return response.data;
+	}
+
+	async getDetail(id: string): Promise<CourseDetailResponse> {
+		const response = await this.httpClient.request<CourseDetailResponse>(
+			`/v1/courses/${encodeURIComponent(id)}`,
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json'
+				}
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(response.data?.message || 'Gagal mengambil detail kursus.');
 		}
 
 		return response.data;

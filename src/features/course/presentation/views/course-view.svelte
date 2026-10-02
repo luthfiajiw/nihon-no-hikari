@@ -40,16 +40,7 @@
 				{:else}
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{#each courses as course (course.id)}
-							<CourseTile
-								slug={course.slug}
-								level={course.level.code}
-								title={course.title}
-								description={course.description}
-								totalHours={course.total_hours}
-								totalLessons={course.total_lessons}
-								coverImage={course.thumbnail_url}
-								category={course.level.name}
-							/>
+							<CourseTile {...course} />
 						{/each}
 					</div>
 				{/if}

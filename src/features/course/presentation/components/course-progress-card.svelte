@@ -14,7 +14,7 @@
 
 <Card.Root 
 	class={`w-full h-full flex flex-col justify-between bg-cover bg-no-repeat ${className}`}
-	style="background-image: url('{villageBg}'); background-position: center bottom -50px;"
+	style="background-image: url('{villageBg}'); background-position: center bottom -45px;"
 >
 	<Card.Header>
 		<Card.Title class="flex items-center gap-3">

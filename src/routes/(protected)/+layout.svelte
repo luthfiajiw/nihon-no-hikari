@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { navigating } from '$app/state';
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
@@ -39,9 +40,18 @@
 </script>
 
 <Sidebar.Provider>
+	{#if navigating.to}
+		<div
+			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
+			role="progressbar"
+			aria-label="Memuat halaman"
+		>
+			<div class="route-progress-indicator h-full bg-sky-500"></div>
+		</div>
+	{/if}
   <AppSidebar />
-  <Sidebar.Inset class="h-svh overflow-hidden">
-    <header
+  <Sidebar.Inset class="relative h-svh overflow-hidden">
+		<header
       class="flex h-16 shrink-0 items-center border-b justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
     >
       <div class="flex items-center gap-2 px-4">
@@ -97,3 +107,27 @@
 		</section>
   </Sidebar.Inset>
 </Sidebar.Provider>
+
+<style>
+	.route-progress-indicator {
+		width: 45%;
+		animation: route-progress 1s ease-in-out infinite;
+	}
+
+	@keyframes route-progress {
+		from {
+			transform: translateX(-100%);
+		}
+
+		to {
+			transform: translateX(325%);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.route-progress-indicator {
+			width: 100%;
+			animation: none;
+		}
+	}
+</style>

@@ -5,47 +5,29 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import type { Course } from '../../domain/entities/course.entity';
 
-	interface Props {
-		/** Slug used by the course detail route */
-		slug?: string;
-		/** Level title of the course, e.g. "N5", "N4", "N3" */
-		level?: string;
-		/** Full title of the course */
-		title?: string;
-		/** Description of the course */
-		description?: string;
-		/** Total learning hours, e.g. "24 Jam" or 24 */
-		totalHours?: string | number;
-		/** Total number of materials/lessons, e.g. "36 Materi" or 36 */
-		totalLessons?: string | number;
-		/** Image cover URL (optional) */
-		coverImage?: string;
+	type Props = Course & {
 		/** Enrollment status */
 		isEnrolled?: boolean;
-		/** Category or difficulty badge text */
-		category?: string;
-		/** Callback when enroll button is clicked */
 		class?: string;
-	}
+	};
 
 	let {
-		slug = '',
-		level = 'N5',
-		title = 'JLPT N5: Dasar Bahasa Jepang & Kana',
-		description = 'Kuasai tata bahasa dasar, Hiragana, Katakana, dan 100 Kanji pertama untuk persiapan ujian JLPT N5 dan percakapan harian.',
-		totalHours = '24 Jam',
-		totalLessons = '36 Materi',
-		coverImage,
+		id,
+		slug,
+		level,
+		title,
+		description,
+		total_minutes: totalMinutes,
+		total_lessons: totalLessons,
+		thumbnail_url: coverImage,
 		isEnrolled = false,
-		category = 'Pemula',
 		class: className = ''
 	}: Props = $props();
 
 	// Format display values for hours & materials
-	const formattedHours = $derived(
-		typeof totalHours === 'number' ? `${totalHours} Jam` : totalHours
-	);
+	const formattedHours = $derived(`${totalMinutes / 60} Jam`);
 	const formattedLessons = $derived(
 		typeof totalLessons === 'number' ? `${totalLessons} Materi` : totalLessons
 	);
@@ -62,16 +44,16 @@
 			<span
 				class="flex items-center justify-center rounded-lg bg-sky-600 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-xs shadow-sky-600/30"
 			>
-				{level}
+				{level.code}
 			</span>
 
 			<!-- Category Tag -->
-			{#if category}
+			{#if level.name}
 				<Badge
 					variant="outline"
 					class="border-sky-200 bg-sky-50/50 text-sky-700 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-300"
 				>
-					{category}
+					{level.name}
 				</Badge>
 			{/if}
 		</div>
@@ -130,7 +112,7 @@
 		<!-- Enroll Button -->
 		<Button
 			type="button"
-			onclick={() => goto(resolve(`/courses/${slug}`))}
+			onclick={() => goto(resolve(`/courses/${id}`))}
 			disabled={!slug}
 			class={`font-semibold transition-all duration-200 ${
 				isEnrolled

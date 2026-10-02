@@ -6,7 +6,8 @@ describe('GetListCoursesUseCase', () => {
 	it('returns the response from the repository', async () => {
 		const response = { success: true, message: 'OK', data: [] };
 		const repository: CourseRepository = {
-			getList: vi.fn().mockResolvedValue(response)
+			getList: vi.fn().mockResolvedValue(response),
+			getDetail: vi.fn()
 		};
 		const useCase = new GetListCoursesUseCase(repository);
 
