@@ -1,41 +1,58 @@
 <script lang="ts">
-	import CourseHeroBanner from "../components/course-hero-banner.svelte";
-	import CourseProgressCard from "../components/course-progress-card.svelte";
-	import CourseTile from "../components/course-tile.svelte";
+	import type { Course } from '../../domain/entities/course.entity';
+	import CourseHeroBanner from '../components/course-hero-banner.svelte';
+	import CourseProgressCard from '../components/course-progress-card.svelte';
+	import CourseTile from '../components/course-tile.svelte';
+
+	interface Props {
+		courses: Course[];
+		errorMessage?: string | null;
+	}
+
+	let { courses, errorMessage = null }: Props = $props();
 </script>
 
-<div class="p-6 space-y-6">
+<div class="space-y-6 p-6">
 	<!-- Row 1: Hero Banner (8 cols) + Progress Card (4 cols) -->
-	<div class="grid grid-cols-1 gap-4 lg:grid-cols-12 items-stretch">
-		<div class="lg:col-span-8 flex">
+	<div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
+		<div class="flex lg:col-span-8">
 			<CourseHeroBanner class="w-full" />
 		</div>
-		<aside class="lg:col-span-4 flex">
-			<CourseProgressCard class="w-full h-full" />
+		<aside class="flex lg:col-span-4">
+			<CourseProgressCard class="h-full w-full" />
 		</aside>
 
 		<div class="lg:col-span-8">
 			<div class="flex flex-col space-y-4">
 				<h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Daftar Kursus</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<CourseTile 
-						isEnrolled
-						level="N5"
-						title="JLPT N5: Dasar Bahasa Jepang & Kana"
-						description="Kuasai tata bahasa dasar, Hiragana, Katakana, dan 100 Kanji pertama untuk persiapan ujian JLPT N5 dan percakapan harian."
-						totalHours="24 Jam"
-						totalLessons="36 Materi"
-						category="Pemula"
-					/>
-					<CourseTile 
-						level="N4"
-						title="JLPT N4: Tata Bahasa & Kosakata Menengah Dasar"
-						description="Tingkatkan pemahaman tata bahasa Jepang lanjutan, 300 Kanji N4, dan pola kalimat untuk komunikasi sehari-hari."
-						totalHours="32 Jam"
-						totalLessons="48 Materi"
-						category="Menengah Dasar"
-					/>
-				</div>
+				{#if errorMessage}
+					<div
+						class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
+					>
+						{errorMessage}
+					</div>
+				{:else if courses.length === 0}
+					<div
+						class="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+					>
+						Belum ada kursus yang tersedia.
+					</div>
+				{:else}
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						{#each courses as course (course.id)}
+							<CourseTile
+								slug={course.slug}
+								level={course.level.code}
+								title={course.title}
+								description={course.description}
+								totalHours={course.total_hours}
+								totalLessons={course.total_lessons}
+								coverImage={course.thumbnail_url}
+								category={course.level.name}
+							/>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { authClient } from '$lib/auth-client';
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
@@ -23,9 +22,9 @@
 		signOutError = false;
 
 		try {
-			const { error } = await authClient.signOut();
+			const response = await fetch('/api/auth/signout', { method: 'POST' });
 
-			if (error) {
+			if (!response.ok) {
 				signOutError = true;
 				return;
 			}
@@ -47,7 +46,7 @@
     >
       <div class="flex items-center gap-2 px-4">
         <Sidebar.Trigger />
-        <p class="pl-1 text-base">Ganbare, {data.user.name.split(' ')[0]}!</p>
+        <p class="pl-1 text-base">Ganbare, {data.user.display_name.split(' ')[0]}!</p>
       </div>
 
 			<div class="flex items-center gap-2 pr-6">
@@ -60,12 +59,12 @@
 						{#snippet child({props})}
 							<div class="flex items-center cursor-pointer" {...props}>
 								<Avatar.Root>
-									<Avatar.Image src={data.user.image ?? 'https://github.com/shadcn.png'} alt="@shadcn" />
+									<Avatar.Image src={data.user.avatar_url ?? 'https://github.com/shadcn.png'} alt="@shadcn" />
 									<Avatar.Fallback>CN</Avatar.Fallback>
 								</Avatar.Root>
 
 								<div class="flex flex-col items-start pl-3 pr-4">
-									<p class="font-medium text-sm">{data.user.name}</p>
+									<p class="font-medium text-sm">{data.user.display_name}</p>
 									<p class="text-xs text-muted-foreground">Level Pemula</p>
 								</div>
 
@@ -98,4 +97,3 @@
 		</section>
   </Sidebar.Inset>
 </Sidebar.Provider>
-

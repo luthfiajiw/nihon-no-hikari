@@ -13,6 +13,28 @@ export interface AuthSession {
 	refresh_token_expires_at: string;
 }
 
+export interface StoredAuthSession {
+	id: string;
+	accessToken: string;
+	accessTokenExpiresAt: string;
+	refreshToken: string;
+	refreshTokenExpiresAt: string;
+}
+
+export interface AuthState {
+	user: AuthUser;
+	session: StoredAuthSession;
+}
+
+export interface RefreshTokenRequest {
+	grant_type: 'refresh';
+	token: string;
+}
+
+export interface SignOutRequest {
+	session_id: string;
+}
+
 export interface SignInRequest {
 	email: string;
 	password: string;
@@ -48,5 +70,19 @@ export class SignInNetworkError extends DomainError {
 	constructor(message = 'Gagal terhubung ke server. Silakan coba lagi.') {
 		super(message);
 		this.name = 'SignInNetworkError';
+	}
+}
+
+export class RefreshTokenError extends DomainError {
+	constructor(message = 'Gagal memperbarui session.') {
+		super(message);
+		this.name = 'RefreshTokenError';
+	}
+}
+
+export class InvalidRefreshTokenError extends RefreshTokenError {
+	constructor(message = 'Refresh token tidak valid atau sudah kedaluwarsa.') {
+		super(message);
+		this.name = 'InvalidRefreshTokenError';
 	}
 }

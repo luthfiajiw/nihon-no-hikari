@@ -1,11 +1,11 @@
-import type { auth } from '$lib/server/auth';
+import type { AuthUser, StoredAuthSession } from '$features/auth/domain/entities/auth.entity';
 
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			user: typeof auth.$Infer.Session.user | null;
-			session: typeof auth.$Infer.Session.session | null;
+			user: AuthUser | null;
+			session: StoredAuthSession | null;
 		}
 		// interface PageData {}
 		// interface PageState {}
