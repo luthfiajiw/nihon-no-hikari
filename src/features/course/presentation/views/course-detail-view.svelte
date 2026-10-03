@@ -10,6 +10,7 @@
 	import CourseDetailModuleList from '../components/course-detail-module-list.svelte';
 	import CourseDetailMotivationBanner from '../components/course-detail-motivation-banner.svelte';
 	import CourseDetailProgressCard from '../components/course-detail-progress-card.svelte';
+	import { getCourseLearningContext } from '../contexts/course-learning-context';
 	import { updateModuleProgress } from '../remotes/update-module-progress.remote';
 
 	interface Props {
@@ -18,6 +19,7 @@
 	}
 
 	let { course, errorMessage = null }: Props = $props();
+	const courseLearning = getCourseLearningContext();
 
 	const modules = $derived(course?.modules ?? []);
 	const completedCount = $derived(
@@ -37,15 +39,19 @@
 
 	async function openLessons(): Promise<void> {
 		if (!course || !nextModule || nextModule.status === 'locked' || isOpeningLessons) return;
+		const courseId = course.id;
+		const moduleId = nextModule.id;
+		const shouldStartModule = nextModule.status === 'unlocked';
+		const lessonUrl = resolve(`/courses/${courseId}/lessons`);
 
 		progressError = null;
 		isOpeningLessons = true;
 
 		try {
-			if (nextModule.status === 'unlocked') {
+			if (shouldStartModule) {
 				const result = await updateModuleProgress({
-					courseId: course.id,
-					moduleId: nextModule.id,
+					courseId,
+					moduleId,
 					status: 'in_progress'
 				});
 
@@ -54,7 +60,8 @@
 				}
 			}
 
-			await goto(resolve(`/courses/${course.id}/lessons`));
+			courseLearning.select(course, nextModule);
+			await goto(lessonUrl);
 		} catch (error) {
 			progressError = error instanceof Error ? error.message : 'Gagal membuka materi.';
 			isOpeningLessons = false;

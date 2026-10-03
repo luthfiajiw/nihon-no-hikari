@@ -1,4 +1,4 @@
-export type ModuleStatus = 'locked' | 'unlocked' | 'in_progress' | 'completed'
+export type Status = 'locked' | 'unlocked' | 'in_progress' | 'completed'
 
 export interface CourseLevel {
   id: string
@@ -13,7 +13,7 @@ export interface Module {
   description: string
   is_mandatory: boolean
   is_entry: boolean
-  status: ModuleStatus
+  status: Status
   estimated_minutes: number
 }
 
@@ -53,7 +53,7 @@ export interface CourseDetailResponse {
 }
 
 export interface UpdateModuleProgressRequest {
-  status: Extract<ModuleStatus, 'in_progress' | 'completed'>
+  status: Extract<Status, 'in_progress' | 'completed'>
 }
 
 export interface UpdateModuleProgressResponse {

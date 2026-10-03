@@ -23,7 +23,7 @@
 
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<span class="text-sm text-muted-foreground">{completedLessons} / {totalLessons} modul</span>
+			<span class="text-sm text-muted-foreground">{completedLessons} / {totalLessons} Pelajaran</span>
 			<span class="text-sm text-sky-600 dark:text-sky-400">{progressPercentage}%</span>
 		</div>
 		<Progress value={progressPercentage} max={100} class="h-1.5 bg-slate-100 dark:bg-slate-800" />

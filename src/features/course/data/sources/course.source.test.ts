@@ -94,6 +94,112 @@ describe('CourseSource', () => {
 		await expect(source.getDetail('missing')).rejects.toThrow('Kursus tidak ditemukan.');
 	});
 
+	it('gets and returns course modules with their lessons', async () => {
+		const responseData = {
+			success: true,
+			message: 'Modul dan materi berhasil diambil.',
+			data: [
+				{
+					module: {
+						id: 'module-1',
+						slug: 'hiragana',
+						title: 'Hiragana',
+						description: 'Mengenal hiragana',
+						is_mandatory: true,
+						is_entry: true,
+						status: 'in_progress',
+						estimated_minutes: 30
+					},
+					lessons: [
+						{
+							id: 'lesson-1',
+							slug: 'vokal-dasar',
+							title: 'Vokal Dasar',
+							content: '<p>Materi</p>',
+							status: 'in_progress'
+						}
+					]
+				}
+			]
+		};
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify(responseData), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(
+			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
+		);
+
+		await expect(source.getModules('course/1')).resolves.toEqual(responseData);
+		expect(mockFetch).toHaveBeenCalledWith(
+			'http://localhost:8080/api/v1/courses/course%2F1/modules',
+			{
+				method: 'GET',
+				headers: { Accept: 'application/json' }
+			}
+		);
+	});
+
+	it('throws the API message when getting course modules fails', async () => {
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ success: false, message: 'Materi tidak ditemukan.' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+
+		await expect(source.getModules('missing')).rejects.toThrow('Materi tidak ditemukan.');
+	});
+
+	it('gets and returns a lesson detail', async () => {
+		const responseData = {
+			success: true,
+			message: 'Detail materi berhasil diambil.',
+			data: {
+				id: 'lesson/1',
+				slug: 'vokal-dasar',
+				title: 'Vokal Dasar',
+				content: '<p>Materi</p>',
+				status: 'in_progress'
+			}
+		};
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify(responseData), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(
+			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
+		);
+
+		await expect(source.getLesson('course/1', 'lesson/1')).resolves.toEqual(responseData);
+		expect(mockFetch).toHaveBeenCalledWith(
+			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1',
+			{
+				method: 'GET',
+				headers: { Accept: 'application/json' }
+			}
+		);
+	});
+
+	it('throws the API message when getting a lesson detail fails', async () => {
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ success: false, message: 'Materi tidak ditemukan.' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+
+		await expect(source.getLesson('course-1', 'missing')).rejects.toThrow(
+			'Materi tidak ditemukan.'
+		);
+	});
+
 	it('updates and returns module progress', async () => {
 		const responseData = { success: true, message: 'Progres modul berhasil diperbarui.' };
 		const mockFetch = vi.fn().mockResolvedValue(

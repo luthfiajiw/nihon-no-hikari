@@ -4,6 +4,10 @@ import type {
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
 } from '../../domain/entities/course.entity';
+import type {
+	LessonDetailResponse,
+	ListModuleLessonResponse
+} from '../../domain/entities/lesson.entity';
 import type { CourseRepository } from '../../domain/repositories/course.repository';
 import { CourseSource } from '../sources/course.source';
 
@@ -16,6 +20,14 @@ export class CourseRepositoryImpl implements CourseRepository {
 
 	getDetail(id: string): Promise<CourseDetailResponse> {
 		return this.courseSource.getDetail(id);
+	}
+
+	getModules(courseId: string): Promise<ListModuleLessonResponse> {
+		return this.courseSource.getModules(courseId);
+	}
+
+	getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse> {
+		return this.courseSource.getLesson(courseId, lessonId);
 	}
 
 	updateModuleProgress(

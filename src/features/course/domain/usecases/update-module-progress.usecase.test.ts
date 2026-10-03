@@ -8,6 +8,8 @@ describe('UpdateModuleProgressUseCase', () => {
 		const repository: CourseRepository = {
 			getList: vi.fn(),
 			getDetail: vi.fn(),
+			getModules: vi.fn(),
+			getLesson: vi.fn(),
 			updateModuleProgress: vi.fn().mockResolvedValue(response)
 		};
 		const useCase = new UpdateModuleProgressUseCase(repository);

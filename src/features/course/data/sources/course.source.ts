@@ -4,6 +4,10 @@ import type {
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
 } from '../../domain/entities/course.entity';
+import type {
+	LessonDetailResponse,
+	ListModuleLessonResponse
+} from '../../domain/entities/lesson.entity';
 import { HttpClient } from '$lib/http-client';
 
 export class CourseSource {
@@ -37,6 +41,42 @@ export class CourseSource {
 
 		if (!response.ok) {
 			throw new Error(response.data?.message || 'Gagal mengambil detail kursus.');
+		}
+
+		return response.data;
+	}
+
+	async getModules(courseId: string): Promise<ListModuleLessonResponse> {
+		const response = await this.httpClient.request<ListModuleLessonResponse>(
+			`/v1/courses/${encodeURIComponent(courseId)}/modules`,
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json'
+				}
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(response.data?.message || 'Gagal mengambil modul dan materi kursus.');
+		}
+
+		return response.data;
+	}
+
+	async getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse> {
+		const response = await this.httpClient.request<LessonDetailResponse>(
+			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`,
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json'
+				}
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(response.data?.message || 'Gagal mengambil detail materi.');
 		}
 
 		return response.data;
