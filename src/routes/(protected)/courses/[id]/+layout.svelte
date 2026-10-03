@@ -8,8 +8,8 @@
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
-	const storageKeyPrefix = 'course-learning-selection:';
 
+	const storageKeyPrefix = 'course-learning-selection:';
 	const selection = $state<CourseLearningSelection>({
 		course: null,
 		module: null
@@ -19,28 +19,30 @@
 		return `${storageKeyPrefix}${courseId}`;
 	}
 
+	function clearSelection(): void {
+		selection.course = null;
+		selection.module = null;
+	}
+
 	function restoreSelection(courseId: string): void {
 		try {
 			const serializedSelection = sessionStorage.getItem(getStorageKey(courseId));
 			if (!serializedSelection) {
-				selection.course = null;
-				selection.module = null;
+				clearSelection();
 				return;
 			}
 
 			const storedSelection = JSON.parse(serializedSelection) as CourseLearningSelection;
 			if (storedSelection.course?.id !== courseId || !storedSelection.module?.id) {
 				sessionStorage.removeItem(getStorageKey(courseId));
-				selection.course = null;
-				selection.module = null;
+				clearSelection();
 				return;
 			}
 
 			selection.course = storedSelection.course;
 			selection.module = storedSelection.module;
 		} catch {
-			selection.course = null;
-			selection.module = null;
+			clearSelection();
 		}
 	}
 

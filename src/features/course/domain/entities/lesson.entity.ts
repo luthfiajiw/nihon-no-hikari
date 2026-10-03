@@ -24,3 +24,12 @@ export interface LessonDetailResponse {
 	message: string;
 	data: Lesson;
 }
+
+export interface UpdateLessonProgressRequest {
+	status: Extract<Status, 'unlocked' | 'in_progress' | 'completed'>;
+}
+
+export interface UpdateLessonProgressResponse {
+	success: boolean;
+	message: string;
+}

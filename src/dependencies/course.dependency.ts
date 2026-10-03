@@ -5,6 +5,7 @@ import { GetCourseDetailUseCase } from '$features/course/domain/usecases/get-cou
 import { GetCourseModulesUseCase } from '$features/course/domain/usecases/get-course-modules.usecase';
 import { GetLessonDetailUseCase } from '$features/course/domain/usecases/get-lesson-detail.usecase';
 import { UpdateModuleProgressUseCase } from '$features/course/domain/usecases/update-module-progress.usecase';
+import { UpdateLessonProgressUseCase } from '$features/course/domain/usecases/update-lesson-progress.usecase';
 import { apiClient } from './api.dependency';
 
 const courseSource = new CourseSource(apiClient);
@@ -15,3 +16,4 @@ export const getCourseDetailUseCase = new GetCourseDetailUseCase(courseRepositor
 export const getCourseModulesUseCase = new GetCourseModulesUseCase(courseRepository);
 export const getLessonDetailUseCase = new GetLessonDetailUseCase(courseRepository);
 export const updateModuleProgressUseCase = new UpdateModuleProgressUseCase(courseRepository);
+export const updateLessonProgressUseCase = new UpdateLessonProgressUseCase(courseRepository);

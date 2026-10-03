@@ -11,6 +11,7 @@
 	import LessonSidebar from '../components/lesson-sidebar.svelte';
 	import { getCourseLearningContext } from '../contexts/course-learning-context';
 	import { getLessonDetail } from '../remotes/get-lesson-detail.remote';
+	import { updateLessonProgress } from '../remotes/update-lesson-progress.remote';
 
 	interface Props {
 		courseId: string;
@@ -68,6 +69,7 @@
 	let lessonDetail = $state<Lesson | null>(null);
 	let lessonDetailError = $state<string | null>(null);
 	let isLessonLoading = $state(true);
+	let isNextLessonLoading = $state(false);
 	let lessonRequestId = 0;
 	let lastRequestedLessonKey: string | null = null;
 	const activeLessonId = $derived(selectedLessonId ?? getInitialLessonId());
@@ -75,6 +77,18 @@
 		moduleLessons
 			.flatMap(({ lessons }) => lessons)
 			.find((lesson) => lesson.id === activeLessonId) ?? null
+	);
+	const orderedLessons = $derived(moduleLessons.flatMap(({ lessons }) => lessons));
+	const activeLessonIndex = $derived(
+		orderedLessons.findIndex((lesson) => lesson.id === activeLessonId)
+	);
+	const previousLesson = $derived(
+		activeLessonIndex > 0 ? orderedLessons[activeLessonIndex - 1] : undefined
+	);
+	const nextLesson = $derived(
+		activeLessonIndex >= 0 && activeLessonIndex < orderedLessons.length - 1
+			? orderedLessons[activeLessonIndex + 1]
+			: undefined
 	);
 	const completedLessons = $derived(
 		moduleLessons.reduce(
@@ -100,8 +114,44 @@
 		selectedLessonId = lessonId;
 	}
 
+	function updateLessonStatus(lessonId: string, status: Status): void {
+		moduleLessons = moduleLessons.map((moduleLesson) => ({
+			...moduleLesson,
+			lessons: moduleLesson.lessons.map((lesson) =>
+				lesson.id === lessonId ? { ...lesson, status } : lesson
+			)
+		}));
+	}
+
+	async function handleNextLesson(): Promise<void> {
+		if (!activeLessonId || !nextLesson || isNextLessonLoading) return;
+
+		const currentLessonId = activeLessonId;
+		const nextLessonId = nextLesson.id;
+		isNextLessonLoading = true;
+
+		try {
+			const response = await updateLessonProgress({
+				courseId,
+				lessonId: currentLessonId,
+				status: 'completed'
+			});
+
+			if (!response.success) return;
+
+			const shouldNavigateToNextLesson = activeLessonId === currentLessonId;
+			updateLessonStatus(currentLessonId, 'completed');
+			if (shouldNavigateToNextLesson) selectedLessonId = nextLessonId;
+		} finally {
+			isNextLessonLoading = false;
+		}
+	}
+
 	async function loadLessonDetail(requestCourseId: string, lessonId: string): Promise<void> {
 		const requestId = ++lessonRequestId;
+		const isLessonCompleted = moduleLessons
+			.flatMap(({ lessons }) => lessons)
+			.some((lesson) => lesson.id === lessonId && lesson.status === 'completed');
 		lessonDetail = null;
 		lessonDetailError = null;
 		isLessonLoading = true;
@@ -114,6 +164,21 @@
 				throw new Error(response.message);
 			}
 
+			if (!isLessonCompleted) {
+				const progressResponse = await updateLessonProgress({
+					courseId: requestCourseId,
+					lessonId,
+					status: 'in_progress'
+				});
+				if (requestId !== lessonRequestId) return;
+
+				if (!progressResponse.success) {
+					throw new Error(progressResponse.message);
+				}
+
+				updateLessonStatus(lessonId, 'in_progress');
+			}
+
 			lessonDetail = response.data;
 		} catch (error) {
 			if (requestId !== lessonRequestId) return;
@@ -124,7 +189,6 @@
 	}
 
 	$effect(() => {
-		console.log("EFFECT")
 		const requestCourseId = courseId;
 		const lessonId = activeLessonId;
 		if (!requestCourseId || !lessonId) return;
@@ -194,6 +258,13 @@
 				<LessonContent
 					title={lessonDetail?.title ?? activeLesson?.title ?? 'Materi'}
 					content={lessonDetail?.content ?? ''}
+					previousLessonTitle={previousLesson?.title}
+					nextLessonTitle={nextLesson?.title}
+					onPreviousLesson={previousLesson
+						? () => handleLessonSelect(previousLesson.id)
+						: undefined}
+					onNextLesson={nextLesson ? handleNextLesson : undefined}
+					{isNextLessonLoading}
 				/>
 			{/if}
 		</div>

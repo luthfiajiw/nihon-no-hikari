@@ -10,7 +10,8 @@ describe('GetListCoursesUseCase', () => {
 			getDetail: vi.fn(),
 			getModules: vi.fn(),
 			getLesson: vi.fn(),
-			updateModuleProgress: vi.fn()
+			updateModuleProgress: vi.fn(),
+			updateLessonProgress: vi.fn()
 		};
 		const useCase = new GetListCoursesUseCase(repository);
 

@@ -15,7 +15,8 @@ describe('GetCourseModulesUseCase', () => {
 			getDetail: vi.fn(),
 			getModules: vi.fn().mockResolvedValue(response),
 			getLesson: vi.fn(),
-			updateModuleProgress: vi.fn()
+			updateModuleProgress: vi.fn(),
+			updateLessonProgress: vi.fn()
 		};
 		const useCase = new GetCourseModulesUseCase(repository);
 

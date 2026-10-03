@@ -238,4 +238,43 @@ describe('CourseSource', () => {
 			source.updateModuleProgress('course-1', 'module-1', { status: 'in_progress' })
 		).rejects.toThrow('Progres gagal diperbarui.');
 	});
+
+	it('updates and returns lesson progress', async () => {
+		const responseData = { success: true, message: 'Progres materi berhasil diperbarui.' };
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify(responseData), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(
+			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
+		);
+
+		await expect(
+			source.updateLessonProgress('course/1', 'lesson/1', { status: 'unlocked' })
+		).resolves.toEqual(responseData);
+		expect(mockFetch).toHaveBeenCalledWith(
+			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/progress',
+			{
+				method: 'PUT',
+				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+				body: JSON.stringify({ status: 'unlocked' })
+			}
+		);
+	});
+
+	it('throws the API message when updating lesson progress fails', async () => {
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ success: false, message: 'Progres gagal diperbarui.' }), {
+				status: 422,
+				headers: { 'Content-Type': 'application/json' }
+			})
+		);
+		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+
+		await expect(
+			source.updateLessonProgress('course-1', 'lesson-1', { status: 'in_progress' })
+		).rejects.toThrow('Progres gagal diperbarui.');
+	});
 });

@@ -6,7 +6,9 @@ import type {
 } from '../../domain/entities/course.entity';
 import type {
 	LessonDetailResponse,
-	ListModuleLessonResponse
+	ListModuleLessonResponse,
+	UpdateLessonProgressRequest,
+	UpdateLessonProgressResponse
 } from '../../domain/entities/lesson.entity';
 import { HttpClient } from '$lib/http-client';
 
@@ -101,6 +103,30 @@ export class CourseSource {
 
 		if (!response.ok) {
 			throw new Error(response.data?.message || 'Gagal memperbarui progres modul.');
+		}
+
+		return response.data;
+	}
+
+	async updateLessonProgress(
+		courseId: string,
+		lessonId: string,
+		payload: UpdateLessonProgressRequest
+	): Promise<UpdateLessonProgressResponse> {
+		const response = await this.httpClient.request<UpdateLessonProgressResponse>(
+			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/progress`,
+			{
+				method: 'PUT',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(response.data?.message || 'Gagal memperbarui progres materi.');
 		}
 
 		return response.data;

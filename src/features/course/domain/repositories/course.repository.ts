@@ -4,7 +4,12 @@ import type {
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
 } from '../entities/course.entity';
-import type { LessonDetailResponse, ListModuleLessonResponse } from '../entities/lesson.entity';
+import type {
+	LessonDetailResponse,
+	ListModuleLessonResponse,
+	UpdateLessonProgressRequest,
+	UpdateLessonProgressResponse
+} from '../entities/lesson.entity';
 
 export interface CourseRepository {
 	getList(): Promise<ListCourseResponse>;
@@ -16,4 +21,9 @@ export interface CourseRepository {
 		moduleId: string,
 		payload: UpdateModuleProgressRequest
 	): Promise<UpdateModuleProgressResponse>;
+	updateLessonProgress(
+		courseId: string,
+		lessonId: string,
+		payload: UpdateLessonProgressRequest
+	): Promise<UpdateLessonProgressResponse>;
 }
