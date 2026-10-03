@@ -51,3 +51,12 @@ export interface CourseDetailResponse {
   message: string
   data: CourseDetail
 }
+
+export interface UpdateModuleProgressRequest {
+  status: Extract<ModuleStatus, 'in_progress' | 'completed'>
+}
+
+export interface UpdateModuleProgressResponse {
+  success: boolean
+  message: string
+}

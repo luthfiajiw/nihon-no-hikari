@@ -1,4 +1,9 @@
-import type { CourseDetailResponse, ListCourseResponse } from '../../domain/entities/course.entity';
+import type {
+	CourseDetailResponse,
+	ListCourseResponse,
+	UpdateModuleProgressRequest,
+	UpdateModuleProgressResponse
+} from '../../domain/entities/course.entity';
 import type { CourseRepository } from '../../domain/repositories/course.repository';
 import { CourseSource } from '../sources/course.source';
 
@@ -11,5 +16,13 @@ export class CourseRepositoryImpl implements CourseRepository {
 
 	getDetail(id: string): Promise<CourseDetailResponse> {
 		return this.courseSource.getDetail(id);
+	}
+
+	updateModuleProgress(
+		courseId: string,
+		moduleId: string,
+		payload: UpdateModuleProgressRequest
+	): Promise<UpdateModuleProgressResponse> {
+		return this.courseSource.updateModuleProgress(courseId, moduleId, payload);
 	}
 }

@@ -9,10 +9,16 @@
 	interface Props {
 		activeModule: Module | null;
 		onOpenLessons: () => void;
+		isOpeningLessons?: boolean;
 		class?: string;
 	}
 
-	let { activeModule, onOpenLessons, class: className = '' }: Props = $props();
+	let {
+		activeModule,
+		onOpenLessons,
+		isOpeningLessons = false,
+		class: className = ''
+	}: Props = $props();
 </script>
 
 <Card.Root class={`flex w-full flex-col justify-between ${className}`}>
@@ -45,9 +51,14 @@
 				<Button
 					type="button"
 					onclick={onOpenLessons}
+					disabled={isOpeningLessons}
 					class="rounded-xl bg-sky-600 font-medium text-white shadow-xs hover:bg-sky-700"
 				>
-					{activeModule.status === 'in_progress' ? 'Lanjut Belajar' : 'Mulai Belajar'}
+					{isOpeningLessons
+						? 'Membuka...'
+						: activeModule.status === 'in_progress'
+							? 'Lanjut Belajar'
+							: 'Mulai Belajar'}
 					<ArrowRightIcon class="ml-1.5 size-4" />
 				</Button>
 			</div>

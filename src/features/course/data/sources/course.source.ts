@@ -1,4 +1,9 @@
-import type { CourseDetailResponse, ListCourseResponse } from '../../domain/entities/course.entity';
+import type {
+	CourseDetailResponse,
+	ListCourseResponse,
+	UpdateModuleProgressRequest,
+	UpdateModuleProgressResponse
+} from '../../domain/entities/course.entity';
 import { HttpClient } from '$lib/http-client';
 
 export class CourseSource {
@@ -32,6 +37,30 @@ export class CourseSource {
 
 		if (!response.ok) {
 			throw new Error(response.data?.message || 'Gagal mengambil detail kursus.');
+		}
+
+		return response.data;
+	}
+
+	async updateModuleProgress(
+		courseId: string,
+		moduleId: string,
+		payload: UpdateModuleProgressRequest
+	): Promise<UpdateModuleProgressResponse> {
+		const response = await this.httpClient.request<UpdateModuleProgressResponse>(
+			`/v1/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}/progress`,
+			{
+				method: 'PUT',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(response.data?.message || 'Gagal memperbarui progres modul.');
 		}
 
 		return response.data;

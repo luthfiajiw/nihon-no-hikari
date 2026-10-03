@@ -10,6 +10,7 @@
 	import CourseDetailModuleList from '../components/course-detail-module-list.svelte';
 	import CourseDetailMotivationBanner from '../components/course-detail-motivation-banner.svelte';
 	import CourseDetailProgressCard from '../components/course-detail-progress-card.svelte';
+	import { updateModuleProgress } from '../remotes/update-module-progress.remote';
 
 	interface Props {
 		course: CourseDetail | null;
@@ -31,15 +32,33 @@
 			modules.find((courseModule) => courseModule.status === 'unlocked') ??
 			null
 	);
+	let progressError = $state<string | null>(null);
+	let isOpeningLessons = $state(false);
 
-	let activeModuleId = $state<string | null>(null);
-	const activeModule = $derived(
-		modules.find((courseModule) => courseModule.id === activeModuleId) ?? nextModule
-	);
+	async function openLessons(): Promise<void> {
+		if (!course || !nextModule || nextModule.status === 'locked' || isOpeningLessons) return;
 
-	function openLessons(): void {
-		if (!course || !activeModule || activeModule.status === 'locked') return;
-		goto(resolve(`/courses/${course.id}/lessons`));
+		progressError = null;
+		isOpeningLessons = true;
+
+		try {
+			if (nextModule.status === 'unlocked') {
+				const result = await updateModuleProgress({
+					courseId: course.id,
+					moduleId: nextModule.id,
+					status: 'in_progress'
+				});
+
+				if (!result.success) {
+					throw new Error(result.message);
+				}
+			}
+
+			await goto(resolve(`/courses/${course.id}/lessons`));
+		} catch (error) {
+			progressError = error instanceof Error ? error.message : 'Gagal membuka materi.';
+			isOpeningLessons = false;
+		}
 	}
 </script>
 
@@ -70,6 +89,9 @@
 		</Card.Root>
 	{:else}
 		<div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
+			{#if progressError}
+				<p class="text-sm text-red-600 lg:col-span-12 dark:text-red-400">{progressError}</p>
+			{/if}
 			<div class="flex lg:col-span-9">
 				<CourseDetailHeaderCard {course} />
 			</div>
@@ -85,17 +107,17 @@
 
 			<div class="flex lg:col-span-9">
 				<div class="flex w-full flex-col gap-4">
-					<CourseDetailModuleList
-						{modules}
-						{activeModuleId}
-						onSelectModule={(id) => (activeModuleId = id)}
-					/>
+					<CourseDetailModuleList {modules} activeModuleId={nextModule?.id ?? null} />
 					<CourseDetailMotivationBanner />
 				</div>
 			</div>
 
 			<div class="lg:col-span-3">
-				<CourseDetailActiveModuleCard {activeModule} onOpenLessons={openLessons} />
+				<CourseDetailActiveModuleCard
+					activeModule={nextModule}
+					onOpenLessons={openLessons}
+					{isOpeningLessons}
+				/>
 			</div>
 		</div>
 	{/if}

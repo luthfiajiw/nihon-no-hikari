@@ -9,6 +9,9 @@ const config = {
 	},
 	kit: {
 		adapter: adapter(),
+		experimental: {
+			remoteFunctions: true
+		},
 		alias: {
 			"$lib": "./src/lib",
 			"$lib/*": "./src/lib/*",

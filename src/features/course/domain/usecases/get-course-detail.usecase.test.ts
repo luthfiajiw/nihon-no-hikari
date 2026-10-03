@@ -21,7 +21,8 @@ describe('GetCourseDetailUseCase', () => {
 		};
 		const repository: CourseRepository = {
 			getList: vi.fn(),
-			getDetail: vi.fn().mockResolvedValue(response)
+			getDetail: vi.fn().mockResolvedValue(response),
+			updateModuleProgress: vi.fn()
 		};
 		const useCase = new GetCourseDetailUseCase(repository);
 
