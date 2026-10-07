@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { Pathname } from '$app/types';
 	import type { QuestionSet } from '$features/question/domain/entities/question.entity';

@@ -7,6 +7,8 @@
 	import { untrack } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import type { QuestionSet } from '$features/question/domain/entities/question.entity';
+	import { getAssessmentContext } from '$features/question/presentation/contexts/assessment-context';
+	import { startQuestionSetAttempt } from '$features/question/presentation/remotes/start-question-set-attempt.remote';
 	import type { Status } from '../../domain/entities/course.entity';
 	import type { Lesson, ModuleLesson } from '../../domain/entities/lesson.entity';
 	import LessonContent from '../components/lesson-content.svelte';
@@ -24,6 +26,7 @@
 
 	let { courseId, moduleLessons, errorMessage = null }: Props = $props();
 	const courseLearning = getCourseLearningContext();
+	const assessment = getAssessmentContext();
 
 	const courseName = $derived(courseLearning.course?.title ?? 'Kursus');
 
@@ -73,6 +76,8 @@
 	let lessonDetailError = $state<string | null>(null);
 	let isLessonLoading = $state(true);
 	let isNextLessonLoading = $state(false);
+	let startingQuestionSetId = $state<string | null>(null);
+	let questionSetAttemptError = $state<string | null>(null);
 	let lessonRequestId = 0;
 	let lastRequestedLessonKey: string | null = null;
 	const activeLessonId = $derived(selectedLessonId ?? getInitialLessonId());
@@ -118,16 +123,39 @@
 	}
 
 	async function handleQuestionSetSelect(questionSet: QuestionSet): Promise<void> {
-		if (!activeLessonId) return;
+		if (!activeLessonId || startingQuestionSetId) return;
 
-		const basePath = questionSet.kind === 'final_exam' ? 'exam' : 'practice';
-		const searchParams = new SvelteURLSearchParams({
-			courseId,
-			lessonId: activeLessonId
-		});
+		startingQuestionSetId = questionSet.id;
+		questionSetAttemptError = null;
 
-		const href = `/${basePath}/${encodeURIComponent(questionSet.id)}?${searchParams.toString()}`;
-		await goto(resolve(href as Pathname));
+		try {
+			const response = await startQuestionSetAttempt({
+				courseId,
+				lessonId: activeLessonId,
+				questionSetId: questionSet.id
+			});
+
+			if (!response.success || !('data' in response)) {
+				throw new Error(response.message);
+			}
+
+			assessment.setAttemptResponse(response);
+
+			const basePath = response.data.question_set.kind === 'final_exam' ? 'exam' : 'practice';
+			const searchParams = new SvelteURLSearchParams({
+				courseId,
+				lessonId: activeLessonId
+			});
+			const href = `/${basePath}/${encodeURIComponent(questionSet.id)}?${searchParams.toString()}`;
+
+			await goto(resolve(href as Pathname));
+		} catch (error) {
+			assessment.clearAttemptResponse();
+			questionSetAttemptError =
+				error instanceof Error ? error.message : 'Gagal memulai pengerjaan soal.';
+		} finally {
+			startingQuestionSetId = null;
+		}
 	}
 
 	function updateLessonStatus(lessonId: string, status: Status): void {
@@ -275,6 +303,8 @@
 					title={lessonDetail?.title ?? activeLesson?.title ?? 'Materi'}
 					content={lessonDetail?.content ?? ''}
 					questionSets={lessonDetail?.question_sets ?? []}
+					{startingQuestionSetId}
+					questionSetError={questionSetAttemptError}
 					previousLessonTitle={previousLesson?.title}
 					nextLessonTitle={nextLesson?.title}
 					onPreviousLesson={previousLesson

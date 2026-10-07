@@ -6,7 +6,8 @@
 		setCourseLearningContext,
 		type CourseLearningSelection
 	} from '$features/course/presentation/contexts/course-learning-context';
-	import type { QuestionSetDetail } from '$features/question/domain/entities/question.entity';
+	import type { AttemptResponse } from '$features/question/domain/entities/question.entity';
+	import { setAssessmentContext } from '$features/question/presentation/contexts/assessment-context';
 	import AssessmentAppBar from '$features/question/presentation/components/assessment-app-bar.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
@@ -18,7 +19,6 @@
 	import type { LayoutProps } from './$types';
 
 	interface AssessmentPageData {
-		questionSet: QuestionSetDetail | null;
 		backHref: string;
 		errorMessage: string | null;
 	}
@@ -32,6 +32,7 @@
 	});
 	let isSigningOut = $state(false);
 	let signOutError = $state(false);
+	let attemptResponse = $state<AttemptResponse | null>(null);
 	const displayName = $derived(data.user?.display_name ?? 'Pengguna');
 	const firstName = $derived(displayName.trim().split(/\s+/)[0] || 'Pengguna');
 	const isAssessmentRoute = $derived(
@@ -39,6 +40,12 @@
 			page.route.id?.startsWith('/(protected)/practice') === true
 	);
 	const assessmentData = $derived(page.data as Partial<AssessmentPageData>);
+	const activeAssessmentAttempt = $derived.by(() => {
+		const response = attemptResponse;
+		if (!response) return null;
+
+		return response.data.question_set.id === page.params.id ? response.data : null;
+	});
 	function getStorageKey(courseId: string): string {
 		return `${storageKeyPrefix}${courseId}`;
 	}
@@ -102,6 +109,18 @@
 		}
 	});
 
+	setAssessmentContext({
+		get attemptResponse() {
+			return attemptResponse;
+		},
+		setAttemptResponse(response) {
+			attemptResponse = response;
+		},
+		clearAttemptResponse() {
+			attemptResponse = null;
+		}
+	});
+
 	async function handleSignOut() {
 		if (isSigningOut) return;
 
@@ -141,9 +160,9 @@
 	{/if}
 	<div class="flex h-svh min-w-0 flex-col overflow-hidden">
 		<AssessmentAppBar
-			title={assessmentData.questionSet?.title ?? 'Assessment Bahasa Jepang'}
-			questionCount={assessmentData.questionSet?.question_count ?? 0}
-			passingScore={assessmentData.questionSet?.passing_score ?? 0}
+			title={activeAssessmentAttempt?.question_set.title ?? 'Assessment Bahasa Jepang'}
+			questionCount={activeAssessmentAttempt?.question_set.question_count ?? 0}
+			passingScore={activeAssessmentAttempt?.question_set.passing_score ?? 0}
 			backHref={assessmentData.backHref ?? '/courses'}
 		/>
 		<section class="min-h-0 flex-1 overflow-y-auto bg-neutral-100">

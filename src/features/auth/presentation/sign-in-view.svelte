@@ -2,9 +2,14 @@
 	import { goto } from '$app/navigation';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { FieldGroup, Field, FieldLabel, FieldDescription } from '$lib/components/ui/field/index.js';
+	import {
+		FieldGroup,
+		Field,
+		FieldLabel,
+		FieldDescription
+	} from '$lib/components/ui/field/index.js';
 	import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
-	import { LoaderCircle, LockIcon, MailIcon } from 'lucide-svelte';
+	import { LockIcon, MailIcon } from 'lucide-svelte';
 	import logo from '$lib/assets/images/nnh-logo.png';
 
 	import { createForm } from '@tanstack/svelte-form';
@@ -32,7 +37,10 @@
 
 				await goto(resolve('/'), { invalidateAll: true });
 			} catch (err) {
-				serverError = err instanceof DomainError ? capitalizeFirst(err.message) : 'Terjadi kesalahan saat sign in.';
+				serverError =
+					err instanceof DomainError
+						? capitalizeFirst(err.message)
+						: 'Terjadi kesalahan saat sign in.';
 			}
 		}
 	}));
@@ -41,20 +49,24 @@
 <Card.Root class="w-full max-w-lg p-8 shadow-lg">
 	<Card.Header class="flex flex-col items-center pb-8">
 		<img src={logo} alt="Logo" class="mb-4 h-9" />
-		<Card.Title class="text-primary text-xl font-semibold">Selamat Datang</Card.Title>
+		<Card.Title class="text-xl font-semibold text-primary">Selamat Datang</Card.Title>
 		<Card.Description class="text-center">
 			Masuk ke akun Nihon no Hikari kamu untuk melanjutkan perjalanan belajar bahasa Jepang.
 		</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		{#if serverError}
-			<div class="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20">
+			<div
+				class="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+			>
 				{serverError}
 			</div>
 		{/if}
 
 		{#if successMessage}
-			<div class="mb-4 rounded-md bg-emerald-500/10 p-3 text-sm text-emerald-600 font-medium border border-emerald-500/20 dark:text-emerald-400">
+			<div
+				class="mb-4 rounded-md border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400"
+			>
 				{successMessage}
 			</div>
 		{/if}
@@ -95,7 +107,7 @@
 								/>
 							</InputGroup>
 							{#if field.state.meta.isTouched && field.state.meta.errors.length}
-								<span class="text-xs text-destructive font-medium">
+								<span class="text-xs font-medium text-destructive">
 									{field.state.meta.errors.join(', ')}
 								</span>
 							{/if}
@@ -131,7 +143,7 @@
 								/>
 							</InputGroup>
 							{#if field.state.meta.isTouched && field.state.meta.errors.length}
-								<span class="text-xs text-destructive font-medium">
+								<span class="text-xs font-medium text-destructive">
 									{field.state.meta.errors.join(', ')}
 								</span>
 							{/if}
@@ -145,10 +157,12 @@
 				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 					{#snippet children([canSubmit, isSubmitting])}
 						<Field>
-							<Button type="submit" class="w-full" disabled={!canSubmit || isSubmitting}>
-								{#if isSubmitting}
-									<LoaderCircle class="mr-2 size-4 animate-spin" />
-								{/if}
+							<Button
+								type="submit"
+								class="w-full"
+								disabled={!canSubmit || isSubmitting}
+								isLoading={isSubmitting}
+							>
 								Login
 							</Button>
 							<FieldDescription class="text-center">

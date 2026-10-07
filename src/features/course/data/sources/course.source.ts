@@ -12,26 +12,31 @@ import type {
 } from '../../domain/entities/lesson.entity';
 import { HttpClient } from '$lib/http-client';
 
+type ErrorResponse = { error?: string };
+
 export class CourseSource {
 	constructor(private readonly httpClient: HttpClient) {}
 
 	async getList(): Promise<ListCourseResponse> {
-		const response = await this.httpClient.request<ListCourseResponse>('/v1/courses', {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json'
+		const response = await this.httpClient.request<ListCourseResponse & ErrorResponse>(
+			'/v1/courses',
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json'
+				}
 			}
-		});
+		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal mengambil daftar kursus.');
+			throw new Error(response.data?.error || 'Gagal mengambil daftar kursus.');
 		}
 
 		return response.data;
 	}
 
 	async getDetail(id: string): Promise<CourseDetailResponse> {
-		const response = await this.httpClient.request<CourseDetailResponse>(
+		const response = await this.httpClient.request<CourseDetailResponse & ErrorResponse>(
 			`/v1/courses/${encodeURIComponent(id)}`,
 			{
 				method: 'GET',
@@ -42,14 +47,14 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal mengambil detail kursus.');
+			throw new Error(response.data?.error || 'Gagal mengambil detail kursus.');
 		}
 
 		return response.data;
 	}
 
 	async getModules(courseId: string): Promise<ListModuleLessonResponse> {
-		const response = await this.httpClient.request<ListModuleLessonResponse>(
+		const response = await this.httpClient.request<ListModuleLessonResponse & ErrorResponse>(
 			`/v1/courses/${encodeURIComponent(courseId)}/modules`,
 			{
 				method: 'GET',
@@ -60,14 +65,14 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal mengambil modul dan materi kursus.');
+			throw new Error(response.data?.error || 'Gagal mengambil modul dan materi kursus.');
 		}
 
 		return response.data;
 	}
 
 	async getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse> {
-		const response = await this.httpClient.request<LessonDetailResponse>(
+		const response = await this.httpClient.request<LessonDetailResponse & ErrorResponse>(
 			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`,
 			{
 				method: 'GET',
@@ -78,7 +83,7 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal mengambil detail materi.');
+			throw new Error(response.data?.error || 'Gagal mengambil detail materi.');
 		}
 
 		return response.data;
@@ -89,7 +94,7 @@ export class CourseSource {
 		moduleId: string,
 		payload: UpdateModuleProgressRequest
 	): Promise<UpdateModuleProgressResponse> {
-		const response = await this.httpClient.request<UpdateModuleProgressResponse>(
+		const response = await this.httpClient.request<UpdateModuleProgressResponse & ErrorResponse>(
 			`/v1/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}/progress`,
 			{
 				method: 'PUT',
@@ -102,7 +107,7 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal memperbarui progres modul.');
+			throw new Error(response.data?.error || 'Gagal memperbarui progres modul.');
 		}
 
 		return response.data;
@@ -113,7 +118,7 @@ export class CourseSource {
 		lessonId: string,
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse> {
-		const response = await this.httpClient.request<UpdateLessonProgressResponse>(
+		const response = await this.httpClient.request<UpdateLessonProgressResponse & ErrorResponse>(
 			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/progress`,
 			{
 				method: 'PUT',
@@ -126,7 +131,7 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.message || 'Gagal memperbarui progres materi.');
+			throw new Error(response.data?.error || 'Gagal memperbarui progres materi.');
 		}
 
 		return response.data;

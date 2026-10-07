@@ -5,4 +5,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<AssessmentView {...data} />
+<AssessmentView {...data} expectedKind="final_exam" />

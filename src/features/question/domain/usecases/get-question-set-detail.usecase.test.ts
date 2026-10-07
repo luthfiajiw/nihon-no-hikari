@@ -22,7 +22,9 @@ describe('GetQuestionSetDetailUseCase', () => {
 			}
 		};
 		const repository: QuestionRepository = {
-			getQuestionSetDetail: vi.fn().mockResolvedValue(response)
+			getQuestionSetDetail: vi.fn().mockResolvedValue(response),
+			startAttempt: vi.fn(),
+			submitAttempt: vi.fn()
 		};
 		const useCase = new GetQuestionSetDetailUseCase(repository);
 

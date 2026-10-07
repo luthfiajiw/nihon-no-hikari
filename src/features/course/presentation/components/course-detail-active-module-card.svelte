@@ -52,6 +52,7 @@
 					type="button"
 					onclick={onOpenLessons}
 					disabled={isOpeningLessons}
+					isLoading={isOpeningLessons}
 					class="rounded-xl bg-sky-600 font-medium text-white shadow-xs hover:bg-sky-700"
 				>
 					{isOpeningLessons

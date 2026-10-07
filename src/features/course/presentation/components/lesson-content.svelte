@@ -28,7 +28,9 @@
 		nextLessonTitle?: string;
 		onPreviousLesson?: () => void;
 		onNextLesson?: () => void;
-		onQuestionSetSelect?: (questionSet: QuestionSet) => void;
+		onQuestionSetSelect?: (questionSet: QuestionSet) => void | Promise<void>;
+		startingQuestionSetId?: string | null;
+		questionSetError?: string | null;
 		isNextLessonLoading?: boolean;
 	}
 
@@ -46,6 +48,8 @@
 		onPreviousLesson,
 		onNextLesson,
 		onQuestionSetSelect,
+		startingQuestionSetId = null,
+		questionSetError = null,
 		isNextLessonLoading = false
 	}: Props = $props();
 	let hasIncompleteQuestionSets = $derived(
@@ -192,6 +196,11 @@
 				{/if}
 
 				{#if questionSets.length > 0}
+					{#if questionSetError}
+						<p class="text-sm text-red-600 dark:text-red-400" role="alert">
+							{questionSetError}
+						</p>
+					{/if}
 					<section class="my-6 space-y-3" aria-labelledby="question-set-heading">
 						<div class="divide-y divide-border overflow-hidden rounded-lg border border-border">
 							{#each questionSets as questionSet (questionSet.id)}
@@ -239,6 +248,8 @@
 										<Button
 											size="sm"
 											variant={questionSet.is_passed ? 'outline' : 'default'}
+											disabled={startingQuestionSetId !== null}
+											isLoading={startingQuestionSetId === questionSet.id}
 											onclick={() => onQuestionSetSelect?.(questionSet)}
 										>
 											{questionSet.is_passed ? 'Lihat soal' : 'Kerjakan'}
@@ -272,6 +283,7 @@
 								variant="outline"
 								type="button"
 								disabled={isNextLessonLoading || hasIncompleteQuestionSets}
+								isLoading={isNextLessonLoading}
 								onclick={onNextLesson}
 							>
 								{nextLessonTitle}
