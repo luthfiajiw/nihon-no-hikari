@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import type { Pathname } from '$app/types';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { untrack } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import type { QuestionSet } from '$features/question/domain/entities/question.entity';
 	import type { Status } from '../../domain/entities/course.entity';
 	import type { Lesson, ModuleLesson } from '../../domain/entities/lesson.entity';
 	import LessonContent from '../components/lesson-content.svelte';
@@ -112,6 +115,19 @@
 		if (!lesson || lesson.status === 'locked') return;
 
 		selectedLessonId = lessonId;
+	}
+
+	async function handleQuestionSetSelect(questionSet: QuestionSet): Promise<void> {
+		if (!activeLessonId) return;
+
+		const basePath = questionSet.kind === 'final_exam' ? 'exam' : 'practice';
+		const searchParams = new SvelteURLSearchParams({
+			courseId,
+			lessonId: activeLessonId
+		});
+
+		const href = `/${basePath}/${encodeURIComponent(questionSet.id)}?${searchParams.toString()}`;
+		await goto(resolve(href as Pathname));
 	}
 
 	function updateLessonStatus(lessonId: string, status: Status): void {
@@ -258,12 +274,14 @@
 				<LessonContent
 					title={lessonDetail?.title ?? activeLesson?.title ?? 'Materi'}
 					content={lessonDetail?.content ?? ''}
+					questionSets={lessonDetail?.question_sets ?? []}
 					previousLessonTitle={previousLesson?.title}
 					nextLessonTitle={nextLesson?.title}
 					onPreviousLesson={previousLesson
 						? () => handleLessonSelect(previousLesson.id)
 						: undefined}
 					onNextLesson={nextLesson ? handleNextLesson : undefined}
+					onQuestionSetSelect={handleQuestionSetSelect}
 					{isNextLessonLoading}
 				/>
 			{/if}

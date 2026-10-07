@@ -1,20 +1,34 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
+	import { Badge } from '$lib/components/ui/badge';
 	import * as ScrollArea from '$lib/components/ui/scroll-area';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils.js';
 	import DOMPurify from 'isomorphic-dompurify';
-	import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-svelte';
+	import {
+		ArrowLeftIcon,
+		ArrowRightIcon,
+		CheckCircle2Icon,
+		CircleHelpIcon,
+		Clock3Icon,
+		TargetIcon
+	} from 'lucide-svelte';
 	import { onDestroy } from 'svelte';
+	import type {
+		QuestionSet,
+		QuestionSkill
+	} from '$features/question/domain/entities/question.entity';
 	import { resolveLessonAudioUrl } from '../utils/lesson-audio';
 
 	interface Props {
 		title?: string;
 		content?: string;
+		questionSets?: QuestionSet[];
 		previousLessonTitle?: string;
 		nextLessonTitle?: string;
 		onPreviousLesson?: () => void;
 		onNextLesson?: () => void;
+		onQuestionSetSelect?: (questionSet: QuestionSet) => void;
 		isNextLessonLoading?: boolean;
 	}
 
@@ -26,12 +40,31 @@
 	let {
 		title = 'Pengenalan Huruf Hiragana',
 		content = '',
+		questionSets = [],
 		previousLessonTitle,
 		nextLessonTitle,
 		onPreviousLesson,
 		onNextLesson,
+		onQuestionSetSelect,
 		isNextLessonLoading = false
 	}: Props = $props();
+	let hasIncompleteQuestionSets = $derived(
+		questionSets.some((questionSet) => !questionSet.is_passed)
+	);
+
+	const skillLabels: Record<QuestionSkill, string> = {
+		reading: 'Membaca',
+		writing: 'Menulis',
+		listening: 'Mendengar',
+		speaking: 'Berbicara'
+	};
+
+	function formatTimeLimit(seconds?: number): string | null {
+		if (!seconds) return null;
+
+		const minutes = Math.ceil(seconds / 60);
+		return `${minutes} menit`;
+	}
 
 	function parseContent(value: string): LessonContentData {
 		try {
@@ -158,6 +191,65 @@
 					</blockquote>
 				{/if}
 
+				{#if questionSets.length > 0}
+					<section class="my-6 space-y-3" aria-labelledby="question-set-heading">
+						<div class="divide-y divide-border overflow-hidden rounded-lg border border-border">
+							{#each questionSets as questionSet (questionSet.id)}
+								<div
+									class="flex flex-col gap-3 bg-card px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+								>
+									<div class="min-w-0">
+										<div class="flex flex-wrap items-center gap-2">
+											<h3 class="font-semibold text-card-foreground">{questionSet.title}</h3>
+											{#if questionSet.is_passed}
+												<Badge
+													class="border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+												>
+													<CheckCircle2Icon aria-hidden="true" />
+													Lulus
+												</Badge>
+											{:else}
+												<Badge variant="outline" class="text-muted-foreground">Belum Lulus</Badge>
+											{/if}
+										</div>
+										{#if questionSet.skill}
+											<p class="mt-1 text-xs text-muted-foreground">
+												{skillLabels[questionSet.skill]}
+											</p>
+										{/if}
+									</div>
+
+									<div
+										class="flex shrink-0 flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground"
+									>
+										<span class="flex items-center gap-1.5">
+											<CircleHelpIcon class="size-3.5" aria-hidden="true" />
+											{questionSet.question_count} Soal
+										</span>
+										{#if formatTimeLimit(questionSet.time_limit_seconds) !== null}
+											<span class="flex items-center gap-1.5">
+												<Clock3Icon class="size-3.5" aria-hidden="true" />
+												{formatTimeLimit(questionSet.time_limit_seconds)}
+											</span>
+										{/if}
+										<span class="flex items-center gap-1.5">
+											<TargetIcon class="size-3.5" aria-hidden="true" />
+											Nilai Lulus {questionSet.passing_score}
+										</span>
+										<Button
+											size="sm"
+											variant={questionSet.is_passed ? 'outline' : 'default'}
+											onclick={() => onQuestionSetSelect?.(questionSet)}
+										>
+											{questionSet.is_passed ? 'Lihat soal' : 'Kerjakan'}
+										</Button>
+									</div>
+								</div>
+							{/each}
+						</div>
+					</section>
+				{/if}
+
 				{#if previousLessonTitle || nextLessonTitle}
 					<div
 						class={cn('flex items-center gap-4 pt-4', {
@@ -179,7 +271,7 @@
 							<Button
 								variant="outline"
 								type="button"
-								disabled={isNextLessonLoading}
+								disabled={isNextLessonLoading || hasIncompleteQuestionSets}
 								onclick={onNextLesson}
 							>
 								{nextLessonTitle}

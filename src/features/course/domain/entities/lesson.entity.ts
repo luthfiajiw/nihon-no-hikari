@@ -1,3 +1,4 @@
+import type { QuestionSet } from '$features/question/domain/entities/question.entity';
 import type { Module, Status } from './course.entity';
 
 export interface Lesson {
@@ -6,6 +7,7 @@ export interface Lesson {
 	title: string;
 	content?: string;
 	status?: Status;
+	question_sets: QuestionSet[]
 }
 
 export interface ModuleLesson {

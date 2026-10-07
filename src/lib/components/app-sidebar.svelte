@@ -41,7 +41,7 @@
 		},
 		{
 			name: "Latihan",
-			url: "/latihan",
+			url: "/practice",
 			icon: Zap
 		},
 		{
@@ -61,7 +61,7 @@
 		},
 		{
 			name: "Ujian & Evaluasi",
-			url: "/ujian",
+			url: "/exam",
 			icon: ClipboardCheck
 		},
 		{
@@ -94,7 +94,7 @@
 </script>
 
 <Sidebar.Root bind:ref {collapsible} class={cn("", className)} {...restProps}>
-	<Sidebar.Header class="flex flex-row items-center gap-3 p-[22px] group-data-[collapsible=icon]:p-3 group-data-[collapsible=icon]:justify-center bg-white">
+	<Sidebar.Header class="flex flex-row items-center gap-3 p-5.5 group-data-[collapsible=icon]:p-3 group-data-[collapsible=icon]:justify-center bg-white">
 		<img src={logo} alt="NihongoPro Logo" class="h-6 w-6 shrink-0 object-contain" />
 		<div class="flex flex-col group-data-[collapsible=icon]:hidden gap-1">
 			<h1 class="font-retro text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100">

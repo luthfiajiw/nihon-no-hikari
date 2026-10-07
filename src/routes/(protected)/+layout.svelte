@@ -1,6 +1,13 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
-	import { navigating } from '$app/state';
+	import { navigating, page } from '$app/state';
+	import {
+		setCourseLearningContext,
+		type CourseLearningSelection
+	} from '$features/course/presentation/contexts/course-learning-context';
+	import type { QuestionSetDetail } from '$features/question/domain/entities/question.entity';
+	import AssessmentAppBar from '$features/question/presentation/components/assessment-app-bar.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -10,12 +17,90 @@
 	import { BellIcon, ChevronDownIcon, LoaderCircle } from 'lucide-svelte';
 	import type { LayoutProps } from './$types';
 
+	interface AssessmentPageData {
+		questionSet: QuestionSetDetail | null;
+		backHref: string;
+		errorMessage: string | null;
+	}
+
 	let { data, children }: LayoutProps = $props();
 
+	const storageKeyPrefix = 'course-learning-selection:';
+	const courseLearningSelection = $state<CourseLearningSelection>({
+		course: null,
+		module: null
+	});
 	let isSigningOut = $state(false);
 	let signOutError = $state(false);
 	const displayName = $derived(data.user?.display_name ?? 'Pengguna');
 	const firstName = $derived(displayName.trim().split(/\s+/)[0] || 'Pengguna');
+	const isAssessmentRoute = $derived(
+		page.route.id?.startsWith('/(protected)/exam') === true ||
+			page.route.id?.startsWith('/(protected)/practice') === true
+	);
+	const assessmentData = $derived(page.data as Partial<AssessmentPageData>);
+	function getStorageKey(courseId: string): string {
+		return `${storageKeyPrefix}${courseId}`;
+	}
+
+	function clearCourseLearningSelection(): void {
+		courseLearningSelection.course = null;
+		courseLearningSelection.module = null;
+	}
+
+	function restoreCourseLearningSelection(courseId: string): void {
+		try {
+			const serializedSelection = sessionStorage.getItem(getStorageKey(courseId));
+			if (!serializedSelection) {
+				clearCourseLearningSelection();
+				return;
+			}
+
+			const storedSelection = JSON.parse(serializedSelection) as CourseLearningSelection;
+			if (storedSelection.course?.id !== courseId || !storedSelection.module?.id) {
+				sessionStorage.removeItem(getStorageKey(courseId));
+				clearCourseLearningSelection();
+				return;
+			}
+
+			courseLearningSelection.course = storedSelection.course;
+			courseLearningSelection.module = storedSelection.module;
+		} catch {
+			clearCourseLearningSelection();
+		}
+	}
+
+	function persistCourseLearningSelection(nextSelection: CourseLearningSelection): void {
+		if (!browser || !nextSelection.course || !nextSelection.module) return;
+
+		try {
+			sessionStorage.setItem(getStorageKey(nextSelection.course.id), JSON.stringify(nextSelection));
+		} catch {
+			// Context remains usable when storage is unavailable or full.
+		}
+	}
+
+	$effect(() => {
+		const routeId = page.route.id;
+		const courseId =
+			page.url.searchParams.get('courseId') ??
+			(routeId?.includes('/courses/[id]') ? page.params.id : null);
+		if (browser && courseId) restoreCourseLearningSelection(courseId);
+	});
+
+	setCourseLearningContext({
+		get course() {
+			return courseLearningSelection.course;
+		},
+		get module() {
+			return courseLearningSelection.module;
+		},
+		select(course, module) {
+			courseLearningSelection.course = course;
+			courseLearningSelection.module = module;
+			persistCourseLearningSelection({ course, module });
+		}
+	});
 
 	async function handleSignOut() {
 		if (isSigningOut) return;
@@ -44,7 +129,7 @@
 	}
 </script>
 
-<Sidebar.Provider>
+{#if isAssessmentRoute}
 	{#if navigating.to}
 		<div
 			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
@@ -54,69 +139,92 @@
 			<div class="route-progress-indicator h-full bg-sky-500"></div>
 		</div>
 	{/if}
-	<AppSidebar />
-	<Sidebar.Inset class="relative h-svh overflow-hidden">
-		<header
-			class="flex h-16 shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
-		>
-			<div class="flex items-center gap-2 px-4">
-				<Sidebar.Trigger />
-				<p class="pl-1 text-base">Ganbare, {firstName}!</p>
-			</div>
-
-			<div class="flex items-center gap-2 pr-6">
-				<Button variant="outline" size="icon" class="rounded-full border-none">
-					<BellIcon />
-				</Button>
-				<Separator orientation="vertical" class="mr-1.5 data-[orientation=vertical]:h-5" />
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<div class="flex cursor-pointer items-center" {...props}>
-								<Avatar.Root>
-									<Avatar.Image
-										src={data.user?.avatar_url ?? 'https://github.com/shadcn.png'}
-										alt={displayName}
-									/>
-									<Avatar.Fallback>CN</Avatar.Fallback>
-								</Avatar.Root>
-
-								<div class="flex flex-col items-start pr-4 pl-3">
-									<p class="text-sm font-medium">{displayName}</p>
-									<p class="text-xs text-muted-foreground">Level Pemula</p>
-								</div>
-
-								<ChevronDownIcon class="size-4" />
-							</div>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-48" align="end" sideOffset={16}>
-						<DropdownMenu.Group>
-							<DropdownMenu.Item>Profile</DropdownMenu.Item>
-							<DropdownMenu.Item>Subscription</DropdownMenu.Item>
-						</DropdownMenu.Group>
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item
-							variant="destructive"
-							disabled={isSigningOut}
-							onclick={handleSignOut}
-						>
-							{#if isSigningOut}
-								<LoaderCircle class="animate-spin" />
-							{/if}
-							{signOutError ? 'Gagal keluar. Coba lagi.' : 'Keluar'}
-						</DropdownMenu.Item>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-			</div>
-		</header>
-		<section
-			class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)]"
-		>
+	<div class="flex h-svh min-w-0 flex-col overflow-hidden">
+		<AssessmentAppBar
+			title={assessmentData.questionSet?.title ?? 'Assessment Bahasa Jepang'}
+			questionCount={assessmentData.questionSet?.question_count ?? 0}
+			passingScore={assessmentData.questionSet?.passing_score ?? 0}
+			backHref={assessmentData.backHref ?? '/courses'}
+		/>
+		<section class="min-h-0 flex-1 overflow-y-auto bg-neutral-100">
 			{@render children?.()}
 		</section>
-	</Sidebar.Inset>
-</Sidebar.Provider>
+	</div>
+{:else}
+	<Sidebar.Provider>
+		{#if navigating.to}
+			<div
+				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
+				role="progressbar"
+				aria-label="Memuat halaman"
+			>
+				<div class="route-progress-indicator h-full bg-sky-500"></div>
+			</div>
+		{/if}
+		<AppSidebar />
+		<Sidebar.Inset class="relative h-svh overflow-hidden">
+			<header
+				class="flex h-16 shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+			>
+				<div class="flex items-center gap-2 px-4">
+					<Sidebar.Trigger />
+					<p class="pl-1 text-base">Ganbare, {firstName}!</p>
+				</div>
+
+				<div class="flex items-center gap-2 pr-6">
+					<Button variant="outline" size="icon" class="rounded-full border-none">
+						<BellIcon />
+					</Button>
+					<Separator orientation="vertical" class="mr-1.5 data-[orientation=vertical]:h-5" />
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<div class="flex cursor-pointer items-center" {...props}>
+									<Avatar.Root>
+										<Avatar.Image
+											src={data.user?.avatar_url ?? 'https://github.com/shadcn.png'}
+											alt={displayName}
+										/>
+										<Avatar.Fallback>CN</Avatar.Fallback>
+									</Avatar.Root>
+
+									<div class="flex flex-col items-start pr-4 pl-3">
+										<p class="text-sm font-medium">{displayName}</p>
+										<p class="text-xs text-muted-foreground">Level Pemula</p>
+									</div>
+
+									<ChevronDownIcon class="size-4" />
+								</div>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content class="w-48" align="end" sideOffset={16}>
+							<DropdownMenu.Group>
+								<DropdownMenu.Item>Profile</DropdownMenu.Item>
+								<DropdownMenu.Item>Subscription</DropdownMenu.Item>
+							</DropdownMenu.Group>
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item
+								variant="destructive"
+								disabled={isSigningOut}
+								onclick={handleSignOut}
+							>
+								{#if isSigningOut}
+									<LoaderCircle class="animate-spin" />
+								{/if}
+								{signOutError ? 'Gagal keluar. Coba lagi.' : 'Keluar'}
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</div>
+			</header>
+			<section
+				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)]"
+			>
+				{@render children?.()}
+			</section>
+		</Sidebar.Inset>
+	</Sidebar.Provider>
+{/if}
 
 <style>
 	.route-progress-indicator {

@@ -13,6 +13,7 @@ describe('GetLessonDetailUseCase', () => {
 				slug: 'vokal-dasar',
 				title: 'Vokal Dasar',
 				content: '<p>Materi</p>',
+				question_sets: [],
 				status: 'in_progress'
 			}
 		};
