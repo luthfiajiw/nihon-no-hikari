@@ -202,10 +202,10 @@
 						</p>
 					{/if}
 					<section class="my-6 space-y-3" aria-labelledby="question-set-heading">
-						<div class="divide-y divide-border overflow-hidden rounded-lg border border-border">
+						<div class="divide-y divide-border overflow-hidden rounded-2xl border border-border">
 							{#each questionSets as questionSet (questionSet.id)}
 								<div
-									class="flex flex-col gap-3 bg-card px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+									class="flex flex-col gap-3 bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
 								>
 									<div class="min-w-0">
 										<div class="flex flex-wrap items-center gap-2">

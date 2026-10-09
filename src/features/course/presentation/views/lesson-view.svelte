@@ -37,6 +37,9 @@
 	}
 
 	function getInitialLessonId(): string {
+		const lastSelectedLesson = moduleLessons
+			.flatMap(({ lessons }) => lessons)
+			.find((lesson) => lesson.id === courseLearning.lessonId && lesson.status !== 'locked');
 		const selectedModule = moduleLessons.find(
 			({ module }) => module.id === courseLearning.module?.id
 		);
@@ -47,6 +50,7 @@
 
 		return (
 			(
+				lastSelectedLesson ??
 				selectedModuleLesson ??
 				findLessonByStatus('in_progress') ??
 				findLessonByStatus('unlocked') ??
@@ -71,7 +75,6 @@
 	);
 
 	let isSidebarOpen = $state(true);
-	let selectedLessonId = $state<string | null>(null);
 	let lessonDetail = $state<Lesson | null>(null);
 	let lessonDetailError = $state<string | null>(null);
 	let isLessonLoading = $state(true);
@@ -80,7 +83,7 @@
 	let questionSetAttemptError = $state<string | null>(null);
 	let lessonRequestId = 0;
 	let lastRequestedLessonKey: string | null = null;
-	const activeLessonId = $derived(selectedLessonId ?? getInitialLessonId());
+	const activeLessonId = $derived(getInitialLessonId());
 	const activeLesson = $derived(
 		moduleLessons
 			.flatMap(({ lessons }) => lessons)
@@ -119,7 +122,7 @@
 			.find((candidate) => candidate.id === lessonId);
 		if (!lesson || lesson.status === 'locked') return;
 
-		selectedLessonId = lessonId;
+		courseLearning.selectLesson(lessonId);
 	}
 
 	async function handleQuestionSetSelect(questionSet: QuestionSet): Promise<void> {
@@ -185,7 +188,7 @@
 
 			const shouldNavigateToNextLesson = activeLessonId === currentLessonId;
 			updateLessonStatus(currentLessonId, 'completed');
-			if (shouldNavigateToNextLesson) selectedLessonId = nextLessonId;
+			if (shouldNavigateToNextLesson) courseLearning.selectLesson(nextLessonId);
 		} finally {
 			isNextLessonLoading = false;
 		}

@@ -28,7 +28,8 @@
 	const storageKeyPrefix = 'course-learning-selection:';
 	const courseLearningSelection = $state<CourseLearningSelection>({
 		course: null,
-		module: null
+		module: null,
+		lessonId: null
 	});
 	let isSigningOut = $state(false);
 	let signOutError = $state(false);
@@ -53,6 +54,7 @@
 	function clearCourseLearningSelection(): void {
 		courseLearningSelection.course = null;
 		courseLearningSelection.module = null;
+		courseLearningSelection.lessonId = null;
 	}
 
 	function restoreCourseLearningSelection(courseId: string): void {
@@ -63,7 +65,7 @@
 				return;
 			}
 
-			const storedSelection = JSON.parse(serializedSelection) as CourseLearningSelection;
+			const storedSelection = JSON.parse(serializedSelection) as Partial<CourseLearningSelection>;
 			if (storedSelection.course?.id !== courseId || !storedSelection.module?.id) {
 				sessionStorage.removeItem(getStorageKey(courseId));
 				clearCourseLearningSelection();
@@ -72,6 +74,8 @@
 
 			courseLearningSelection.course = storedSelection.course;
 			courseLearningSelection.module = storedSelection.module;
+			courseLearningSelection.lessonId =
+				typeof storedSelection.lessonId === 'string' ? storedSelection.lessonId : null;
 		} catch {
 			clearCourseLearningSelection();
 		}
@@ -102,10 +106,24 @@
 		get module() {
 			return courseLearningSelection.module;
 		},
+		get lessonId() {
+			return courseLearningSelection.lessonId;
+		},
 		select(course, module) {
+			const lessonId =
+				courseLearningSelection.course?.id === course.id ? courseLearningSelection.lessonId : null;
 			courseLearningSelection.course = course;
 			courseLearningSelection.module = module;
-			persistCourseLearningSelection({ course, module });
+			courseLearningSelection.lessonId = lessonId;
+			persistCourseLearningSelection({ course, module, lessonId });
+		},
+		selectLesson(lessonId) {
+			courseLearningSelection.lessonId = lessonId;
+			persistCourseLearningSelection({
+				course: courseLearningSelection.course,
+				module: courseLearningSelection.module,
+				lessonId
+			});
 		}
 	});
 
