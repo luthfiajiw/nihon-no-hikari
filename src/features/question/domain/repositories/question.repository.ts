@@ -19,4 +19,10 @@ export interface QuestionRepository {
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse>;
+	abandonAttempt(
+		courseId: string,
+		lessonId: string,
+		questionSetId: string,
+		attemptId: string
+	): Promise<void>;
 }

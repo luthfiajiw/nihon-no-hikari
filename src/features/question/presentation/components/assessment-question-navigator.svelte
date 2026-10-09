@@ -36,7 +36,7 @@
 				aria-valuenow={progressPercentage}
 			>
 				<div
-					class="h-full rounded-full bg-blue-600 transition-[width] duration-300"
+					class="h-full rounded-full bg-sky-600 transition-[width] duration-300"
 					style:width={`${progressPercentage}%`}
 				></div>
 			</div>
@@ -59,10 +59,10 @@
 					class={cn(
 						'aspect-square h-auto w-full rounded-lg border p-0 text-sm font-bold shadow-xs transition-colors',
 						active
-							? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white'
+							? 'border-sky-600 bg-sky-600 text-white hover:bg-sky-700 hover:text-white'
 							: answered
 								? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800'
-								: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+								: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
 					)}
 				>
 					{index + 1}
@@ -75,7 +75,7 @@
 			<div class="mt-4 space-y-3">
 				<div class="flex items-start gap-3">
 					<span
-						class="mt-0.5 size-5 shrink-0 rounded-md border border-blue-600 bg-blue-600 shadow-xs"
+						class="mt-0.5 size-5 shrink-0 rounded-md border border-sky-600 bg-sky-600 shadow-xs"
 						aria-hidden="true"
 					></span>
 					<p class="text-sm text-slate-900">Soal aktif</p>
@@ -97,7 +97,7 @@
 			</div>
 		</div>
 
-		<div class="mt-4 flex items-start gap-3 rounded-xl bg-blue-50 p-4 text-blue-700">
+		<div class="mt-4 flex items-start gap-3 rounded-xl bg-sky-50 p-4 text-sky-700">
 			<InfoIcon class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 			<div>
 				<p class="text-sm font-bold">Pastikan semua soal sudah dijawab</p>

@@ -35,4 +35,13 @@ export class QuestionRepositoryImpl implements QuestionRepository {
 	): Promise<SubmitAttemptResponse> {
 		return this.questionSource.submitAttempt(courseId, lessonId, questionSetId, attemptId, request);
 	}
+
+	abandonAttempt(
+		courseId: string,
+		lessonId: string,
+		questionSetId: string,
+		attemptId: string
+	): Promise<void> {
+		return this.questionSource.abandonAttempt(courseId, lessonId, questionSetId, attemptId);
+	}
 }

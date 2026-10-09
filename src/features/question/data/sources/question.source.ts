@@ -6,7 +6,7 @@ import type {
 	SubmitAttemptResponse
 } from '../../domain/entities/question.entity';
 
-type ErrorResponse = { error?: string };
+type ErrorResponse = { error?: string; message?: string };
 
 export class QuestionSource {
 	constructor(private readonly httpClient: HttpClient) {}
@@ -27,7 +27,9 @@ export class QuestionSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengambil detail set soal.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal mengambil detail set soal.'
+			);
 		}
 
 		return response.data;
@@ -51,7 +53,9 @@ export class QuestionSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal memulai pengerjaan soal.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal memulai pengerjaan soal.'
+			);
 		}
 
 		return response.data;
@@ -77,9 +81,32 @@ export class QuestionSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengirim jawaban.');
+			throw new Error(response.data?.error || response.data?.message || 'Gagal mengirim jawaban.');
 		}
 
 		return response.data;
+	}
+
+	async abandonAttempt(
+		courseId: string,
+		lessonId: string,
+		questionSetId: string,
+		attemptId: string
+	): Promise<void> {
+		const response = await this.httpClient.request<ErrorResponse>(
+			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attemptId)}/abandon`,
+			{
+				method: 'POST',
+				headers: {
+					Accept: 'application/json'
+				}
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal membatalkan pengerjaan soal.'
+			);
+		}
 	}
 }

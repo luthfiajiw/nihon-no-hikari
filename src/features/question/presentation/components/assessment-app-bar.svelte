@@ -2,7 +2,8 @@
 	import { resolve } from '$app/paths';
 	import type { Pathname } from '$app/types';
 	import type { QuestionSet } from '$features/question/domain/entities/question.entity';
-	import { ArrowLeftIcon, BookOpenIcon, TargetIcon } from 'lucide-svelte';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { ArrowLeftIcon, CircleQuestionMarkIcon, TargetIcon } from 'lucide-svelte';
 
 	interface Props {
 		title: QuestionSet['title'];
@@ -29,13 +30,14 @@
 	</div>
 
 	<div
-		class="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-sky-950 sm:gap-2 sm:text-sm"
+		class="flex shrink-0 items-center gap-2 text-xs font-semibold text-sky-950 sm:gap-2 sm:text-sm"
 	>
-		<span class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-2 sm:px-3">
-			<BookOpenIcon class="size-4 text-sky-500" />
+		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
+			<CircleQuestionMarkIcon class="size-4 text-sky-500" />
 			<span>{questionCount}<span class="hidden sm:inline ml-1"> Soal</span></span>
 		</span>
-		<span class="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-2.5 py-2 sm:px-3">
+		<Separator orientation="vertical" class="data-[orientation=vertical]:h-5"/>
+		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
 			<TargetIcon class="size-4 text-sky-500" />
 			<span><span class="hidden sm:inline mr-1">Nilai Lulus </span>{passingScore}</span>
 		</span>

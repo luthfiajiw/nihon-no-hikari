@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { ArrowRightIcon, ClockIcon } from 'lucide-svelte';
 	import type { Module } from '../../domain/entities/course.entity';
-	import { formatDuration } from '../utils/course-format';
+	import { formatDuration } from '$lib/course-format';
 
 	interface Props {
 		activeModule: Module | null;

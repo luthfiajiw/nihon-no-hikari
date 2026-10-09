@@ -18,7 +18,7 @@
 		QuestionSet,
 		QuestionSkill
 	} from '$features/question/domain/entities/question.entity';
-	import { resolveLessonAudioUrl } from '../utils/lesson-audio';
+	import { resolveLessonAudioUrl } from '$lib/lesson-audio';
 
 	interface Props {
 		title?: string;

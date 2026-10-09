@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { cn } from '$lib/utils.js';
-	import { ArrowLeftIcon, CircleAlertIcon, TrophyIcon } from 'lucide-svelte';
+	import { CircleAlertIcon, TrophyIcon } from 'lucide-svelte';
 
 	interface Props {
 		result: AttemptResult;
@@ -71,7 +71,7 @@
 		</div>
 
 		<Button href={backHref} class="mt-6 bg-sky-600 text-white">
-			<ArrowLeftIcon class="size-4" /> Kembali ke materi
+			Kembali ke materi
 		</Button>
 	</div>
 </Card.Root>

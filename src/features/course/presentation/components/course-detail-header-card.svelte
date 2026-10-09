@@ -3,7 +3,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { BookOpenIcon, ClockIcon, UserIcon } from 'lucide-svelte';
 	import type { CourseDetail } from '../../domain/entities/course.entity';
-	import { formatDuration } from '../utils/course-format';
+	import { formatDuration } from '$lib/course-format';
 
 	interface Props {
 		course: CourseDetail;

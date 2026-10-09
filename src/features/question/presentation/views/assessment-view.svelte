@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { beforeNavigate, onNavigate } from '$app/navigation';
 	import type {
 		AttemptResult,
 		QuestionKind,
@@ -37,6 +38,7 @@
 	let isSubmitting = $state(false);
 	let submitError = $state<string | null>(null);
 	let submitResult = $state<AttemptResult | null>(null);
+	let abandonRequest: Promise<void> | null = null;
 
 	const attempt = $derived(
 		assessment.attemptResponse?.data.question_set.id === questionSetId &&
@@ -54,6 +56,42 @@
 		questions.filter((question) => Boolean(answers[question.id]?.trim())).length
 	);
 	const unansweredCount = $derived(questions.length - answeredCount);
+
+	function abandonPracticeAttempt(): Promise<void> | undefined {
+		if (
+			expectedKind !== 'practice' ||
+			submitResult ||
+			!courseId ||
+			!lessonId ||
+			!attempt ||
+			attempt.status !== 'in_progress'
+		) {
+			return;
+		}
+
+		if (abandonRequest) return abandonRequest;
+
+		const endpoint = `/api/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attempt.id)}/abandon`;
+		abandonRequest = fetch(endpoint, {
+			method: 'POST',
+			headers: { Accept: 'application/json' },
+			keepalive: true
+		})
+			.then((response) => {
+				if (response.ok) assessment.clearAttemptResponse();
+			})
+			.catch(() => {
+				// Navigasi tetap dilanjutkan jika request abandon gagal.
+			});
+
+		return abandonRequest;
+	}
+
+	beforeNavigate(({ willUnload }) => {
+		if (willUnload) void abandonPracticeAttempt();
+	});
+
+	onNavigate(() => abandonPracticeAttempt());
 
 	function setAnswer(value: string): void {
 		if (!isSubmitting && !submitResult && activeQuestion) answers[activeQuestion.id] = value;

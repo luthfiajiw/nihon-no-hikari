@@ -14,7 +14,7 @@
 
 <Card.Root 
 	class={`w-full h-full flex flex-col justify-between bg-cover bg-no-repeat ${className}`}
-	style="background-image: url('{villageBg}'); background-position: center bottom -45px;"
+	style="background-image: url('{villageBg}'); background-position: center bottom 65%;"
 >
 	<Card.Header>
 		<Card.Title class="flex items-center gap-3">
@@ -40,7 +40,7 @@
 			<Progress value={33} class="h-3 mb-3" />
 		</div>
 		<div class="group flex justify-end pt-2">
-			<Button type="button" class=" transition-all duration-200 bg-rose-500 hover:bg-rose-700">
+			<Button type="button" class=" transition-all duration-200 border-white border-2 bg-sky-500 hover:bg-sky-700">
 				Lanjut Belajar <ArrowRightIcon class="size-4 text-white transition-transform group-hover:translate-x-1" />
 			</Button>
 		</div>

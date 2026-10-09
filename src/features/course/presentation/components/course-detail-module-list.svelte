@@ -4,7 +4,7 @@
 	import { cn } from '$lib/utils.js';
 	import { CheckCircle2Icon, ChevronRightIcon, LockIcon, PlayCircleIcon } from 'lucide-svelte';
 	import type { Module } from '../../domain/entities/course.entity';
-	import { formatDuration, getModuleStatusLabel } from '../utils/course-format';
+	import { formatDuration, getModuleStatusLabel } from '$lib/course-format';
 
 	interface Props {
 		modules: Module[];

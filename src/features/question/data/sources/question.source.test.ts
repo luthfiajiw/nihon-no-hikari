@@ -147,4 +147,22 @@ describe('QuestionSource', () => {
 			}
 		);
 	});
+
+	it('abandons an attempt without a request body', async () => {
+		const mockFetch = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+		const source = new QuestionSource(
+			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
+		);
+
+		await expect(
+			source.abandonAttempt('course/1', 'lesson/1', 'set/1', 'attempt/1')
+		).resolves.toBeUndefined();
+		expect(mockFetch).toHaveBeenCalledWith(
+			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/question-sets/set%2F1/attempts/attempt%2F1/abandon',
+			{
+				method: 'POST',
+				headers: { Accept: 'application/json' }
+			}
+		);
+	});
 });

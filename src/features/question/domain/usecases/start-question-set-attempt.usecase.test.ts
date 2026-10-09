@@ -9,7 +9,8 @@ describe('StartQuestionSetAttemptUseCase', () => {
 		const repository: QuestionRepository = {
 			getQuestionSetDetail: vi.fn(),
 			startAttempt: vi.fn().mockResolvedValue(response),
-			submitAttempt: vi.fn()
+			submitAttempt: vi.fn(),
+			abandonAttempt: vi.fn()
 		};
 		const useCase = new StartQuestionSetAttemptUseCase(repository);
 

@@ -24,7 +24,8 @@ describe('GetQuestionSetDetailUseCase', () => {
 		const repository: QuestionRepository = {
 			getQuestionSetDetail: vi.fn().mockResolvedValue(response),
 			startAttempt: vi.fn(),
-			submitAttempt: vi.fn()
+			submitAttempt: vi.fn(),
+			abandonAttempt: vi.fn()
 		};
 		const useCase = new GetQuestionSetDetailUseCase(repository);
 

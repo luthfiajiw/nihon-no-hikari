@@ -83,14 +83,14 @@
 						class={cn(
 							'min-h-16 w-full justify-start gap-4 rounded-xl px-4 py-3 text-left whitespace-normal shadow-none transition-colors',
 							selected
-								? 'border-blue-500 bg-blue-50 text-slate-900 hover:border-blue-600 hover:bg-blue-100 hover:text-slate-900'
-								: 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-slate-900'
+								? 'border-sky-500 bg-sky-50 text-slate-900 hover:border-sky-600 hover:bg-sky-100 hover:text-slate-900'
+								: 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900'
 						)}
 					>
 						<span
 							class={cn(
 								'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-								selected ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'
+								selected ? 'border-sky-600 bg-sky-600' : 'border-slate-300 bg-white'
 							)}
 						>
 							{#if selected}<span class="size-1.5 rounded-full bg-white"></span>{/if}
@@ -145,7 +145,7 @@
 				type="button"
 				onclick={onNext}
 				{disabled}
-				class="rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700"
+				class="rounded-lg bg-sky-600 px-5 text-white hover:bg-sky-700"
 			>
 				{isLastQuestion ? 'Selesai' : 'Berikutnya'}
 				{#if isLastQuestion}
