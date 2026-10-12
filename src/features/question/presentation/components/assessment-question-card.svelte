@@ -1,19 +1,26 @@
 <script lang="ts">
-	import type { Question, QuestionSkill } from '$features/question/domain/entities/question.entity';
+	import type {
+		Question,
+		QuestionSkill,
+		StrokeInput
+	} from '$features/question/domain/entities/question.entity';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { cn } from '$lib/utils.js';
 	import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from 'lucide-svelte';
+	import WritingCanvas from './writing-canvas.svelte';
 
 	interface Props {
 		question: Question;
 		questionNumber: number;
 		totalQuestions: number;
 		answer?: string;
+		strokeAnswer?: StrokeInput;
 		disabled?: boolean;
 		onAnswerChange: (value: string) => void;
+		onStrokeChange: (value: StrokeInput) => void;
 		onPrevious: () => void;
 		onNext: () => void;
 	}
@@ -23,8 +30,10 @@
 		questionNumber,
 		totalQuestions,
 		answer = '',
+		strokeAnswer = [],
 		disabled = false,
 		onAnswerChange,
+		onStrokeChange,
 		onPrevious,
 		onNext
 	}: Props = $props();
@@ -41,6 +50,12 @@
 	);
 	let isFirstQuestion = $derived(questionNumber === 1);
 	let isLastQuestion = $derived(questionNumber === totalQuestions);
+	let writingComplete = $derived(
+		question.question_type !== 'stroke_writing' ||
+			Boolean(
+				question.writing_guide && strokeAnswer.length === question.writing_guide.strokes.length
+			)
+	);
 </script>
 
 <Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm">
@@ -70,7 +85,15 @@
 			</div>
 		{/if}
 
-		{#if question.question_type === 'multiple_choice' && options.length}
+		{#if question.question_type === 'stroke_writing' && question.writing_guide}
+			<WritingCanvas
+				guide={question.writing_guide}
+				showGuide={question.show_writing_guide !== false}
+				value={strokeAnswer}
+				{disabled}
+				onChange={onStrokeChange}
+			/>
+		{:else if question.question_type === 'multiple_choice' && options.length}
 			<div class="mt-6 grid gap-3">
 				{#each options as option (option.id)}
 					{@const selected = answer === option.id}
@@ -108,7 +131,7 @@
 					</Button>
 				{/each}
 			</div>
-		{:else}
+		{:else if question.question_type === 'multiple_choice'}
 			<label class="mt-6 block text-sm font-bold text-slate-900" for="written-answer">
 				Jawaban
 			</label>
@@ -144,7 +167,7 @@
 			<Button
 				type="button"
 				onclick={onNext}
-				{disabled}
+				disabled={disabled || !writingComplete}
 				class="rounded-lg bg-sky-600 px-5 text-white hover:bg-sky-700"
 			>
 				{isLastQuestion ? 'Selesai' : 'Berikutnya'}

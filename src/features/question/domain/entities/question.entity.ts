@@ -47,6 +47,20 @@ export interface Question {
 	points: number;
 	order_index: number;
 	options?: QuestionOption[];
+	writing_guide?: WritingGuide;
+	show_writing_guide?: boolean;
+}
+
+export interface StrokePoint {
+	x: number;
+	y: number;
+}
+export type StrokeInput = StrokePoint[][];
+export interface WritingGuide {
+	character: string;
+	romaji: string;
+	view_box: number;
+	strokes: { path: string; points: StrokePoint[] }[];
 }
 
 export interface QuestionOption {
@@ -95,6 +109,7 @@ export interface AnswerResult {
 	earned_points: number;
 	max_points: number;
 	explanation: string | null;
+	accuracy?: number;
 }
 
 export interface SkillResult {

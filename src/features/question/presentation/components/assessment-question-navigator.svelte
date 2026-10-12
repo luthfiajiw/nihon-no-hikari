@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Question } from '$features/question/domain/entities/question.entity';
+	import type { Question, StrokeInput } from '$features/question/domain/entities/question.entity';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { cn } from '$lib/utils.js';
@@ -7,22 +7,37 @@
 
 	interface Props {
 		questions: Question[];
-		answers: Record<string, string>;
+		answers: Record<string, string | StrokeInput>;
 		activeIndex: number;
+		maxAccessibleIndex?: number;
 		disabled?: boolean;
 		onQuestionSelect: (index: number) => void;
 	}
 
-	let { questions, answers, activeIndex, disabled = false, onQuestionSelect }: Props = $props();
-	let answeredCount = $derived(
-		questions.filter((question) => Boolean(answers[question.id]?.trim())).length
-	);
+	let {
+		questions,
+		answers,
+		activeIndex,
+		maxAccessibleIndex = questions.length - 1,
+		disabled = false,
+		onQuestionSelect
+	}: Props = $props();
+	function answered(question: Question): boolean {
+		const answer = answers[question.id];
+		return question.question_type === 'stroke_writing'
+			? Array.isArray(answer) &&
+					Boolean(question.writing_guide && answer.length === question.writing_guide.strokes.length)
+			: typeof answer === 'string' && Boolean(answer.trim());
+	}
+	let answeredCount = $derived(questions.filter(answered).length);
 	let progressPercentage = $derived(
 		questions.length === 0 ? 0 : Math.round((answeredCount / questions.length) * 100)
 	);
 </script>
 
-<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm">
+<Card.Root
+	class="min-h-0 overflow-hidden rounded-2xl bg-white shadow-none ring-0 xl:shadow-sm xl:ring-1"
+>
 	<Card.Content>
 		<h2 class="text-lg font-extrabold text-slate-900">Soal</h2>
 
@@ -47,20 +62,20 @@
 
 		<div class="mt-6 grid grid-cols-5 gap-4">
 			{#each questions as question, index (question.id)}
-				{@const answered = Boolean(answers[question.id]?.trim())}
+				{@const isDone = answered(question)}
 				{@const active = activeIndex === index && !disabled}
 				<Button
 					type="button"
 					variant="outline"
 					onclick={() => onQuestionSelect(index)}
-					{disabled}
-					aria-label={`Buka soal ${index + 1}${answered ? ', sudah dijawab' : ', belum dijawab'}`}
+					disabled={disabled || index > maxAccessibleIndex}
+					aria-label={`Buka soal ${index + 1}${isDone ? ', sudah dijawab' : ', belum dijawab'}`}
 					aria-current={active ? 'step' : undefined}
 					class={cn(
 						'aspect-square h-auto w-full rounded-lg border p-0 text-sm font-bold shadow-xs transition-colors',
 						active
 							? 'border-sky-600 bg-sky-600 text-white hover:bg-sky-700 hover:text-white'
-							: answered
+							: isDone
 								? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800'
 								: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
 					)}
