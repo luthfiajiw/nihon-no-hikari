@@ -6,22 +6,14 @@ import type {
 } from '../entities/question.entity';
 
 export interface QuestionRepository {
-	getQuestionSetDetail(
-		courseId: string,
-		lessonId: string,
-		questionSetId: string
-	): Promise<QuestionSetDetailResponse>;
-	startAttempt(courseId: string, lessonId: string, questionSetId: string): Promise<AttemptResponse>;
+	getQuestionSetDetail(questionSetId: string): Promise<QuestionSetDetailResponse>;
+	startAttempt(questionSetId: string): Promise<AttemptResponse>;
 	submitAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse>;
 	abandonAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string
 	): Promise<void>;

@@ -3,8 +3,6 @@ import { z } from 'zod';
 import { submitQuestionSetAttemptUseCase } from '../../../../dependencies/question.dependency';
 
 const submitQuestionSetAttemptSchema = z.object({
-	courseId: z.string().min(1),
-	lessonId: z.string().min(1),
 	questionSetId: z.string().min(1),
 	attemptId: z.string().min(1),
 	request: z.object({
@@ -20,10 +18,7 @@ const submitQuestionSetAttemptSchema = z.object({
 
 export const submitQuestionSetAttempt = command(submitQuestionSetAttemptSchema, async (payload) => {
 	try {
-		console.log(payload.request.answers[0])
 		return await submitQuestionSetAttemptUseCase.exec(
-			payload.courseId,
-			payload.lessonId,
 			payload.questionSetId,
 			payload.attemptId,
 			payload.request

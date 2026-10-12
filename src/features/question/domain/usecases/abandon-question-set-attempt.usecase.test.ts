@@ -12,14 +12,7 @@ describe('AbandonQuestionSetAttemptUseCase', () => {
 		};
 		const useCase = new AbandonQuestionSetAttemptUseCase(repository);
 
-		await expect(useCase.exec('course-1', 'lesson-1', 'set-1', 'attempt-1')).resolves.toBe(
-			undefined
-		);
-		expect(repository.abandonAttempt).toHaveBeenCalledWith(
-			'course-1',
-			'lesson-1',
-			'set-1',
-			'attempt-1'
-		);
+		await expect(useCase.exec('set-1', 'attempt-1')).resolves.toBeUndefined();
+		expect(repository.abandonAttempt).toHaveBeenCalledWith('set-1', 'attempt-1');
 	});
 });

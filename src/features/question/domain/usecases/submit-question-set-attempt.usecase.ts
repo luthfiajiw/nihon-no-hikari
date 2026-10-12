@@ -5,18 +5,10 @@ export class SubmitQuestionSetAttemptUseCase {
 	constructor(private readonly questionRepository: QuestionRepository) {}
 
 	exec(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse> {
-		return this.questionRepository.submitAttempt(
-			courseId,
-			lessonId,
-			questionSetId,
-			attemptId,
-			request
-		);
+		return this.questionRepository.submitAttempt(questionSetId, attemptId, request);
 	}
 }

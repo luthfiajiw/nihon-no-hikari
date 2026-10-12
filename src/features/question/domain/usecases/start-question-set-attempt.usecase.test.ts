@@ -14,7 +14,7 @@ describe('StartQuestionSetAttemptUseCase', () => {
 		};
 		const useCase = new StartQuestionSetAttemptUseCase(repository);
 
-		await expect(useCase.exec('course-1', 'lesson-1', 'set-1')).resolves.toEqual(response);
-		expect(repository.startAttempt).toHaveBeenCalledWith('course-1', 'lesson-1', 'set-1');
+		await expect(useCase.exec('set-1')).resolves.toEqual(response);
+		expect(repository.startAttempt).toHaveBeenCalledWith('set-1');
 	});
 });

@@ -28,8 +28,8 @@ export class CourseRepositoryImpl implements CourseRepository {
 		return this.courseSource.getModules(courseId);
 	}
 
-	getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse> {
-		return this.courseSource.getLesson(courseId, lessonId);
+	getLesson(lessonId: string): Promise<LessonDetailResponse> {
+		return this.courseSource.getLesson(lessonId);
 	}
 
 	updateModuleProgress(
@@ -41,10 +41,9 @@ export class CourseRepositoryImpl implements CourseRepository {
 	}
 
 	updateLessonProgress(
-		courseId: string,
 		lessonId: string,
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse> {
-		return this.courseSource.updateLessonProgress(courseId, lessonId, payload);
+		return this.courseSource.updateLessonProgress(lessonId, payload);
 	}
 }

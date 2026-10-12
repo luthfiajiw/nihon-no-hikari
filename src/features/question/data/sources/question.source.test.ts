@@ -3,7 +3,7 @@ import { HttpClient } from '$lib/http-client';
 import { QuestionSource } from './question.source';
 
 describe('QuestionSource', () => {
-	it('gets a question set detail from the nested course endpoint', async () => {
+	it('gets a question set detail from the question-set endpoint', async () => {
 		const responseData = {
 			success: true,
 			message: 'OK',
@@ -30,11 +30,9 @@ describe('QuestionSource', () => {
 			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
 		);
 
-		await expect(source.getQuestionSetDetail('course/1', 'lesson/1', 'set/1')).resolves.toEqual(
-			responseData
-		);
+		await expect(source.getQuestionSetDetail('set/1')).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/question-sets/set%2F1',
+			'http://localhost:8080/api/v1/question-sets/set%2F1',
 			{ method: 'GET', headers: { Accept: 'application/json' } }
 		);
 	});
@@ -72,11 +70,9 @@ describe('QuestionSource', () => {
 			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
 		);
 
-		await expect(source.startAttempt('course/1', 'lesson/1', 'set/1')).resolves.toEqual(
-			responseData
-		);
+		await expect(source.startAttempt('set/1')).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/question-sets/set%2F1/attempts',
+			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts',
 			{
 				method: 'POST',
 				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -94,7 +90,7 @@ describe('QuestionSource', () => {
 		);
 		const source = new QuestionSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
 
-		await expect(source.getQuestionSetDetail('course-1', 'lesson-1', 'missing')).rejects.toThrow(
+		await expect(source.getQuestionSetDetail('missing')).rejects.toThrow(
 			'Set soal tidak ditemukan.'
 		);
 	});
@@ -136,10 +132,10 @@ describe('QuestionSource', () => {
 		);
 
 		await expect(
-			source.submitAttempt('course/1', 'lesson/1', 'set/1', 'attempt/1', request)
+			source.submitAttempt('set/1', 'attempt/1', request)
 		).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/question-sets/set%2F1/attempts/attempt%2F1/submit',
+			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts/attempt%2F1/submit',
 			{
 				method: 'POST',
 				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -154,11 +150,9 @@ describe('QuestionSource', () => {
 			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
 		);
 
-		await expect(
-			source.abandonAttempt('course/1', 'lesson/1', 'set/1', 'attempt/1')
-		).resolves.toBeUndefined();
+		await expect(source.abandonAttempt('set/1', 'attempt/1')).resolves.toBeUndefined();
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/question-sets/set%2F1/attempts/attempt%2F1/abandon',
+			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts/attempt%2F1/abandon',
 			{
 				method: 'POST',
 				headers: { Accept: 'application/json' }

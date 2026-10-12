@@ -133,8 +133,6 @@
 
 		try {
 			const response = await startQuestionSetAttempt({
-				courseId,
-				lessonId: activeLessonId,
 				questionSetId: questionSet.id
 			});
 
@@ -179,7 +177,6 @@
 
 		try {
 			const response = await updateLessonProgress({
-				courseId,
 				lessonId: currentLessonId,
 				status: 'completed'
 			});
@@ -194,7 +191,7 @@
 		}
 	}
 
-	async function loadLessonDetail(requestCourseId: string, lessonId: string): Promise<void> {
+	async function loadLessonDetail(lessonId: string): Promise<void> {
 		const requestId = ++lessonRequestId;
 		const isLessonCompleted = moduleLessons
 			.flatMap(({ lessons }) => lessons)
@@ -204,7 +201,7 @@
 		isLessonLoading = true;
 
 		try {
-			const response = await getLessonDetail({ courseId: requestCourseId, lessonId });
+			const response = await getLessonDetail({ lessonId });
 			if (requestId !== lessonRequestId) return;
 
 			if (!response.success || !('data' in response)) {
@@ -213,7 +210,6 @@
 
 			if (!isLessonCompleted) {
 				const progressResponse = await updateLessonProgress({
-					courseId: requestCourseId,
 					lessonId,
 					status: 'in_progress'
 				});
@@ -236,16 +232,14 @@
 	}
 
 	$effect(() => {
-		const requestCourseId = courseId;
 		const lessonId = activeLessonId;
-		if (!requestCourseId || !lessonId) return;
+		if (!lessonId) return;
 
-		const lessonKey = `${requestCourseId}:${lessonId}`;
-		if (lastRequestedLessonKey === lessonKey) return;
-		lastRequestedLessonKey = lessonKey;
+		if (lastRequestedLessonKey === lessonId) return;
+		lastRequestedLessonKey = lessonId;
 
 		untrack(() => {
-			void loadLessonDetail(requestCourseId, lessonId);
+			void loadLessonDetail(lessonId);
 		});
 	});
 </script>
@@ -294,7 +288,7 @@
 							<Button
 								class="mt-5"
 								type="button"
-								onclick={() => loadLessonDetail(courseId, activeLessonId)}
+								onclick={() => loadLessonDetail(activeLessonId)}
 							>
 								Coba lagi
 							</Button>

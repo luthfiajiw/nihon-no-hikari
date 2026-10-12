@@ -29,7 +29,7 @@ describe('GetQuestionSetDetailUseCase', () => {
 		};
 		const useCase = new GetQuestionSetDetailUseCase(repository);
 
-		await expect(useCase.exec('course-1', 'lesson-1', 'set-1')).resolves.toEqual(response);
-		expect(repository.getQuestionSetDetail).toHaveBeenCalledWith('course-1', 'lesson-1', 'set-1');
+		await expect(useCase.exec('set-1')).resolves.toEqual(response);
+		expect(repository.getQuestionSetDetail).toHaveBeenCalledWith('set-1');
 	});
 });

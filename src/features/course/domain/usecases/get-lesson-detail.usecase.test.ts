@@ -27,7 +27,7 @@ describe('GetLessonDetailUseCase', () => {
 		};
 		const useCase = new GetLessonDetailUseCase(repository);
 
-		await expect(useCase.exec('course-1', 'lesson-1')).resolves.toEqual(response);
-		expect(repository.getLesson).toHaveBeenCalledWith('course-1', 'lesson-1');
+		await expect(useCase.exec('lesson-1')).resolves.toEqual(response);
+		expect(repository.getLesson).toHaveBeenCalledWith('lesson-1');
 	});
 });

@@ -11,13 +11,9 @@ type ErrorResponse = { error?: string; message?: string };
 export class QuestionSource {
 	constructor(private readonly httpClient: HttpClient) {}
 
-	async getQuestionSetDetail(
-		courseId: string,
-		lessonId: string,
-		questionSetId: string
-	): Promise<QuestionSetDetailResponse> {
+	async getQuestionSetDetail(questionSetId: string): Promise<QuestionSetDetailResponse> {
 		const response = await this.httpClient.request<QuestionSetDetailResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}`,
+			`/v1/question-sets/${encodeURIComponent(questionSetId)}`,
 			{
 				method: 'GET',
 				headers: {
@@ -35,13 +31,9 @@ export class QuestionSource {
 		return response.data;
 	}
 
-	async startAttempt(
-		courseId: string,
-		lessonId: string,
-		questionSetId: string
-	): Promise<AttemptResponse> {
+	async startAttempt(questionSetId: string): Promise<AttemptResponse> {
 		const response = await this.httpClient.request<AttemptResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts`,
+			`/v1/question-sets/${encodeURIComponent(questionSetId)}/attempts`,
 			{
 				method: 'POST',
 				headers: {
@@ -62,14 +54,12 @@ export class QuestionSource {
 	}
 
 	async submitAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse> {
 		const response = await this.httpClient.request<SubmitAttemptResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attemptId)}/submit`,
+			`/v1/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attemptId)}/submit`,
 			{
 				method: 'POST',
 				headers: {
@@ -88,13 +78,11 @@ export class QuestionSource {
 	}
 
 	async abandonAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string
 	): Promise<void> {
 		const response = await this.httpClient.request<ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attemptId)}/abandon`,
+			`/v1/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attemptId)}/abandon`,
 			{
 				method: 'POST',
 				headers: {

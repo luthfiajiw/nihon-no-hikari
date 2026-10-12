@@ -5,4 +5,9 @@
 	let { data }: PageProps = $props();
 </script>
 
-<AssessmentView {...data} expectedKind="final_exam" />
+<AssessmentView
+	questionSetId={data.questionSetId}
+	backHref={data.backHref}
+	errorMessage={data.errorMessage}
+	expectedKind="final_exam"
+/>

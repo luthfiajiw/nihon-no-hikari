@@ -26,15 +26,7 @@ describe('SubmitQuestionSetAttemptUseCase', () => {
 		};
 		const useCase = new SubmitQuestionSetAttemptUseCase(repository);
 
-		await expect(
-			useCase.exec('course-1', 'lesson-1', 'set-1', 'attempt-1', request)
-		).resolves.toEqual(response);
-		expect(repository.submitAttempt).toHaveBeenCalledWith(
-			'course-1',
-			'lesson-1',
-			'set-1',
-			'attempt-1',
-			request
-		);
+		await expect(useCase.exec('set-1', 'attempt-1', request)).resolves.toEqual(response);
+		expect(repository.submitAttempt).toHaveBeenCalledWith('set-1', 'attempt-1', request);
 	});
 });

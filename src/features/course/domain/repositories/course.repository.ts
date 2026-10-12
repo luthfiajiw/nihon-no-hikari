@@ -15,14 +15,13 @@ export interface CourseRepository {
 	getList(): Promise<ListCourseResponse>;
 	getDetail(id: string): Promise<CourseDetailResponse>;
 	getModules(courseId: string): Promise<ListModuleLessonResponse>;
-	getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse>;
+	getLesson(lessonId: string): Promise<LessonDetailResponse>;
 	updateModuleProgress(
 		courseId: string,
 		moduleId: string,
 		payload: UpdateModuleProgressRequest
 	): Promise<UpdateModuleProgressResponse>;
 	updateLessonProgress(
-		courseId: string,
 		lessonId: string,
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse>;

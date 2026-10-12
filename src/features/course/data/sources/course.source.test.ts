@@ -134,7 +134,7 @@ describe('CourseSource', () => {
 
 		await expect(source.getModules('course/1')).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/modules',
+			'http://localhost:8080/api/v1/lessons?courseId=course%2F1',
 			{
 				method: 'GET',
 				headers: { Accept: 'application/json' }
@@ -176,9 +176,9 @@ describe('CourseSource', () => {
 			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
 		);
 
-		await expect(source.getLesson('course/1', 'lesson/1')).resolves.toEqual(responseData);
+		await expect(source.getLesson('lesson/1')).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1',
+			'http://localhost:8080/api/v1/lessons/lesson%2F1',
 			{
 				method: 'GET',
 				headers: { Accept: 'application/json' }
@@ -195,9 +195,7 @@ describe('CourseSource', () => {
 		);
 		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
 
-		await expect(source.getLesson('course-1', 'missing')).rejects.toThrow(
-			'Materi tidak ditemukan.'
-		);
+		await expect(source.getLesson('missing')).rejects.toThrow('Materi tidak ditemukan.');
 	});
 
 	it('updates and returns module progress', async () => {
@@ -252,10 +250,10 @@ describe('CourseSource', () => {
 		);
 
 		await expect(
-			source.updateLessonProgress('course/1', 'lesson/1', { status: 'unlocked' })
+			source.updateLessonProgress('lesson/1', { status: 'unlocked' })
 		).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/lessons/lesson%2F1/progress',
+			'http://localhost:8080/api/v1/lessons/lesson%2F1/progress',
 			{
 				method: 'PUT',
 				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -274,7 +272,7 @@ describe('CourseSource', () => {
 		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
 
 		await expect(
-			source.updateLessonProgress('course-1', 'lesson-1', { status: 'in_progress' })
+			source.updateLessonProgress('lesson-1', { status: 'in_progress' })
 		).rejects.toThrow('Progres gagal diperbarui.');
 	});
 });

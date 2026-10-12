@@ -15,8 +15,6 @@
 
 	interface Props {
 		questionSetId: string;
-		courseId: string | null;
-		lessonId: string | null;
 		expectedKind: QuestionKind;
 		backHref: string;
 		errorMessage?: string | null;
@@ -24,8 +22,6 @@
 
 	let {
 		questionSetId,
-		courseId,
-		lessonId,
 		expectedKind,
 		backHref,
 		errorMessage = null
@@ -61,8 +57,6 @@
 		if (
 			expectedKind !== 'practice' ||
 			submitResult ||
-			!courseId ||
-			!lessonId ||
 			!attempt ||
 			attempt.status !== 'in_progress'
 		) {
@@ -71,7 +65,7 @@
 
 		if (abandonRequest) return abandonRequest;
 
-		const endpoint = `/api/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attempt.id)}/abandon`;
+		const endpoint = `/api/v1/question-sets/${encodeURIComponent(questionSetId)}/attempts/${encodeURIComponent(attempt.id)}/abandon`;
 		abandonRequest = fetch(endpoint, {
 			method: 'POST',
 			headers: { Accept: 'application/json' },
@@ -129,7 +123,7 @@
 
 	async function handleSubmit(): Promise<void> {
 		if (isSubmitting || submitResult) return;
-		if (!courseId || !lessonId || !attempt) {
+		if (!attempt) {
 			submitError = 'Data pengerjaan tidak lengkap. Kembali ke materi dan mulai ulang.';
 			return;
 		}
@@ -139,8 +133,6 @@
 
 		try {
 			const response = await submitQuestionSetAttempt({
-				courseId,
-				lessonId,
 				questionSetId,
 				attemptId: attempt.id,
 				request: createSubmitRequest()

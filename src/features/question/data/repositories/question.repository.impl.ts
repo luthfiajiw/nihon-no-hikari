@@ -10,38 +10,26 @@ import { QuestionSource } from '../sources/question.source';
 export class QuestionRepositoryImpl implements QuestionRepository {
 	constructor(private readonly questionSource: QuestionSource) {}
 
-	getQuestionSetDetail(
-		courseId: string,
-		lessonId: string,
-		questionSetId: string
-	): Promise<QuestionSetDetailResponse> {
-		return this.questionSource.getQuestionSetDetail(courseId, lessonId, questionSetId);
+	getQuestionSetDetail(questionSetId: string): Promise<QuestionSetDetailResponse> {
+		return this.questionSource.getQuestionSetDetail(questionSetId);
 	}
 
-	startAttempt(
-		courseId: string,
-		lessonId: string,
-		questionSetId: string
-	): Promise<AttemptResponse> {
-		return this.questionSource.startAttempt(courseId, lessonId, questionSetId);
+	startAttempt(questionSetId: string): Promise<AttemptResponse> {
+		return this.questionSource.startAttempt(questionSetId);
 	}
 
 	submitAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse> {
-		return this.questionSource.submitAttempt(courseId, lessonId, questionSetId, attemptId, request);
+		return this.questionSource.submitAttempt(questionSetId, attemptId, request);
 	}
 
 	abandonAttempt(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string
 	): Promise<void> {
-		return this.questionSource.abandonAttempt(courseId, lessonId, questionSetId, attemptId);
+		return this.questionSource.abandonAttempt(questionSetId, attemptId);
 	}
 }

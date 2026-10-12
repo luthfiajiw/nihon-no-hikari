@@ -4,11 +4,9 @@ export class AbandonQuestionSetAttemptUseCase {
 	constructor(private readonly questionRepository: QuestionRepository) {}
 
 	exec(
-		courseId: string,
-		lessonId: string,
 		questionSetId: string,
 		attemptId: string
 	): Promise<void> {
-		return this.questionRepository.abandonAttempt(courseId, lessonId, questionSetId, attemptId);
+		return this.questionRepository.abandonAttempt(questionSetId, attemptId);
 	}
 }

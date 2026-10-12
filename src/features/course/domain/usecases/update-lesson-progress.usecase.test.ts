@@ -17,8 +17,8 @@ describe('UpdateLessonProgressUseCase', () => {
 			};
 			const useCase = new UpdateLessonProgressUseCase(repository);
 
-			await expect(useCase.exec('course-1', 'lesson-1', { status })).resolves.toEqual(response);
-			expect(repository.updateLessonProgress).toHaveBeenCalledWith('course-1', 'lesson-1', {
+			await expect(useCase.exec('lesson-1', { status })).resolves.toEqual(response);
+			expect(repository.updateLessonProgress).toHaveBeenCalledWith('lesson-1', {
 				status
 			});
 		}

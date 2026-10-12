@@ -12,7 +12,7 @@ import type {
 } from '../../domain/entities/lesson.entity';
 import { HttpClient } from '$lib/http-client';
 
-type ErrorResponse = { error?: string };
+type ErrorResponse = { error?: string; message?: string };
 
 export class CourseSource {
 	constructor(private readonly httpClient: HttpClient) {}
@@ -29,7 +29,9 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengambil daftar kursus.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal mengambil daftar kursus.'
+			);
 		}
 
 		return response.data;
@@ -47,7 +49,9 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengambil detail kursus.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal mengambil detail kursus.'
+			);
 		}
 
 		return response.data;
@@ -55,7 +59,7 @@ export class CourseSource {
 
 	async getModules(courseId: string): Promise<ListModuleLessonResponse> {
 		const response = await this.httpClient.request<ListModuleLessonResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/modules`,
+			`/v1/lessons?courseId=${encodeURIComponent(courseId)}`,
 			{
 				method: 'GET',
 				headers: {
@@ -65,15 +69,19 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengambil modul dan materi kursus.');
+			throw new Error(
+				response.data?.error ||
+					response.data?.message ||
+					'Gagal mengambil modul dan materi kursus.'
+			);
 		}
 
 		return response.data;
 	}
 
-	async getLesson(courseId: string, lessonId: string): Promise<LessonDetailResponse> {
+	async getLesson(lessonId: string): Promise<LessonDetailResponse> {
 		const response = await this.httpClient.request<LessonDetailResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`,
+			`/v1/lessons/${encodeURIComponent(lessonId)}`,
 			{
 				method: 'GET',
 				headers: {
@@ -83,7 +91,9 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal mengambil detail materi.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal mengambil detail materi.'
+			);
 		}
 
 		return response.data;
@@ -107,19 +117,20 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal memperbarui progres modul.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal memperbarui progres modul.'
+			);
 		}
 
 		return response.data;
 	}
 
 	async updateLessonProgress(
-		courseId: string,
 		lessonId: string,
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse> {
 		const response = await this.httpClient.request<UpdateLessonProgressResponse & ErrorResponse>(
-			`/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/progress`,
+			`/v1/lessons/${encodeURIComponent(lessonId)}/progress`,
 			{
 				method: 'PUT',
 				headers: {
@@ -131,7 +142,9 @@ export class CourseSource {
 		);
 
 		if (!response.ok) {
-			throw new Error(response.data?.error || 'Gagal memperbarui progres materi.');
+			throw new Error(
+				response.data?.error || response.data?.message || 'Gagal memperbarui progres materi.'
+			);
 		}
 
 		return response.data;

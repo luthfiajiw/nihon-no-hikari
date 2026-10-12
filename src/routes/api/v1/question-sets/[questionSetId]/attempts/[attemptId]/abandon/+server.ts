@@ -4,12 +4,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params }) => {
 	try {
-		await abandonQuestionSetAttemptUseCase.exec(
-			params.courseId,
-			params.lessonId,
-			params.questionSetId,
-			params.attemptId
-		);
+		await abandonQuestionSetAttemptUseCase.exec(params.questionSetId, params.attemptId);
 
 		return new Response(null, { status: 204 });
 	} catch (error) {
