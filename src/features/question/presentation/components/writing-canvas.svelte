@@ -20,7 +20,7 @@
 	let pointerId = $state<number | null>(null);
 	let feedback = $state('');
 	const colors = ['#60a5fa', '#fb923c', '#34d399', '#c084fc'];
-	let complete = $derived(value.length === guide.strokes.length);
+	let complete = $derived(showGuide && value.length === guide.strokes.length);
 
 	function pointFromEvent(event: PointerEvent): StrokePoint {
 		const rect =
@@ -28,31 +28,42 @@
 				? event.currentTarget.getBoundingClientRect()
 				: (event.target as SVGSVGElement).getBoundingClientRect();
 		return {
-			x: Math.max(
-				0,
-				Math.min(guide.view_box, ((event.clientX - rect.left) / rect.width) * guide.view_box)
-			),
-			y: Math.max(
-				0,
-				Math.min(guide.view_box, ((event.clientY - rect.top) / rect.height) * guide.view_box)
-			)
+			x:
+				Math.round(
+					Math.max(
+						0,
+						Math.min(guide.view_box, ((event.clientX - rect.left) / rect.width) * guide.view_box)
+					) * 100
+				) / 100,
+			y:
+				Math.round(
+					Math.max(
+						0,
+						Math.min(guide.view_box, ((event.clientY - rect.top) / rect.height) * guide.view_box)
+					) * 100
+				) / 100
 		};
 	}
 
 	function pointerDown(event: PointerEvent): void {
-		if (disabled || complete || pointerId !== null) return;
+		if (disabled || complete || pointerId !== null || (!showGuide && value.length >= 16)) return;
 		const svg = event.currentTarget as SVGSVGElement;
 		svg.setPointerCapture(event.pointerId);
 		pointerId = event.pointerId;
 		current = [pointFromEvent(event)];
-		feedback = `Goresan ${value.length + 1} dari ${guide.strokes.length}`;
+		feedback = showGuide
+			? `Goresan ${value.length + 1} dari ${guide.strokes.length}`
+			: `Goresan bebas ${value.length + 1}`;
 	}
 
 	function pointerMove(event: PointerEvent): void {
 		if (pointerId !== event.pointerId || current.length === 0) return;
 		const next = pointFromEvent(event);
 		const previous = current.at(-1)!;
-		if (Math.hypot(next.x - previous.x, next.y - previous.y) >= 0.4 && current.length < 255) {
+		if (
+			Math.hypot(next.x - previous.x, next.y - previous.y) >= 0.4 &&
+			current.length < (showGuide ? 255 : 127)
+		) {
 			current = [...current, next];
 		}
 	}
@@ -62,7 +73,10 @@
 		const points = [...current, pointFromEvent(event)];
 		pointerId = null;
 		current = [];
-		if (evaluateStroke(guide, value.length, points)) {
+		if (!showGuide) {
+			onChange([...value, points]);
+			feedback = 'Tulisan tersimpan. Kamu bisa lanjut atau menambah goresan.';
+		} else if (evaluateStroke(guide, value.length, points)) {
 			onChange([...value, points]);
 			feedback =
 				value.length + 1 === guide.strokes.length
@@ -199,7 +213,7 @@
 			{feedback ||
 				(showGuide
 					? 'Ikuti urutan dan arah goresan dari angka yang ditunjukkan.'
-					: 'Tuliskan huruf sesuai urutan dan arah goresan yang sudah dipelajari.')}
+					: 'Tulis bebas di kanvas. Satu goresan sudah cukup untuk lanjut.')}
 		</p>
 		<Button
 			type="button"

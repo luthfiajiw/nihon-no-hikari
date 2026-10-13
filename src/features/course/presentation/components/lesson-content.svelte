@@ -24,10 +24,14 @@
 		title?: string;
 		content?: string;
 		questionSets?: QuestionSet[];
+		moduleExams?: QuestionSet[];
+		canStartModuleExam?: boolean;
+		isLessonCompleted?: boolean;
 		previousLessonTitle?: string;
 		nextLessonTitle?: string;
 		onPreviousLesson?: () => void;
 		onNextLesson?: () => void;
+		onCompleteLesson?: () => void;
 		onQuestionSetSelect?: (questionSet: QuestionSet) => void | Promise<void>;
 		startingQuestionSetId?: string | null;
 		questionSetError?: string | null;
@@ -43,10 +47,14 @@
 		title = 'Pengenalan Huruf Hiragana',
 		content = '',
 		questionSets = [],
+		moduleExams = [],
+		canStartModuleExam = false,
+		isLessonCompleted = false,
 		previousLessonTitle,
 		nextLessonTitle,
 		onPreviousLesson,
 		onNextLesson,
+		onCompleteLesson,
 		onQuestionSetSelect,
 		startingQuestionSetId = null,
 		questionSetError = null,
@@ -261,6 +269,19 @@
 					</section>
 				{/if}
 
+				{#if moduleExams.length > 0}
+					<section class="my-6 space-y-3 rounded-2xl border border-sky-200 bg-sky-50 p-5" aria-label="Ujian akhir module">
+						<h2 class="text-lg font-bold text-slate-900">Ujian akhir module</h2>
+						{#if !canStartModuleExam}<p class="text-sm text-slate-600">Selesaikan seluruh lesson dalam module ini untuk membuka ujian.</p>{/if}
+						{#each moduleExams as exam}
+							<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3">
+								<div><p class="font-semibold">{exam.title}</p><p class="text-sm text-slate-500">{exam.skill === 'writing' ? 'Writing' : 'Reading'} · {exam.question_count} soal · {exam.is_passed ? 'Lulus' : 'Belum lulus'}</p></div>
+								<Button size="sm" disabled={!canStartModuleExam || startingQuestionSetId !== null} onclick={() => onQuestionSetSelect?.(exam)}>{exam.is_passed ? 'Kerjakan Lagi' : 'Mulai Ujian'}</Button>
+							</div>
+						{/each}
+					</section>
+				{/if}
+
 				{#if previousLessonTitle || nextLessonTitle}
 					<div
 						class={cn('flex items-center gap-4 pt-4', {
@@ -291,6 +312,9 @@
 							</Button>
 						{/if}
 					</div>
+				{/if}
+				{#if !nextLessonTitle && questionSets.length === 0 && !isLessonCompleted && onCompleteLesson}
+					<Button type="button" onclick={onCompleteLesson} disabled={isNextLessonLoading}>Tandai Lesson Selesai</Button>
 				{/if}
 			</div>
 		</article>

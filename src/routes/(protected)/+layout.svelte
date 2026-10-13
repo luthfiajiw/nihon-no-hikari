@@ -15,7 +15,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { BellIcon, ChevronDownIcon, LoaderCircle } from 'lucide-svelte';
+	import { BellIcon, ChevronDownIcon, LoaderCircle, Search } from 'lucide-svelte';
 	import type { LayoutProps } from './$types';
 
 	interface AssessmentPageData {
@@ -40,6 +40,7 @@
 		page.route.id?.startsWith('/(protected)/exam') === true ||
 			page.route.id?.startsWith('/(protected)/practice') === true
 	);
+	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 	const assessmentData = $derived(page.data as Partial<AssessmentPageData>);
 	const activeAssessmentAttempt = $derived.by(() => {
 		const response = attemptResponse;
@@ -188,7 +189,7 @@
 		</section>
 	</div>
 {:else}
-	<Sidebar.Provider>
+	<Sidebar.Provider open={isAdminRoute}>
 		{#if navigating.to}
 			<div
 				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
@@ -198,17 +199,34 @@
 				<div class="route-progress-indicator h-full bg-sky-500"></div>
 			</div>
 		{/if}
-		<AppSidebar />
+		<AppSidebar mode={isAdminRoute ? 'admin' : 'student'} />
 		<Sidebar.Inset class="relative h-svh overflow-hidden">
 			<header
 				class="flex h-16 shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
 			>
-				<div class="flex items-center gap-2 px-4">
+				<div class="flex min-w-0 flex-1 items-center gap-2 px-4">
 					<Sidebar.Trigger />
-					<p class="pl-1 text-base">Ganbare, {firstName}!</p>
+					{#if isAdminRoute}
+						<form
+							action={page.url.pathname.startsWith('/admin/question-sets')
+								? '/admin/question-sets'
+								: '/admin/courses'}
+							method="GET"
+							class="relative ml-1 w-full max-w-md"
+						>
+							<Search class="pointer-events-none absolute top-2.5 left-3 size-4 text-slate-400" />
+							<input
+								name="q"
+								aria-label="Cari konten admin"
+								placeholder="Cari kursus atau question set..."
+								value={page.url.searchParams.get('q') ?? ''}
+								class="h-9 w-full rounded-lg border bg-slate-50 pr-3 pl-9 text-sm outline-none focus:border-blue-400 sm:w-80"
+							/>
+						</form>
+					{:else}<p class="pl-1 text-base">Ganbare, {firstName}!</p>{/if}
 				</div>
 
-				<div class="flex items-center gap-2 pr-6">
+				<div class="flex shrink-0 items-center gap-2 pr-3 sm:pr-6">
 					<Button variant="outline" size="icon" class="rounded-full border-none">
 						<BellIcon />
 					</Button>
@@ -222,12 +240,12 @@
 											src={data.user?.avatar_url ?? 'https://github.com/shadcn.png'}
 											alt={displayName}
 										/>
-										<Avatar.Fallback>CN</Avatar.Fallback>
+										<Avatar.Fallback>{displayName.charAt(0).toUpperCase()}</Avatar.Fallback>
 									</Avatar.Root>
 
-									<div class="flex flex-col items-start pr-4 pl-3">
+									<div class="hidden flex-col items-start pr-4 pl-3 sm:flex">
 										<p class="text-sm font-medium">{displayName}</p>
-										<p class="text-xs text-muted-foreground">Level Pemula</p>
+										<p class="text-xs text-muted-foreground">{data.user?.role ?? 'User'}</p>
 									</div>
 
 									<ChevronDownIcon class="size-4" />
@@ -255,9 +273,23 @@
 				</div>
 			</header>
 			<section
+				aria-busy={Boolean(navigating.to)}
 				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)]"
 			>
-				{@render children?.()}
+				{#if isAdminRoute && navigating.to}
+					<div class="mx-auto max-w-7xl space-y-6 p-6 md:p-8" role="status" aria-live="polite">
+						<p class="flex items-center gap-2 text-sm text-slate-500">
+							<LoaderCircle class="size-4 animate-spin motion-reduce:animate-none" /> Membuka halaman…
+						</p>
+						<div class="h-12 w-72 rounded-xl bg-slate-200/70"></div>
+						{#each [1, 2, 3] as row (row)}<div
+								class="h-32 rounded-2xl border border-slate-200 bg-white"
+							></div>{/each}
+					</div>
+				{/if}
+				{#if isAdminRoute}<div class:hidden={Boolean(navigating.to)}>
+						{@render children?.()}
+					</div>{:else}{@render children?.()}{/if}
 			</section>
 		</Sidebar.Inset>
 	</Sidebar.Provider>

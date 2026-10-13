@@ -21,10 +21,11 @@
 	interface Props {
 		courseId: string;
 		moduleLessons: ModuleLesson[];
+		moduleExams: Record<string, QuestionSet[]>;
 		errorMessage?: string | null;
 	}
 
-	let { courseId, moduleLessons, errorMessage = null }: Props = $props();
+	let { courseId, moduleLessons, moduleExams, errorMessage = null }: Props = $props();
 	const courseLearning = getCourseLearningContext();
 	const assessment = getAssessmentContext();
 
@@ -89,6 +90,9 @@
 			.flatMap(({ lessons }) => lessons)
 			.find((lesson) => lesson.id === activeLessonId) ?? null
 	);
+	const activeModuleLesson = $derived(moduleLessons.find(({ lessons }) => lessons.some((lesson) => lesson.id === activeLessonId)));
+	const activeModuleExams = $derived(activeModuleLesson ? moduleExams[activeModuleLesson.module.id] ?? [] : []);
+	const canStartModuleExam = $derived(Boolean(activeModuleLesson?.lessons.length) && activeModuleLesson?.lessons.every((lesson) => lesson.status === 'completed'));
 	const orderedLessons = $derived(moduleLessons.flatMap(({ lessons }) => lessons));
 	const activeLessonIndex = $derived(
 		orderedLessons.findIndex((lesson) => lesson.id === activeLessonId)
@@ -143,10 +147,9 @@
 			assessment.setAttemptResponse(response);
 
 			const basePath = response.data.question_set.kind === 'final_exam' ? 'exam' : 'practice';
-			const searchParams = new SvelteURLSearchParams({
-				courseId,
-				lessonId: activeLessonId
-			});
+			const searchParams = new SvelteURLSearchParams(basePath === 'exam'
+				? { courseId, moduleId: activeModuleLesson?.module.id ?? '' }
+				: { courseId, lessonId: activeLessonId });
 			const href = `/${basePath}/${encodeURIComponent(questionSet.id)}?${searchParams.toString()}`;
 
 			await goto(resolve(href as Pathname));
@@ -170,6 +173,7 @@
 
 	async function handleNextLesson(): Promise<void> {
 		if (!activeLessonId || !nextLesson || isNextLessonLoading) return;
+		if (activeLesson?.status === 'completed') { courseLearning.selectLesson(nextLesson.id); return; }
 
 		const currentLessonId = activeLessonId;
 		const nextLessonId = nextLesson.id;
@@ -189,6 +193,16 @@
 		} finally {
 			isNextLessonLoading = false;
 		}
+	}
+
+	async function handleCompleteLesson(): Promise<void> {
+		if (!activeLessonId || isNextLessonLoading) return;
+		isNextLessonLoading = true;
+		try {
+			const response = await updateLessonProgress({ lessonId: activeLessonId, status: 'completed' });
+			if (response.success) updateLessonStatus(activeLessonId, 'completed');
+			else lessonDetailError = response.message;
+		} finally { isNextLessonLoading = false; }
 	}
 
 	async function loadLessonDetail(lessonId: string): Promise<void> {
@@ -300,6 +314,9 @@
 					title={lessonDetail?.title ?? activeLesson?.title ?? 'Materi'}
 					content={lessonDetail?.content ?? ''}
 					questionSets={lessonDetail?.question_sets ?? []}
+					moduleExams={activeModuleExams}
+					{canStartModuleExam}
+					isLessonCompleted={activeLesson?.status === 'completed'}
 					{startingQuestionSetId}
 					questionSetError={questionSetAttemptError}
 					previousLessonTitle={previousLesson?.title}
@@ -308,6 +325,7 @@
 						? () => handleLessonSelect(previousLesson.id)
 						: undefined}
 					onNextLesson={nextLesson ? handleNextLesson : undefined}
+					onCompleteLesson={handleCompleteLesson}
 					onQuestionSetSelect={handleQuestionSetSelect}
 					{isNextLessonLoading}
 				/>

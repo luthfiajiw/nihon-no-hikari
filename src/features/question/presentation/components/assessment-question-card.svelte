@@ -52,9 +52,11 @@
 	let isLastQuestion = $derived(questionNumber === totalQuestions);
 	let writingComplete = $derived(
 		question.question_type !== 'stroke_writing' ||
-			Boolean(
-				question.writing_guide && strokeAnswer.length === question.writing_guide.strokes.length
-			)
+			(question.show_writing_guide === false
+				? strokeAnswer.length > 0
+				: Boolean(
+						question.writing_guide && strokeAnswer.length === question.writing_guide.strokes.length
+					))
 	);
 </script>
 

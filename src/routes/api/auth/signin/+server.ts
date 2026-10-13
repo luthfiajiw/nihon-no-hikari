@@ -24,8 +24,14 @@ export const POST: RequestHandler = async ({ request, fetch, cookies }) => {
 	}
 
 	if (response.ok) {
-		const state = toAuthState(await response.clone().json().catch(() => null));
-		if (state) setAuthState(cookies, state);
+		const state = toAuthState(
+			await response
+				.clone()
+				.json()
+				.catch(() => null)
+		);
+		if (!state) return json({ error: 'Respons autentikasi tidak valid.' }, { status: 502 });
+		setAuthState(cookies, state);
 	}
 
 	return new Response(response.body, {

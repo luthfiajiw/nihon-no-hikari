@@ -3,6 +3,7 @@ export interface AuthUser {
 	email: string;
 	display_name: string;
 	avatar_url?: string;
+	role: 'User' | 'Admin';
 }
 
 export interface AuthSession {
@@ -48,6 +49,7 @@ export interface SignInResponse {
 		email: string;
 		display_name: string;
 		avatar_url?: string;
+		role: 'User' | 'Admin';
 		session: AuthSession;
 	};
 }

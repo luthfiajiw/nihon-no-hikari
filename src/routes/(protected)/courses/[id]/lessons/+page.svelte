@@ -13,5 +13,6 @@
 <LessonView
 	courseId={data.courseId}
 	moduleLessons={data.moduleLessons}
+	moduleExams={data.moduleExams}
 	errorMessage={data.moduleLessonsError}
 />

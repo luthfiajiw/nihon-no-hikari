@@ -128,6 +128,7 @@ export interface AttemptResult {
 	passing_score: number;
 	is_passed: boolean;
 	lesson_status: string;
+	module_status?: string;
 	submitted_at: string;
 	skills: SkillResult[];
 	answers: AnswerResult[];

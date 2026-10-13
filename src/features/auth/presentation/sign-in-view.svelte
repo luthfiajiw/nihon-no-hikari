@@ -30,12 +30,12 @@
 			serverError = null;
 			successMessage = null;
 			try {
-				await signInUseCase.exec({
+				const result = await signInUseCase.exec({
 					email: value.email,
 					password: value.password
 				});
 
-				await goto(resolve('/'), { invalidateAll: true });
+				await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/'), { invalidateAll: true });
 			} catch (err) {
 				serverError =
 					err instanceof DomainError

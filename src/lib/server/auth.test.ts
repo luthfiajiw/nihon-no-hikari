@@ -10,13 +10,20 @@ vi.mock('$env/dynamic/private', () => ({
 	}
 }));
 
-import { clearAuthState, clearLegacyAuthCookies, readAuthState, setAuthState } from './auth-cookie';
+import {
+	clearAuthState,
+	clearLegacyAuthCookies,
+	readAuthState,
+	setAuthState,
+	toAuthState
+} from './auth-cookie';
 import { getValidAccessToken, refreshAuthSession, revokeAuthSession } from './auth';
 
 const initialState: AuthState = {
 	user: {
 		id: 'user-1',
 		email: 'user@example.com',
+		role: 'User',
 		display_name: 'Test User'
 	},
 	session: {
@@ -63,6 +70,25 @@ describe('server auth', () => {
 
 		expect(values.get('nnh.auth')).not.toContain('refresh-token');
 		expect(readAuthState(cookies)).toEqual(initialState);
+	});
+
+	it('stores the role returned by sign-in', () => {
+		const state = toAuthState({
+			data: {
+				id: 'admin-1',
+				email: 'admin@example.com',
+				display_name: 'Admin',
+				role: 'Admin',
+				session: {
+					id: 'session-1',
+					access_token: 'access',
+					access_token_expires_at: '2099-01-01T00:00:00Z',
+					refresh_token: 'refresh',
+					refresh_token_expires_at: '2099-02-01T00:00:00Z'
+				}
+			}
+		});
+		expect(state?.user.role).toBe('Admin');
 	});
 
 	it('rejects a tampered auth cookie', () => {

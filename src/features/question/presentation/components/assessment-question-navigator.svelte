@@ -26,7 +26,11 @@
 		const answer = answers[question.id];
 		return question.question_type === 'stroke_writing'
 			? Array.isArray(answer) &&
-					Boolean(question.writing_guide && answer.length === question.writing_guide.strokes.length)
+					(question.show_writing_guide === false
+						? answer.length > 0
+						: Boolean(
+								question.writing_guide && answer.length === question.writing_guide.strokes.length
+							))
 			: typeof answer === 'string' && Boolean(answer.trim());
 	}
 	let answeredCount = $derived(questions.filter(answered).length);

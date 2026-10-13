@@ -38,6 +38,7 @@ function isValidUser(value: unknown): value is AuthUser {
 		typeof value.id === 'string' &&
 		typeof value.email === 'string' &&
 		typeof value.display_name === 'string' &&
+		(value.role === 'User' || value.role === 'Admin' || value.role === undefined) &&
 		(typeof value.avatar_url === 'string' || value.avatar_url === undefined)
 	);
 }
@@ -127,7 +128,7 @@ export function readAuthState(cookies: Cookies): AuthState | null {
 		return null;
 	}
 
-	return { user: state.user, session: state.session };
+	return { user: { ...state.user, role: state.user.role ?? 'User' }, session: state.session };
 }
 
 export function toAuthState(payload: unknown): AuthState | null {
@@ -136,12 +137,14 @@ export function toAuthState(payload: unknown): AuthState | null {
 	}
 
 	const data = payload.data;
+	if (data.role !== 'User' && data.role !== 'Admin') return null;
 	const apiSession = data.session as JsonRecord;
 	const user: AuthUser = {
 		id: typeof data.id === 'string' ? data.id : '',
 		email: typeof data.email === 'string' ? data.email : '',
 		display_name: typeof data.display_name === 'string' ? data.display_name : '',
-		avatar_url: typeof data.avatar_url === 'string' ? data.avatar_url : undefined
+		avatar_url: typeof data.avatar_url === 'string' ? data.avatar_url : undefined,
+		role: data.role
 	};
 	const session: StoredAuthSession = {
 		id: typeof apiSession.id === 'string' ? apiSession.id : '',

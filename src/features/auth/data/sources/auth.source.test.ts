@@ -17,6 +17,7 @@ describe('AuthSource', () => {
 				id: 'user-1',
 				email: 'user@example.com',
 				display_name: 'User',
+				role: 'User',
 				session: {
 					id: 'session-1',
 					access_token: 'access-token',
