@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { Pathname } from '$app/types';
+	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { CircleAlertIcon } from 'lucide-svelte';
@@ -28,7 +31,12 @@
 			<p class="mt-2 text-sm text-slate-500">Set soal ini belum memiliki pertanyaan.</p>
 		{/if}
 
-		<Button href={backHref} disabled={isSubmitting} class="mt-6 bg-sky-600 text-white">
+		<Button
+			type="button"
+			onclick={() => goto(resolve(backHref as Pathname))}
+			disabled={isSubmitting}
+			class="mt-6 bg-sky-600 text-white"
+		>
 			Kembali ke materi
 		</Button>
 	</Card.Content>

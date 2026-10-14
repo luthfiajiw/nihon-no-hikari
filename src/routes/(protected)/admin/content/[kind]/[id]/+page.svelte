@@ -1,9 +1,7 @@
 <script lang="ts">
-	import ContentForm from './content-form.svelte';
+	import View from '$features/admin/presentation/views/admin-content-editor-view.svelte';
 	import type { PageProps } from './$types';
 	let { data, form }: PageProps = $props();
 </script>
 
-{#key `${data.kind}:${data.id}:${data.parentId ?? ''}`}
-	<ContentForm {data} {form} />
-{/key}
+<View {data} {form} />

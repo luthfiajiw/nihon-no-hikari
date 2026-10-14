@@ -1,25 +1,4 @@
-export type AdminRecord = {
-	id: string;
-	title: string;
-	slug?: string;
-	description?: string | null;
-	thumbnail_url?: string | null;
-	is_published?: boolean;
-	archived_at?: string | null;
-	order_index?: number;
-	course_id?: string;
-	module_id?: string | null;
-	lesson_id?: string | null;
-	kind?: string;
-	skill?: string | null;
-	version?: number;
-	module_count?: number;
-	lesson_count?: number;
-};
-export type AdminCatalog = Record<
-	'courses' | 'modules' | 'lessons' | 'question_sets',
-	AdminRecord[]
->;
+import type { AdminRecord } from './entities/admin.entity';
 
 export function matchesContent(item: AdminRecord, query: string, status: string): boolean {
 	const actual = item.archived_at ? 'archived' : item.is_published ? 'published' : 'draft';

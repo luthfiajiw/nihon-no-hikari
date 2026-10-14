@@ -63,17 +63,52 @@ const apiPort = port + 1;
 const origin = `http://127.0.0.1:${port}`;
 const screenshotDir = join(tmpdir(), 'nnh-admin-smoke');
 let backendRequests = [];
+const mutations = [];
+const managedUser = {
+	id: '77777777-7777-4777-8777-777777777777',
+	email: 'student@example.test',
+	display_name: 'Siswa Fixture',
+	role: 'User'
+};
+let courseDraft = null;
 const api = createServer(async (request, response) => {
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	backendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
+	if (request.method !== 'GET') {
+		let body = '';
+		for await (const chunk of request) body += chunk;
+		const payload = body ? JSON.parse(body) : null;
+		mutations.push({ path: url.pathname, method: request.method, payload });
+		let result = { success: true };
+		if (url.pathname.endsWith('/lesson-content/preview')) result.data = payload.content;
+		else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
+		else if (url.pathname.endsWith('/publish')) {
+			Object.assign(course, courseDraft ?? {}, { is_published: true });
+			courseDraft = null;
+			result.id = course.id;
+		} else if (url.pathname.endsWith('/restore')) {
+			course.archived_at = null;
+			course.is_published = false;
+		} else if (request.method === 'DELETE') course.archived_at = new Date().toISOString();
+		else if (request.method === 'PATCH') courseDraft = payload;
+		else if (request.method === 'POST') result.id = course.id;
+		response.writeHead(200, { 'Content-Type': 'application/json' });
+		response.end(JSON.stringify(result));
+		return;
+	}
 	let data;
 	if (url.pathname.endsWith('/me')) data = { role: 'Admin' };
+	else if (url.pathname.endsWith('/users')) data = [managedUser];
 	else if (url.pathname.endsWith('/catalog'))
 		data = {
 			courses: [course],
 			modules,
-			lessons: lessons.map(({ content, ...lesson }) => lesson),
+			lessons: lessons.map((lesson) => {
+				const summary = { ...lesson };
+				delete summary.content;
+				return summary;
+			}),
 			question_sets: [set]
 		};
 	else if (url.pathname.endsWith('/levels')) data = [{ id: course.level_id, name: 'N5' }];
@@ -85,7 +120,9 @@ const api = createServer(async (request, response) => {
 			url.pathname.endsWith(`/${item.id}`)
 		);
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
-	response.end(JSON.stringify({ success: Boolean(data), data, draft: null }));
+	response.end(
+		JSON.stringify({ success: Boolean(data), data, draft: data === course ? courseDraft : null })
+	);
 });
 await new Promise((resolve, reject) => {
 	api.once('error', reject);
@@ -93,7 +130,15 @@ await new Promise((resolve, reject) => {
 });
 const vite = spawn(
 	process.execPath,
-	['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', String(port), '--strictPort'],
+	[
+		'node_modules/vite/bin/vite.js',
+		...(process.env.ADMIN_SMOKE_PREVIEW ? ['preview'] : []),
+		'--host',
+		'127.0.0.1',
+		'--port',
+		String(port),
+		'--strictPort'
+	],
 	{
 		cwd: process.cwd(),
 		windowsHide: true,
@@ -157,9 +202,15 @@ try {
 		}
 	]);
 	page = await context.newPage();
+	page.setDefaultTimeout(60000);
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle', timeout: 120000 });
-	await page.getByRole('link', { name: 'Lihat Materi', exact: true }).waitFor();
+	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	assert.equal(
+		await page.locator('a[href]').count(),
+		0,
+		'Admin must use clickable buttons for navigation'
+	);
 	await page.getByRole('button', { name: 'Draft', exact: true }).click();
 	await page.getByText('Kursus tidak ditemukan', { exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Semua', exact: true }).click();
@@ -177,7 +228,8 @@ try {
 	);
 	await mkdir(screenshotDir, { recursive: true });
 	await page.screenshot({ path: join(screenshotDir, 'courses.png'), fullPage: true });
-	await page.getByRole('link', { name: 'Lihat Materi', exact: true }).click();
+	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).focus();
+	await page.keyboard.press('Enter');
 	await page.waitForURL(`**/admin/courses/${course.id}`);
 	await page.getByText('Baris A (あ)', { exact: true }).waitFor();
 	assert.equal(
@@ -186,12 +238,12 @@ try {
 		'Navigation should stay within the app'
 	);
 	await page.screenshot({ path: join(screenshotDir, 'course-detail.png'), fullPage: true });
-	await page.getByRole('link', { name: 'Edit Kursus', exact: true }).click();
+	await page.getByRole('button', { name: 'Edit Kursus', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Kursus', exact: true }).waitFor();
 	assert.equal(await page.getByLabel('Judul', { exact: true }).inputValue(), course.title);
-	await page.getByRole('link', { name: 'Question Sets', exact: true }).click();
+	await page.getByRole('button', { name: 'Question Sets', exact: true }).click();
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
-	await page.getByRole('link', { name: /Membaca Hiragana/ }).click();
+	await page.getByRole('button', { name: /Membaca Hiragana/ }).click();
 	await page.getByRole('heading', { name: 'Edit Question Set' }).waitFor();
 	assert.equal(await page.getByLabel('Judul set').inputValue(), set.title);
 	await page.goto(`${origin}/admin/content/course/new`, { waitUntil: 'networkidle' });
@@ -204,9 +256,9 @@ try {
 	const payload = JSON.parse(await page.locator('input[name="payload"]').inputValue());
 	assert.equal(payload.title, 'Kursus baru');
 	assert(!('module_id' in payload), 'Course payload must omit unrelated UUID fields');
-	await page.getByRole('link', { name: 'Kursus & Materi', exact: true }).click();
-	await page.getByRole('link', { name: 'Lihat Materi', exact: true }).click();
-	await page.getByRole('link', { name: 'Tambah Module', exact: true }).click();
+	await page.getByRole('button', { name: 'Kursus & Materi', exact: true }).click();
+	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).click();
+	await page.getByRole('button', { name: 'Tambah Module', exact: true }).click();
 	await page.getByRole('heading', { name: 'Buat Module' }).waitFor();
 	assert.equal(
 		await page.getByLabel('Judul', { exact: true }).inputValue(),
@@ -214,17 +266,62 @@ try {
 		'New resource form must reset its state'
 	);
 	assert.equal(await page.getByRole('combobox', { name: /^Kursus/ }).inputValue(), course.id);
+	await page.goto(`${origin}/admin/content/course/${course.id}`, { waitUntil: 'networkidle' });
+	await page.getByLabel('Judul', { exact: true }).fill('N5 Draft Fixture');
+	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	assert.equal(courseDraft.title, 'N5 Draft Fixture');
+	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	assert.equal(course.title, 'N5 Draft Fixture');
+	await page.getByRole('button', { name: 'Hapus', exact: true }).click();
+	await page.getByRole('button', { name: 'Ya, hapus atau arsipkan', exact: true }).click();
+	await page.waitForURL('**/admin/courses');
+	assert(course.archived_at, 'Content with history must be archived');
+	await page.goto(`${origin}/admin/content/course/${course.id}`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Pulihkan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Arsip dipulihkan sebagai draft.' }).waitFor();
+	assert.equal(course.archived_at, null);
+	await page.goto(`${origin}/admin/users`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Jadikan Admin', exact: true }).click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: 'Role pengguna berhasil diperbarui.' })
+		.waitFor();
+	assert.equal(managedUser.role, 'Admin');
+	await page.goto(`${origin}/admin/content/lesson/${lessons[0].id}`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Preview', exact: true }).click();
+	await page
+		.frameLocator('iframe[title="Preview konten lesson"]')
+		.getByText('Belajar hiragana.', { exact: true })
+		.waitFor();
+	assert(mutations.some((request) => request.path.endsWith('/lesson-content/preview')));
+	await page.goto(`${origin}/admin`, { waitUntil: 'networkidle' });
+	await page.getByRole('heading', { name: 'Ringkasan Admin', exact: true }).waitFor();
+	await page.getByRole('button', { name: /^1 Kursus$/ }).click();
+	await page.waitForURL('**/admin/courses');
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle' });
-	await page.getByRole('link', { name: 'Lihat Materi', exact: true }).waitFor();
+	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
 	assert(
 		await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
 		'Mobile layout must not overflow horizontally'
 	);
+	assert.equal(
+		await page.locator('.admin-shell').evaluate((element) => getComputedStyle(element).paddingLeft),
+		'16px'
+	);
+	assert.equal(
+		await page
+			.locator('.admin-page')
+			.first()
+			.evaluate((element) => getComputedStyle(element.firstElementChild).marginBottom),
+		'24px'
+	);
 	await page.screenshot({ path: join(screenshotDir, 'courses-mobile.png'), fullPage: true });
 	assert.deepEqual(errors, [], 'Admin navigation must not produce browser errors');
 	console.log(
-		`PASS: course list/detail, SPA navigation, course/question set editors, proxy serialization, form reset, mobile layout. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, lesson preview, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);

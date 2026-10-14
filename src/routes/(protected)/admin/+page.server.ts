@@ -1,7 +1,4 @@
-import { adminData } from '$lib/server/admin-api';
+import { loadAdminDashboard } from '$features/admin/presentation/server/admin-loaders';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async (event) => {
-	const payload = await adminData<{ data: Record<string, unknown[]> }>(event, '/catalog');
-	return { catalog: payload.data };
-};
+export const load: PageServerLoad = loadAdminDashboard;

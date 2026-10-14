@@ -1,8 +1,4 @@
-import { adminData } from '$lib/server/admin-api';
-import type { AdminRecord } from '$lib/admin';
+import { loadAdminCourses } from '$features/admin/presentation/server/admin-loaders';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async (event) => {
-	const payload = await adminData<{ data: AdminRecord[] }>(event, '/content/course');
-	return { courses: payload.data };
-};
+export const load: PageServerLoad = loadAdminCourses;

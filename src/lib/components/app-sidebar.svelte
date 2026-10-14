@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
 	import { resolve } from '$app/paths';
@@ -145,7 +146,11 @@
 							class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-4 [&_svg]:shrink-0"
 						>
 							{#snippet child({ props })}
-								<a href={resolve(item.url as Pathname)} {...props}>
+								<button
+									type="button"
+									{...props}
+									onclick={() => goto(resolve(item.url as Pathname))}
+								>
 									{#if item.url === '/kanji'}
 										<img
 											src={active ? kanjiActiveIcon : kanjiIcon}
@@ -163,7 +168,7 @@
 										/>
 									{/if}
 									<span class="group-data-[collapsible=icon]:hidden">{item.name}</span>
-								</a>
+								</button>
 							{/snippet}
 						</Sidebar.MenuButton>
 					</Sidebar.MenuItem>
@@ -176,10 +181,10 @@
 					<Sidebar.MenuItem>
 						<Sidebar.MenuButton isActive={isItemActive('/admin')} tooltipContent="Panel Admin">
 							{#snippet child({ props })}
-								<a href={resolve('/admin')} {...props}>
+								<button type="button" {...props} onclick={() => goto(resolve('/admin'))}>
 									<Users class="mr-1 size-4" />
 									<span class="group-data-[collapsible=icon]:hidden">Panel Admin</span>
-								</a>
+								</button>
 							{/snippet}
 						</Sidebar.MenuButton>
 					</Sidebar.MenuItem>
@@ -189,14 +194,15 @@
 
 		{#if mode === 'admin'}
 			<div class="mt-5 border-t border-slate-100 pt-5">
-				<a
-					href={resolve('/')}
-					class="flex items-center gap-2 rounded-xl border border-blue-200 px-3 py-3 text-sm font-medium text-blue-600 group-data-[collapsible=icon]:justify-center hover:bg-blue-50"
+				<button
+					type="button"
+					onclick={() => goto(resolve('/'))}
+					class="flex w-full items-center gap-2 rounded-xl border border-blue-200 px-3 py-3 text-sm font-medium text-blue-600 group-data-[collapsible=icon]:justify-center hover:bg-blue-50"
 				>
 					<ArrowUpRight class="size-4 shrink-0" /><span class="group-data-[collapsible=icon]:hidden"
 						>Lihat tampilan siswa</span
 					>
-				</a>
+				</button>
 			</div>
 		{:else}
 			<div class="pt-2">
@@ -212,7 +218,11 @@
 									class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-5 [&_svg]:shrink-0"
 								>
 									{#snippet child({ props })}
-										<a href={resolve(item.url as Pathname)} {...props}>
+										<button
+											type="button"
+											{...props}
+											onclick={() => goto(resolve(item.url as Pathname))}
+										>
 											<item.icon
 												class={cn(
 													'mr-1 size-5 shrink-0 transition-colors',
@@ -222,7 +232,7 @@
 												)}
 											/>
 											<span class="group-data-[collapsible=icon]:hidden">{item.name}</span>
-										</a>
+										</button>
 									{/snippet}
 								</Sidebar.MenuButton>
 							</Sidebar.MenuItem>

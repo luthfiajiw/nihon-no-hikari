@@ -1,0 +1,19 @@
+# Admin
+
+The feature follows the same domain–data–presentation structure as course and question.
+
+- `domain`: content entities, payload/filter rules, repository contracts and use cases for access, catalog/editor loading, content lifecycle, roles and previews. No SvelteKit or HTTP imports.
+- `data`: HTTP sources and the repository implementation. Sources unwrap API responses and preserve failures for the presentation adapters.
+- `presentation`: route loaders/actions, views, form models, reusable headers and editors, and shared spacing styles.
+- `src/dependencies/admin.dependency.ts`: request-scoped composition of the authenticated HTTP client, source, repository and use cases.
+- `src/dependencies/admin-preview.dependency.ts`: browser composition for the same-origin lesson preview adapter.
+
+Routes only delegate to the presentation layer. Course lists do not load the entire catalog; detail pages request the selected course's catalog.
+
+Admin spacing uses 8px within controls, 16px within groups and 24px between sections. Page padding is 16/24/32px across mobile/tablet/desktop; panel padding is 16/24px. Use the shared header and `admin-*` classes in `presentation/styles/admin.css`.
+
+Navigation uses native buttons or Button components with `onclick={() => goto(resolve(...))}`. Do not use anchor tags or Button `href` for app navigation. Dynamic route IDs include SvelteKit route groups when passing route parameters to `resolve`.
+
+Run `npm run check`, `npm run test:unit -- --run --project server` and `npm run test:admin` to verify. The browser test uses an isolated API fixture.
+
+Set `ADMIN_SMOKE_CHANNEL=msedge` to use an installed Edge browser instead of Playwright's Chromium. After `npm run build`, set `ADMIN_SMOKE_PREVIEW=1` to test the production preview without development dependency optimization.

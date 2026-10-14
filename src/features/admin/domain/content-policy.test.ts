@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contentPayload, matchesContent } from './admin';
+import { contentPayload, matchesContent } from './content-policy';
 
 describe('admin form payload', () => {
 	it('serializes a reactive proxy without cloning it and omits unrelated empty UUIDs', () => {

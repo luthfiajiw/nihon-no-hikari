@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { Pathname } from '$app/types';
+	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import type { AttemptResult } from '$features/question/domain/entities/question.entity';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -70,7 +73,11 @@
 			</div>
 		</div>
 
-		<Button href={backHref} class="mt-6 bg-sky-600 text-white">
+		<Button
+			type="button"
+			onclick={() => goto(resolve(backHref as Pathname))}
+			class="mt-6 bg-sky-600 text-white"
+		>
 			Kembali ke materi
 		</Button>
 	</div>
