@@ -22,9 +22,18 @@ export function contentPayload(kind: string, item: Record<string, unknown>): str
 			'order_index',
 			'is_mandatory',
 			'is_entry',
+			'module_prerequisites',
 			'estimated_minutes'
 		],
-		lesson: ['module_id', 'slug', 'title', 'content', 'order_index']
+		lesson: [
+			'module_id',
+			'slug',
+			'title',
+			'content',
+			'order_index',
+			'is_entry',
+			'lesson_prerequisites'
+		]
 	};
 	if (kind === 'question_set') {
 		return JSON.stringify({
@@ -33,7 +42,15 @@ export function contentPayload(kind: string, item: Record<string, unknown>): str
 			lesson_id: item.kind === 'final_exam' ? null : item.lesson_id
 		});
 	}
-	return JSON.stringify(
-		Object.fromEntries((fields[kind] ?? []).map((field) => [field, item[field]]))
-	);
+	const payload = Object.fromEntries((fields[kind] ?? []).map((field) => [field, item[field]]));
+	if (kind === 'module' || kind === 'lesson') {
+		const field = `${kind}_prerequisites`;
+		const selected = item[field];
+		payload[field] = item.is_entry
+			? []
+			: Array.isArray(selected)
+				? selected.slice(0, 1)
+				: undefined;
+	}
+	return JSON.stringify(payload);
 }

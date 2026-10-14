@@ -6,6 +6,11 @@
 	let { data, form }: { data: AdminUsersData; form?: AdminFormResult } = $props();
 </script>
 
+<svelte:head>
+	<title>Kelola Pengguna | Admin - Nihongo no Hikari</title>
+	<meta name="description" content="Kelola pengguna dan akses admin Nihongo no Hikari." />
+</svelte:head>
+
 <div class="admin-page">
 	<AdminPageHeader
 		title="Kelola Pengguna"

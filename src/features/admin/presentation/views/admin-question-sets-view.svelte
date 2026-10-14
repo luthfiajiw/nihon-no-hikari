@@ -20,6 +20,11 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Question Sets | Admin - Nihongo no Hikari</title>
+	<meta name="description" content="Kelola latihan dan ujian Nihongo no Hikari." />
+</svelte:head>
+
 <div class="admin-page">
 	<AdminPageHeader
 		title="Question Sets"

@@ -5,6 +5,9 @@
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { Button } from '$lib/components/ui/button';
 	import type { AdminEditorData } from '../../domain/entities/admin.entity';
 	import type { AdminFormResult } from '../models/admin-view.model';
 	import {
@@ -15,6 +18,7 @@
 	import { contentPayload } from '$features/admin/domain/content-policy';
 	import { ArrowLeft, FilePenLine } from 'lucide-svelte';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
+	import PrerequisiteCombobox from './prerequisite-combobox.svelte';
 
 	let { data, form }: { data: AdminEditorData; form?: AdminFormResult } = $props();
 	const courses = $derived(data.catalog.courses ?? []);
@@ -30,6 +34,23 @@
 	// The parent keys this component by resource, so each editor gets fresh form state.
 	let item = $state<AdminContentFormItem>(initialAdminContent(untrack(() => data)));
 	let confirmDelete = $state(false);
+	let pendingAction = $state<'save' | 'publish' | null>(null);
+	function submitContent(action: 'save' | 'publish'): SubmitFunction {
+		return ({ cancel }) => {
+			if (pendingAction) {
+				cancel();
+				return;
+			}
+			pendingAction = action;
+			return async ({ update }) => {
+				try {
+					await update({ reset: false });
+				} finally {
+					pendingAction = null;
+				}
+			};
+		};
+	}
 	const title = $derived(
 		data.kind === 'course'
 			? 'Kursus'
@@ -101,7 +122,12 @@
 		>
 			{form.message}
 		</p>{/if}
-	<form method="POST" action="?/save" class="admin-page admin-panel">
+	<form
+		method="POST"
+		action="?/save"
+		use:enhance={submitContent('save')}
+		class="admin-page admin-panel"
+	>
 		<input type="hidden" name="payload" value={payload()} />
 		{#if data.kind !== 'question_set'}
 			<div class="admin-fields">
@@ -175,7 +201,7 @@
 						><input type="checkbox" bind:checked={item.is_mandatory} /> Wajib</label
 					>
 					<label class="flex items-center gap-2 text-sm"
-						><input type="checkbox" bind:checked={item.is_entry} /> Module awal</label
+						><input type="checkbox" bind:checked={item.is_entry} /> Module awal (is_entry)</label
 					>
 				{:else}
 					<label class="block text-sm font-medium"
@@ -195,6 +221,38 @@
 					>
 				{/if}
 			</div>
+			{#if data.kind === 'lesson'}
+				<label class="flex items-center gap-2 text-sm">
+					<input type="checkbox" bind:checked={item.is_entry} /> Lesson awal (is_entry)
+				</label>
+			{/if}
+			{#if data.kind === 'module' && !item.is_entry}
+				<PrerequisiteCombobox
+					id="module-prerequisites"
+					label="Prasyarat module"
+					value={item.module_prerequisites[0] ?? ''}
+					onValueChange={(value) => (item.module_prerequisites = value ? [value] : [])}
+					options={modules
+						.filter((module) => module.id !== data.id)
+						.map((module) => ({
+							id: module.id,
+							label: `${courses.find((course) => course.id === module.course_id)?.title ?? 'Kursus'} / ${module.title}`
+						}))}
+				/>
+			{:else if data.kind === 'lesson' && !item.is_entry}
+				<PrerequisiteCombobox
+					id="lesson-prerequisites"
+					label="Prasyarat lesson"
+					value={item.lesson_prerequisites[0] ?? ''}
+					onValueChange={(value) => (item.lesson_prerequisites = value ? [value] : [])}
+					options={lessons
+						.filter((lesson) => lesson.id !== data.id)
+						.map((lesson) => ({
+							id: lesson.id,
+							label: `${modules.find((module) => module.id === lesson.module_id)?.title ?? 'Module'} / ${lesson.title}`
+						}))}
+				/>
+			{/if}
 			{#if data.kind !== 'lesson'}<label class="block text-sm font-medium"
 					>Deskripsi<textarea
 						bind:value={item.description}
@@ -310,17 +368,25 @@
 			</div>
 			<QuestionSetQuestionsEditor bind:questions={item.questions} skill={item.skill} {templates} />
 		{/if}
-		<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
-			>Simpan Draft</button
+		<Button
+			type="submit"
+			disabled={pendingAction !== null}
+			isLoading={pendingAction === 'save'}
+			class="h-auto rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+			>Simpan Draft</Button
 		>
 	</form>
 	{#if !isNew}<div class="flex flex-wrap gap-3">
 			{#if archived}<form method="POST" action="?/restore">
 					<button class="rounded-lg border px-4 py-2 text-sm">Pulihkan</button>
-				</form>{:else}<form method="POST" action="?/publish">
-					<button
-						class="rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-700"
-						>{hasDraft ? 'Terbitkan Perubahan' : 'Terbitkan'}</button
+				</form>{:else}<form method="POST" action="?/publish" use:enhance={submitContent('publish')}>
+					<Button
+						type="submit"
+						variant="outline"
+						disabled={pendingAction !== null}
+						isLoading={pendingAction === 'publish'}
+						class="h-auto rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-700"
+						>{hasDraft ? 'Terbitkan Perubahan' : 'Terbitkan'}</Button
 					>
 				</form>{/if}
 			<button

@@ -16,6 +16,11 @@
 	const courses = $derived(data.courses.filter((course) => matchesContent(course, search, status)));
 </script>
 
+<svelte:head>
+	<title>Kursus &amp; Materi | Admin - Nihongo no Hikari</title>
+	<meta name="description" content="Kelola kursus, module, dan lesson Nihongo no Hikari." />
+</svelte:head>
+
 <div class="admin-page">
 	<AdminPageHeader
 		title="Kursus & Materi"

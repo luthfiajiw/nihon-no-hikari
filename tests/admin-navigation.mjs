@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createCipheriv, createHash, randomBytes } from 'node:crypto';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -15,7 +15,7 @@ const course = {
 	slug: 'n5-dasar',
 	description: 'Bangun fondasi bahasa Jepang melalui huruf, kosakata, dan tata bahasa.',
 	is_published: true,
-	module_count: 2,
+	module_count: 3,
 	lesson_count: 2
 };
 const modules = [
@@ -25,6 +25,8 @@ const modules = [
 		title: 'Hiragana',
 		slug: 'hiragana',
 		is_published: true,
+		is_entry: true,
+		module_prerequisites: [],
 		order_index: 0
 	},
 	{
@@ -33,7 +35,19 @@ const modules = [
 		title: 'Katakana',
 		slug: 'katakana',
 		is_published: false,
+		is_entry: false,
+		module_prerequisites: [],
 		order_index: 1
+	},
+	{
+		id: '88888888-8888-4888-8888-888888888888',
+		course_id: course.id,
+		title: 'Kanji',
+		slug: 'kanji',
+		is_published: false,
+		is_entry: false,
+		module_prerequisites: [],
+		order_index: 2
 	}
 ];
 const lessons = ['Baris A (あ)', 'Baris KA (か)'].map((title, index) => ({
@@ -42,6 +56,8 @@ const lessons = ['Baris A (あ)', 'Baris KA (か)'].map((title, index) => ({
 	title,
 	slug: `baris-${index}`,
 	is_published: true,
+	is_entry: index === 0,
+	lesson_prerequisites: index === 0 ? [] : ['33333333-3333-4333-8333-333333333330'],
 	order_index: index,
 	content: { content: '<p>Belajar hiragana.</p>', tips: '' }
 }));
@@ -70,29 +86,43 @@ const managedUser = {
 	display_name: 'Siswa Fixture',
 	role: 'User'
 };
-let courseDraft = null;
+const drafts = new Map();
+let mutationGate = null;
+let failNextMutation = false;
 const api = createServer(async (request, response) => {
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	backendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
 	if (request.method !== 'GET') {
+		if (mutationGate) await mutationGate;
 		let body = '';
 		for await (const chunk of request) body += chunk;
 		const payload = body ? JSON.parse(body) : null;
 		mutations.push({ path: url.pathname, method: request.method, payload });
+		if (failNextMutation) {
+			failNextMutation = false;
+			response.writeHead(500, { 'Content-Type': 'application/json' });
+			response.end(JSON.stringify({ error: 'Fixture: operasi gagal. Silakan coba lagi.' }));
+			return;
+		}
+		const resource = [course, ...modules, ...lessons, set].find((item) =>
+			url.pathname.split('/').includes(item.id)
+		);
 		let result = { success: true };
 		if (url.pathname.endsWith('/lesson-content/preview')) result.data = payload.content;
 		else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
 		else if (url.pathname.endsWith('/publish')) {
-			Object.assign(course, courseDraft ?? {}, { is_published: true });
-			courseDraft = null;
-			result.id = course.id;
+			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
+			drafts.delete(resource.id);
+			result.id = resource.id;
 		} else if (url.pathname.endsWith('/restore')) {
 			course.archived_at = null;
 			course.is_published = false;
 		} else if (request.method === 'DELETE') course.archived_at = new Date().toISOString();
-		else if (request.method === 'PATCH') courseDraft = payload;
-		else if (request.method === 'POST') result.id = course.id;
+		else if (request.method === 'PATCH') {
+			if (resource.is_published) drafts.set(resource.id, payload);
+			else Object.assign(resource, payload);
+		} else if (request.method === 'POST') result.id = course.id;
 		response.writeHead(200, { 'Content-Type': 'application/json' });
 		response.end(JSON.stringify(result));
 		return;
@@ -121,7 +151,7 @@ const api = createServer(async (request, response) => {
 		);
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
 	response.end(
-		JSON.stringify({ success: Boolean(data), data, draft: data === course ? courseDraft : null })
+		JSON.stringify({ success: Boolean(data), data, draft: drafts.get(data?.id) ?? null })
 	);
 });
 await new Promise((resolve, reject) => {
@@ -149,19 +179,60 @@ const vite = spawn(
 let serverLog = '';
 vite.stdout.on('data', (chunk) => {
 	serverLog = (serverLog + chunk).slice(-12000);
+	if (process.env.ADMIN_SMOKE_DEBUG) process.stdout.write(chunk);
 });
 vite.stderr.on('data', (chunk) => {
 	serverLog = (serverLog + chunk).slice(-12000);
+	if (process.env.ADMIN_SMOKE_DEBUG) process.stderr.write(chunk);
 });
 let browser;
 let page;
 const errors = [];
+async function submitContentWithLoading(action) {
+	const saveButton = page.getByRole('button', { name: 'Simpan Draft', exact: true });
+	const publishButton = page.locator('form[action="?/publish"] button[type="submit"]');
+	const activeButton = action === 'save' ? saveButton : publishButton;
+	const countBefore = mutations.length;
+	let release;
+	mutationGate = new Promise((resolve) => {
+		release = resolve;
+	});
+	try {
+		await activeButton.click();
+		await page.locator(`form[action="?/${action}"] button[aria-busy="true"]`).waitFor();
+		assert(await saveButton.isDisabled(), 'Save must be disabled during submission');
+		assert(await publishButton.isDisabled(), 'Publish must be disabled during submission');
+		assert.equal(
+			await activeButton.locator('svg.animate-spin').count(),
+			1,
+			'Active button shows the shared loader'
+		);
+		// Even programmatic submissions cannot send a second request while one is pending.
+		await page.locator(`form[action="?/${action}"]`).evaluate((form) => form.requestSubmit());
+	} finally {
+		release();
+		mutationGate = null;
+	}
+	await page.waitForFunction(() => {
+		const save = document.querySelector('form[action="?/save"] button[type="submit"]');
+		const publish = document.querySelector('form[action="?/publish"] button[type="submit"]');
+		return (
+			save &&
+			publish &&
+			!save.disabled &&
+			!publish.disabled &&
+			!document.querySelector('button[aria-busy="true"]')
+		);
+	});
+	assert.equal(mutations.length, countBefore + 1, 'Only one mutation is sent');
+}
 try {
 	let ready = false;
-	for (let attempt = 0; attempt < 120; attempt++) {
+	const startupDeadline = Date.now() + 120000;
+	while (Date.now() < startupDeadline) {
 		if (vite.exitCode !== null) throw new Error(`Vite exited: ${serverLog}`);
 		try {
-			await fetch(`${origin}/signin`);
+			await fetch(`${origin}/signin`, { signal: AbortSignal.timeout(5000) });
 			ready = true;
 			break;
 		} catch {
@@ -206,6 +277,7 @@ try {
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle', timeout: 120000 });
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Kursus & Materi | Admin - Nihongo no Hikari');
 	assert.equal(
 		await page.locator('a[href]').count(),
 		0,
@@ -232,6 +304,7 @@ try {
 	await page.keyboard.press('Enter');
 	await page.waitForURL(`**/admin/courses/${course.id}`);
 	await page.getByText('Baris A (あ)', { exact: true }).waitFor();
+	assert.equal(await page.title(), `${course.title} | Admin - Nihongo no Hikari`);
 	assert.equal(
 		await page.evaluate(() => window.__adminNavigationMarker),
 		'hydrated',
@@ -240,9 +313,11 @@ try {
 	await page.screenshot({ path: join(screenshotDir, 'course-detail.png'), fullPage: true });
 	await page.getByRole('button', { name: 'Edit Kursus', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Kursus', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Edit Kursus | Admin - Nihongo no Hikari');
 	assert.equal(await page.getByLabel('Judul', { exact: true }).inputValue(), course.title);
 	await page.getByRole('button', { name: 'Question Sets', exact: true }).click();
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Question Sets | Admin - Nihongo no Hikari');
 	await page.getByRole('button', { name: /Membaca Hiragana/ }).click();
 	await page.getByRole('heading', { name: 'Edit Question Set' }).waitFor();
 	assert.equal(await page.getByLabel('Judul set').inputValue(), set.title);
@@ -270,9 +345,11 @@ try {
 	await page.getByLabel('Judul', { exact: true }).fill('N5 Draft Fixture');
 	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
 	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
-	assert.equal(courseDraft.title, 'N5 Draft Fixture');
+	await page.waitForLoadState('networkidle');
+	assert.equal(drafts.get(course.id).title, 'N5 Draft Fixture');
 	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
 	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
 	assert.equal(course.title, 'N5 Draft Fixture');
 	await page.getByRole('button', { name: 'Hapus', exact: true }).click();
 	await page.getByRole('button', { name: 'Ya, hapus atau arsipkan', exact: true }).click();
@@ -281,6 +358,7 @@ try {
 	await page.goto(`${origin}/admin/content/course/${course.id}`, { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: 'Pulihkan', exact: true }).click();
 	await page.getByRole('status').filter({ hasText: 'Arsip dipulihkan sebagai draft.' }).waitFor();
+	await page.waitForLoadState('networkidle');
 	assert.equal(course.archived_at, null);
 	await page.goto(`${origin}/admin/users`, { waitUntil: 'networkidle' });
 	await page.getByRole('button', { name: 'Jadikan Admin', exact: true }).click();
@@ -288,16 +366,152 @@ try {
 		.getByRole('status')
 		.filter({ hasText: 'Role pengguna berhasil diperbarui.' })
 		.waitFor();
+	await page.waitForLoadState('networkidle');
 	assert.equal(managedUser.role, 'Admin');
+	assert.equal(await page.title(), 'Kelola Pengguna | Admin - Nihongo no Hikari');
+	// One module prerequisite: hidden for entry content, search, replace, reload, publish and clear.
+	await page.goto(`${origin}/admin/content/module/${modules[0].id}`, { waitUntil: 'networkidle' });
+	assert.equal(await page.title(), 'Edit Module | Admin - Nihongo no Hikari');
+	const modulePicker = page.getByRole('combobox', { name: 'Prasyarat module', exact: true });
+	assert.equal(await modulePicker.count(), 0, 'Entry module hides its prerequisite picker');
+	await page.getByRole('checkbox', { name: 'Module awal (is_entry)', exact: true }).uncheck();
+	await modulePicker.click();
+	assert.equal(
+		await page.getByRole('option', { name: /Hiragana/ }).count(),
+		0,
+		'Cannot select self'
+	);
+	await page.getByPlaceholder('Cari prasyarat...').fill('Tidak ada');
+	await page.getByText('Prasyarat tidak ditemukan.', { exact: true }).waitFor();
+	await page.getByPlaceholder('Cari prasyarat...').fill('Katakana');
+	await page.getByRole('option', { name: /Katakana/ }).waitFor();
+	await page.getByPlaceholder('Cari prasyarat...').press('ArrowDown');
+	await page.getByPlaceholder('Cari prasyarat...').press('Enter');
+	await modulePicker.filter({ hasText: 'Katakana' }).waitFor();
+	assert.deepEqual(
+		JSON.parse(await page.locator('input[name="payload"]').inputValue()).module_prerequisites,
+		[modules[1].id]
+	);
+	await modulePicker.click();
+	await page.getByPlaceholder('Cari prasyarat...').fill('Kanji');
+	await page.getByRole('option', { name: /Kanji/ }).click();
+	await modulePicker.filter({ hasText: 'Kanji' }).waitFor();
+	assert.deepEqual(
+		JSON.parse(await page.locator('input[name="payload"]').inputValue()).module_prerequisites,
+		[modules[2].id],
+		'A new selection replaces the previous prerequisite'
+	);
+	await modulePicker.click();
+	await page.screenshot({ path: join(screenshotDir, 'module-prerequisites.png'), fullPage: true });
+	await page.getByPlaceholder('Cari prasyarat...').press('Escape');
+	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.deepEqual(drafts.get(modules[0].id).module_prerequisites, [modules[2].id]);
+	assert.deepEqual(modules[0].module_prerequisites, [], 'Draft must not change live prerequisites');
+	await page.reload({ waitUntil: 'networkidle' });
+	await modulePicker.filter({ hasText: 'Kanji' }).waitFor();
+	assert.equal(await page.getByRole('checkbox', { name: /Module awal/ }).isChecked(), false);
+	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.deepEqual(modules[0].module_prerequisites, [modules[2].id]);
+	assert.equal(modules[0].is_entry, false);
+	await modulePicker.click();
+	await page.getByRole('option', { name: 'Tanpa prasyarat', exact: true }).click();
+	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.deepEqual(modules[0].module_prerequisites, []);
+	await modulePicker.click();
+	await page.getByRole('option', { name: /Katakana/ }).click();
+	await page.getByRole('checkbox', { name: 'Module awal (is_entry)', exact: true }).check();
+	assert.equal(await modulePicker.count(), 0);
+	assert.deepEqual(
+		JSON.parse(await page.locator('input[name="payload"]').inputValue()).module_prerequisites,
+		[]
+	);
+	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(modules[0].is_entry, true);
+	assert.deepEqual(modules[0].module_prerequisites, []);
+	// Existing lesson prerequisite is cleared when entry content is saved and published.
+	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
+	assert.equal(await page.title(), 'Edit Lesson | Admin - Nihongo no Hikari');
+	const lessonPicker = page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true });
+	await lessonPicker.filter({ hasText: 'Baris A' }).waitFor();
+	await lessonPicker.click();
+	assert.equal(await page.getByRole('option', { name: /Baris KA/ }).count(), 0);
+	await page.getByRole('option', { name: /Baris A/ }).click();
+	await page.getByRole('checkbox', { name: 'Lesson awal (is_entry)', exact: true }).check();
+	assert.equal(await lessonPicker.count(), 0);
+	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.deepEqual(drafts.get(lessons[1].id).lesson_prerequisites, []);
+	await page.reload({ waitUntil: 'networkidle' });
+	assert.equal(await lessonPicker.count(), 0);
+	assert.equal(await page.getByRole('checkbox', { name: /Lesson awal/ }).isChecked(), true);
+	await page.getByRole('button', { name: 'Terbitkan Perubahan', exact: true }).click();
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.deepEqual(lessons[1].lesson_prerequisites, []);
+	assert.equal(lessons[1].is_entry, true);
 	await page.goto(`${origin}/admin/content/lesson/${lessons[0].id}`, { waitUntil: 'networkidle' });
+	assert.equal(await page.getByRole('button', { name: 'Visual', exact: true }).count(), 0);
+	const lessonHTML = await readFile(
+		new URL('./fixtures/lesson-vocabulary.html', import.meta.url),
+		'utf8'
+	);
+	await page.getByLabel('Kode HTML', { exact: true }).fill(lessonHTML);
+	await page.getByLabel('Tips tambahan', { exact: true }).fill('Latih kosakata あか setiap hari.');
 	await page.getByRole('button', { name: 'Preview', exact: true }).click();
 	await page
 		.frameLocator('iframe[title="Preview konten lesson"]')
-		.getByText('Belajar hiragana.', { exact: true })
+		.getByText('3. Contoh Kosakata', { exact: true })
 		.waitFor();
 	assert(mutations.some((request) => request.path.endsWith('/lesson-content/preview')));
+	await page.getByRole('button', { name: 'HTML', exact: true }).click();
+	assert.equal(await page.getByLabel('Kode HTML', { exact: true }).inputValue(), lessonHTML);
+	failNextMutation = true;
+	await submitContentWithLoading('save');
+	await page
+		.getByRole('status')
+		.filter({ hasText: 'Fixture: operasi gagal. Silakan coba lagi.' })
+		.waitFor();
+	assert.equal(
+		await page.getByLabel('Kode HTML', { exact: true }).inputValue(),
+		lessonHTML,
+		'Failed save preserves HTML'
+	);
+	await submitContentWithLoading('save');
+	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(drafts.get(lessons[0].id).content.content, lessonHTML);
+	assert.equal(drafts.get(lessons[0].id).content.tips, 'Latih kosakata あか setiap hari.');
+	await page.reload({ waitUntil: 'networkidle' });
+	assert.equal(await page.getByLabel('Kode HTML', { exact: true }).inputValue(), lessonHTML);
+	failNextMutation = true;
+	await submitContentWithLoading('publish');
+	await page
+		.getByRole('status')
+		.filter({ hasText: 'Fixture: operasi gagal. Silakan coba lagi.' })
+		.waitFor();
+	assert(drafts.has(lessons[0].id), 'Failed publication keeps the saved draft');
+	await submitContentWithLoading('publish');
+	await page.getByRole('status').filter({ hasText: 'Konten berhasil diterbitkan.' }).waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(lessons[0].content.content, lessonHTML);
 	await page.goto(`${origin}/admin`, { waitUntil: 'networkidle' });
 	await page.getByRole('heading', { name: 'Ringkasan Admin', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Ringkasan Admin - Nihongo no Hikari');
 	await page.getByRole('button', { name: /^1 Kursus$/ }).click();
 	await page.waitForURL('**/admin/courses');
 	await page.setViewportSize({ width: 390, height: 844 });
@@ -319,9 +533,22 @@ try {
 		'24px'
 	);
 	await page.screenshot({ path: join(screenshotDir, 'courses-mobile.png'), fullPage: true });
+	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
+	assert.equal(await lessonPicker.count(), 0, 'Entry lesson hides picker on mobile too');
+	await page.getByRole('checkbox', { name: 'Lesson awal (is_entry)', exact: true }).uncheck();
+	await page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true }).click();
+	await page.getByRole('option', { name: /Baris A/ }).waitFor();
+	assert(
+		await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+		'Prerequisite combobox must fit the mobile viewport'
+	);
+	await page.screenshot({
+		path: join(screenshotDir, 'lesson-prerequisites-mobile.png'),
+		fullPage: true
+	});
 	assert.deepEqual(errors, [], 'Admin navigation must not produce browser errors');
 	console.log(
-		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, lesson preview, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, lesson preview, single prerequisite search/replace/clear/reload/publish, entry visibility, page titles, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);

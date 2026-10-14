@@ -17,6 +17,11 @@
 	];
 </script>
 
+<svelte:head>
+	<title>{data.course.title} | Admin - Nihongo no Hikari</title>
+	<meta name="description" content={`Kelola module dan lesson kursus ${data.course.title}.`} />
+</svelte:head>
+
 <div class="admin-page">
 	<button
 		type="button"

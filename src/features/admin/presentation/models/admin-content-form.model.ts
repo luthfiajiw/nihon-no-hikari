@@ -24,6 +24,8 @@ export type AdminContentFormItem = {
 	order_index: number;
 	is_mandatory: boolean;
 	is_entry: boolean;
+	module_prerequisites: string[];
+	lesson_prerequisites: string[];
 	estimated_minutes: number | null;
 	content: { content: string; tips: string; [key: string]: unknown };
 	kind: string;
@@ -73,6 +75,12 @@ export function initialAdminContent(data: AdminEditorData): AdminContentFormItem
 		),
 		is_mandatory: Boolean(source.is_mandatory ?? true),
 		is_entry: Boolean(source.is_entry ?? false),
+		module_prerequisites: (
+			(source.module_prerequisites ?? data.record?.module_prerequisites ?? []) as string[]
+		).slice(0, 1),
+		lesson_prerequisites: (
+			(source.lesson_prerequisites ?? data.record?.lesson_prerequisites ?? []) as string[]
+		).slice(0, 1),
 		estimated_minutes: source.estimated_minutes == null ? null : Number(source.estimated_minutes),
 		content: {
 			...rawContent,

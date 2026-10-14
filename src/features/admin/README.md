@@ -10,6 +10,8 @@ The feature follows the same domain–data–presentation structure as course an
 
 Routes only delegate to the presentation layer. Course lists do not load the entire catalog; detail pages request the selected course's catalog.
 
+Module and lesson editors use a searchable shadcn-svelte Popover/Command combobox to select one prerequisite, alongside the `is_entry` checkbox. Entry content hides the combobox and saves an empty prerequisite array. Other content saves at most one UUID in the API's prerequisite array; older records with multiple prerequisites load their first prerequisite for editing. Changes are saved with drafts and applied on publish. An empty array clears prerequisites; omitted/null arrays preserve existing relations for older clients and drafts. The API rejects missing, duplicate, self-referencing and cyclic prerequisites.
+
 Admin spacing uses 8px within controls, 16px within groups and 24px between sections. Page padding is 16/24/32px across mobile/tablet/desktop; panel padding is 16/24px. Use the shared header and `admin-*` classes in `presentation/styles/admin.css`.
 
 Navigation uses native buttons or Button components with `onclick={() => goto(resolve(...))}`. Do not use anchor tags or Button `href` for app navigation. Dynamic route IDs include SvelteKit route groups when passing route parameters to `resolve`.

@@ -47,6 +47,11 @@
 	] as const;
 </script>
 
+<svelte:head>
+	<title>Ringkasan Admin - Nihongo no Hikari</title>
+	<meta name="description" content="Ringkasan pengelolaan konten dan pengguna Nihongo no Hikari." />
+</svelte:head>
+
 <div class="admin-page">
 	<AdminPageHeader
 		title="Ringkasan Admin"
