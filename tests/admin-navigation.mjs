@@ -80,6 +80,7 @@ const origin = `http://127.0.0.1:${port}`;
 const screenshotDir = join(tmpdir(), 'nnh-admin-smoke');
 let backendRequests = [];
 const mutations = [];
+const transportViolations = [];
 const managedUser = {
 	id: '77777777-7777-4777-8777-777777777777',
 	email: 'student@example.test',
@@ -90,6 +91,9 @@ const drafts = new Map();
 let mutationGate = null;
 let failNextMutation = false;
 const api = createServer(async (request, response) => {
+	if (request.headers.authorization !== 'Bearer fixture')
+		transportViolations.push('Missing admin bearer');
+	if (request.headers.cookie) transportViolations.push('App cookie reached upstream');
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	backendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
@@ -275,6 +279,16 @@ try {
 	page = await context.newPage();
 	page.setDefaultTimeout(60000);
 	page.on('pageerror', (error) => errors.push(error.message));
+	page.on('request', (request) => {
+		const url = new URL(request.url());
+		if (url.port === String(apiPort)) transportViolations.push('Browser bypassed proxy');
+		if (
+			url.origin === origin &&
+			url.pathname.startsWith('/api/') &&
+			request.headers().authorization
+		)
+			transportViolations.push('Browser supplied bearer');
+	});
 	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle', timeout: 120000 });
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Kursus & Materi | Admin - Nihongo no Hikari');
@@ -547,6 +561,11 @@ try {
 		fullPage: true
 	});
 	assert.deepEqual(errors, [], 'Admin navigation must not produce browser errors');
+	assert.deepEqual(
+		transportViolations,
+		[],
+		'Admin transport must use the proxy and server credentials'
+	);
 	console.log(
 		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, lesson preview, single prerequisite search/replace/clear/reload/publish, entry visibility, page titles, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
 	);

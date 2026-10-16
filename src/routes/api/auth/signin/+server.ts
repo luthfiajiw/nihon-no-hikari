@@ -1,17 +1,11 @@
-import { env } from '$env/dynamic/private';
 import { setAuthState, toAuthState } from '$lib/server/auth-cookie';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, fetch, cookies }) => {
-	const apiBaseUrl = env.API_BASE_URL?.replace(/\/$/, '');
-	if (!apiBaseUrl) {
-		return json({ error: 'API_BASE_URL belum dikonfigurasi.' }, { status: 500 });
-	}
-
 	let response: Response;
 	try {
-		response = await fetch(`${apiBaseUrl}/v1/auth/signin`, {
+		response = await fetch('/api/v1/auth/signin', {
 			method: 'POST',
 			headers: {
 				Accept: request.headers.get('accept') ?? 'application/json',

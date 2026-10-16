@@ -18,6 +18,7 @@ import {
 	toAuthState
 } from './auth-cookie';
 import { getValidAccessToken, refreshAuthSession, revokeAuthSession } from './auth';
+import { withRequestEvent } from './request-event.test-utils';
 
 const initialState: AuthState = {
 	user: {
@@ -117,10 +118,10 @@ describe('server auth', () => {
 		);
 		const event = createEvent(cookies, fetchMock as typeof fetch);
 
-		const session = await refreshAuthSession(event);
+		const session = await withRequestEvent(event, () => refreshAuthSession(event));
 
 		expect(fetchMock).toHaveBeenCalledWith(
-			'https://api.example.com/v1/auth/token',
+			'/api/v1/auth/token',
 			expect.objectContaining({
 				method: 'POST',
 				body: JSON.stringify({ grant_type: 'refresh', token: 'refresh-token' })
@@ -141,8 +142,8 @@ describe('server auth', () => {
 		const firstEvent = createEvent(first.cookies, fetchMock as typeof fetch);
 		const secondEvent = createEvent(second.cookies, fetchMock as typeof fetch);
 
-		const firstRefresh = refreshAuthSession(firstEvent);
-		const secondRefresh = refreshAuthSession(secondEvent);
+		const firstRefresh = withRequestEvent(firstEvent, () => refreshAuthSession(firstEvent));
+		const secondRefresh = withRequestEvent(secondEvent, () => refreshAuthSession(secondEvent));
 
 		expect(fetchMock).toHaveBeenCalledOnce();
 
@@ -176,36 +177,27 @@ describe('server auth', () => {
 		);
 	});
 
-	it('returns no token instead of throwing when auth configuration is unavailable', async () => {
-		const { env } = await import('$env/dynamic/private');
-		const previousApiBaseUrl = env.API_BASE_URL;
-		env.API_BASE_URL = '';
+	it('returns no token when the auth proxy is unavailable', async () => {
 		const { cookies } = createCookies();
-		const fetchMock = vi.fn();
-		const event = createEvent(cookies, fetchMock as typeof fetch);
-
-		try {
-			await expect(getValidAccessToken(event)).resolves.toBeNull();
-			expect(fetchMock).not.toHaveBeenCalled();
-		} finally {
-			env.API_BASE_URL = previousApiBaseUrl;
-		}
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValue(
+				Response.json({ error: 'API_BASE_URL belum dikonfigurasi.' }, { status: 500 })
+			);
+		const event = createEvent(cookies, fetchMock);
+		await expect(withRequestEvent(event, () => getValidAccessToken(event))).resolves.toBeNull();
+		expect(event.locals.session).toEqual(initialState.session);
 	});
 
-	it('allows local sign-out when auth configuration is unavailable', async () => {
-		const { env } = await import('$env/dynamic/private');
-		const previousApiBaseUrl = env.API_BASE_URL;
-		env.API_BASE_URL = '';
+	it('allows local sign-out when the auth proxy is unavailable', async () => {
 		const { cookies } = createCookies();
-		const fetchMock = vi.fn();
-		const event = createEvent(cookies, fetchMock as typeof fetch);
-
-		try {
-			await expect(revokeAuthSession(event)).resolves.toBe(false);
-			expect(fetchMock).not.toHaveBeenCalled();
-		} finally {
-			env.API_BASE_URL = previousApiBaseUrl;
-		}
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValue(
+				Response.json({ error: 'API_BASE_URL belum dikonfigurasi.' }, { status: 500 })
+			);
+		const event = createEvent(cookies, fetchMock);
+		await expect(withRequestEvent(event, () => revokeAuthSession(event))).resolves.toBe(false);
 	});
 
 	it('revokes the backend session using its session id', async () => {
@@ -213,9 +205,9 @@ describe('server auth', () => {
 		const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
 		const event = createEvent(cookies, fetchMock as typeof fetch);
 
-		await expect(revokeAuthSession(event)).resolves.toBe(true);
+		await expect(withRequestEvent(event, () => revokeAuthSession(event))).resolves.toBe(true);
 		expect(fetchMock).toHaveBeenCalledWith(
-			'https://api.example.com/v1/auth/signout',
+			'/api/v1/auth/signout',
 			expect.objectContaining({
 				method: 'POST',
 				body: JSON.stringify({ session_id: 'session-1' })

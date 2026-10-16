@@ -1,21 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HttpClient } from '$lib/http-client';
 import { AdminSource } from './admin.source';
 
 function sourceWith(response: Response) {
 	const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(response);
 	return {
-		source: new AdminSource(new HttpClient({ baseUrl: 'https://api.example.test', fetch })),
+		source: new AdminSource(fetch),
 		fetch
 	};
 }
 describe('admin source transport', () => {
+	it('preserves the status when an error response is not JSON', async () => {
+		const { source } = sourceWith(new Response('Bad gateway', { status: 502 }));
+		await expect(source.getUsers()).rejects.toMatchObject({
+			status: 502,
+			message: 'Operasi admin gagal. Silakan coba lagi.'
+		});
+	});
 	it('encodes selected course ids and unwraps the data envelope', async () => {
 		const catalog = { courses: [], modules: [], lessons: [], question_sets: [] };
 		const { source, fetch } = sourceWith(Response.json({ data: catalog }));
 		await expect(source.getCatalog('course/1')).resolves.toEqual(catalog);
 		expect(fetch).toHaveBeenCalledWith(
-			'https://api.example.test/v1/admin/catalog?course_id=course%2F1',
+			'/api/v1/admin/catalog?course_id=course%2F1',
 			expect.objectContaining({ headers: expect.objectContaining({ Accept: 'application/json' }) })
 		);
 	});
@@ -40,7 +46,7 @@ describe('admin source transport', () => {
 		const fetch = vi
 			.fn<typeof globalThis.fetch>()
 			.mockRejectedValue(new Error('connection refused'));
-		const source = new AdminSource(new HttpClient({ baseUrl: 'https://api.example.test', fetch }));
+		const source = new AdminSource(fetch);
 		await expect(source.getUsers()).rejects.toMatchObject({
 			status: 502,
 			message: 'Gagal terhubung ke server.'

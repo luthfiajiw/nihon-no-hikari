@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HttpClient } from '$lib/http-client';
 import { QuestionSource } from './question.source';
 
 describe('QuestionSource', () => {
@@ -26,15 +25,13 @@ describe('QuestionSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new QuestionSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new QuestionSource(mockFetch);
 
 		await expect(source.getQuestionSetDetail('set/1')).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/question-sets/set%2F1',
-			{ method: 'GET', headers: { Accept: 'application/json' } }
-		);
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/question-sets/set%2F1', {
+			method: 'GET',
+			headers: { Accept: 'application/json' }
+		});
 	});
 
 	it('starts an attempt with an empty body', async () => {
@@ -66,19 +63,14 @@ describe('QuestionSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new QuestionSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new QuestionSource(mockFetch);
 
 		await expect(source.startAttempt('set/1')).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts',
-			{
-				method: 'POST',
-				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-				body: '{}'
-			}
-		);
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/question-sets/set%2F1/attempts', {
+			method: 'POST',
+			headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+			body: '{}'
+		});
 	});
 
 	it('throws the API message when the request fails', async () => {
@@ -88,7 +80,7 @@ describe('QuestionSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new QuestionSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new QuestionSource(mockFetch);
 
 		await expect(source.getQuestionSetDetail('missing')).rejects.toThrow(
 			'Set soal tidak ditemukan.'
@@ -127,15 +119,13 @@ describe('QuestionSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new QuestionSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new QuestionSource(mockFetch);
 
-		await expect(
-			source.submitAttempt('set/1', 'attempt/1', request)
-		).resolves.toEqual(responseData);
+		await expect(source.submitAttempt('set/1', 'attempt/1', request)).resolves.toEqual(
+			responseData
+		);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts/attempt%2F1/submit',
+			'/api/v1/question-sets/set%2F1/attempts/attempt%2F1/submit',
 			{
 				method: 'POST',
 				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -146,13 +136,11 @@ describe('QuestionSource', () => {
 
 	it('abandons an attempt without a request body', async () => {
 		const mockFetch = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
-		const source = new QuestionSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new QuestionSource(mockFetch);
 
 		await expect(source.abandonAttempt('set/1', 'attempt/1')).resolves.toBeUndefined();
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/question-sets/set%2F1/attempts/attempt%2F1/abandon',
+			'/api/v1/question-sets/set%2F1/attempts/attempt%2F1/abandon',
 			{
 				method: 'POST',
 				headers: { Accept: 'application/json' }

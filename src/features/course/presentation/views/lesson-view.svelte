@@ -8,15 +8,17 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import type { QuestionSet } from '$features/question/domain/entities/question.entity';
 	import { getAssessmentContext } from '$features/question/presentation/contexts/assessment-context';
-	import { startQuestionSetAttempt } from '$features/question/presentation/remotes/start-question-set-attempt.remote';
+	import { startQuestionSetAttemptUseCase } from '$dependencies/question.dependency';
 	import type { Status } from '../../domain/entities/course.entity';
 	import type { Lesson, ModuleLesson } from '../../domain/entities/lesson.entity';
 	import LessonContent from '../components/lesson-content.svelte';
 	import LessonContentSkeleton from '../components/lesson-content-skeleton.svelte';
 	import LessonSidebar from '../components/lesson-sidebar.svelte';
 	import { getCourseLearningContext } from '../contexts/course-learning-context';
-	import { getLessonDetail } from '../remotes/get-lesson-detail.remote';
-	import { updateLessonProgress } from '../remotes/update-lesson-progress.remote';
+	import {
+		getLessonDetailUseCase,
+		updateLessonProgressUseCase
+	} from '$dependencies/course.dependency';
 
 	interface Props {
 		courseId: string;
@@ -90,9 +92,16 @@
 			.flatMap(({ lessons }) => lessons)
 			.find((lesson) => lesson.id === activeLessonId) ?? null
 	);
-	const activeModuleLesson = $derived(moduleLessons.find(({ lessons }) => lessons.some((lesson) => lesson.id === activeLessonId)));
-	const activeModuleExams = $derived(activeModuleLesson ? moduleExams[activeModuleLesson.module.id] ?? [] : []);
-	const canStartModuleExam = $derived(Boolean(activeModuleLesson?.lessons.length) && activeModuleLesson?.lessons.every((lesson) => lesson.status === 'completed'));
+	const activeModuleLesson = $derived(
+		moduleLessons.find(({ lessons }) => lessons.some((lesson) => lesson.id === activeLessonId))
+	);
+	const activeModuleExams = $derived(
+		activeModuleLesson ? (moduleExams[activeModuleLesson.module.id] ?? []) : []
+	);
+	const canStartModuleExam = $derived(
+		Boolean(activeModuleLesson?.lessons.length) &&
+			activeModuleLesson?.lessons.every((lesson) => lesson.status === 'completed')
+	);
 	const orderedLessons = $derived(moduleLessons.flatMap(({ lessons }) => lessons));
 	const activeLessonIndex = $derived(
 		orderedLessons.findIndex((lesson) => lesson.id === activeLessonId)
@@ -136,9 +145,7 @@
 		questionSetAttemptError = null;
 
 		try {
-			const response = await startQuestionSetAttempt({
-				questionSetId: questionSet.id
-			});
+			const response = await startQuestionSetAttemptUseCase.exec(questionSet.id);
 
 			if (!response.success || !('data' in response)) {
 				throw new Error(response.message);
@@ -147,9 +154,11 @@
 			assessment.setAttemptResponse(response);
 
 			const basePath = response.data.question_set.kind === 'final_exam' ? 'exam' : 'practice';
-			const searchParams = new SvelteURLSearchParams(basePath === 'exam'
-				? { courseId, moduleId: activeModuleLesson?.module.id ?? '' }
-				: { courseId, lessonId: activeLessonId });
+			const searchParams = new SvelteURLSearchParams(
+				basePath === 'exam'
+					? { courseId, moduleId: activeModuleLesson?.module.id ?? '' }
+					: { courseId, lessonId: activeLessonId }
+			);
 			const href = `/${basePath}/${encodeURIComponent(questionSet.id)}?${searchParams.toString()}`;
 
 			await goto(resolve(href as Pathname));
@@ -173,15 +182,17 @@
 
 	async function handleNextLesson(): Promise<void> {
 		if (!activeLessonId || !nextLesson || isNextLessonLoading) return;
-		if (activeLesson?.status === 'completed') { courseLearning.selectLesson(nextLesson.id); return; }
+		if (activeLesson?.status === 'completed') {
+			courseLearning.selectLesson(nextLesson.id);
+			return;
+		}
 
 		const currentLessonId = activeLessonId;
 		const nextLessonId = nextLesson.id;
 		isNextLessonLoading = true;
 
 		try {
-			const response = await updateLessonProgress({
-				lessonId: currentLessonId,
+			const response = await updateLessonProgressUseCase.exec(currentLessonId, {
 				status: 'completed'
 			});
 
@@ -190,6 +201,9 @@
 			const shouldNavigateToNextLesson = activeLessonId === currentLessonId;
 			updateLessonStatus(currentLessonId, 'completed');
 			if (shouldNavigateToNextLesson) courseLearning.selectLesson(nextLessonId);
+		} catch (error) {
+			lessonDetailError =
+				error instanceof Error ? error.message : 'Gagal memperbarui progres materi.';
 		} finally {
 			isNextLessonLoading = false;
 		}
@@ -199,10 +213,17 @@
 		if (!activeLessonId || isNextLessonLoading) return;
 		isNextLessonLoading = true;
 		try {
-			const response = await updateLessonProgress({ lessonId: activeLessonId, status: 'completed' });
+			const response = await updateLessonProgressUseCase.exec(activeLessonId, {
+				status: 'completed'
+			});
 			if (response.success) updateLessonStatus(activeLessonId, 'completed');
 			else lessonDetailError = response.message;
-		} finally { isNextLessonLoading = false; }
+		} catch (error) {
+			lessonDetailError =
+				error instanceof Error ? error.message : 'Gagal memperbarui progres materi.';
+		} finally {
+			isNextLessonLoading = false;
+		}
 	}
 
 	async function loadLessonDetail(lessonId: string): Promise<void> {
@@ -215,7 +236,7 @@
 		isLessonLoading = true;
 
 		try {
-			const response = await getLessonDetail({ lessonId });
+			const response = await getLessonDetailUseCase.exec(lessonId);
 			if (requestId !== lessonRequestId) return;
 
 			if (!response.success || !('data' in response)) {
@@ -223,8 +244,7 @@
 			}
 
 			if (!isLessonCompleted) {
-				const progressResponse = await updateLessonProgress({
-					lessonId,
+				const progressResponse = await updateLessonProgressUseCase.exec(lessonId, {
 					status: 'in_progress'
 				});
 				if (requestId !== lessonRequestId) return;
@@ -299,11 +319,7 @@
 								Materi tidak dapat dimuat
 							</p>
 							<p class="mt-1 text-sm text-red-600 dark:text-red-400">{lessonDetailError}</p>
-							<Button
-								class="mt-5"
-								type="button"
-								onclick={() => loadLessonDetail(activeLessonId)}
-							>
+							<Button class="mt-5" type="button" onclick={() => loadLessonDetail(activeLessonId)}>
 								Coba lagi
 							</Button>
 						</Card.Content>

@@ -1,3 +1,4 @@
+import { requestFetch } from '#request-fetch';
 import { CourseRepositoryImpl } from '$features/course/data/repositories/course.repository.impl';
 import { CourseSource } from '$features/course/data/sources/course.source';
 import { GetListCoursesUseCase } from '$features/course/domain/usecases/get-list-courses.usecase';
@@ -6,9 +7,8 @@ import { GetCourseModulesUseCase } from '$features/course/domain/usecases/get-co
 import { GetLessonDetailUseCase } from '$features/course/domain/usecases/get-lesson-detail.usecase';
 import { UpdateModuleProgressUseCase } from '$features/course/domain/usecases/update-module-progress.usecase';
 import { UpdateLessonProgressUseCase } from '$features/course/domain/usecases/update-lesson-progress.usecase';
-import { apiClient } from './api.dependency';
 
-const courseSource = new CourseSource(apiClient);
+const courseSource = new CourseSource(requestFetch);
 const courseRepository = new CourseRepositoryImpl(courseSource);
 
 export const getListCoursesUseCase = new GetListCoursesUseCase(courseRepository);

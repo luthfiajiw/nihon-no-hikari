@@ -9,7 +9,6 @@ import {
 	type SignOutRequest,
 	type StoredAuthSession
 } from '$features/auth/domain/entities/auth.entity';
-import { HttpClient } from '$lib/http-client';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -61,12 +60,12 @@ function extractSession(value: unknown, previous: StoredAuthSession): StoredAuth
 }
 
 export class AuthSource {
-	constructor(private readonly httpClient: HttpClient) {}
+	constructor(private readonly fetcher: typeof fetch) {}
 
 	async signIn(payload: SignInRequest): Promise<SignInResponse> {
 		let response;
 		try {
-			response = await this.httpClient.request<SignInResponse>('/api/auth/signin', {
+			response = await this.fetcher('/api/auth/signin', {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',
@@ -78,17 +77,17 @@ export class AuthSource {
 			throw new SignInNetworkError();
 		}
 
-		const json = response.data;
+		const json: unknown = await response.json().catch(() => null);
 
 		if (!response.ok) {
-			const error = json as SignInResponse & { error?: string };
 			if (response.status === 401 || response.status === 400) {
-				throw new InvalidCredentialsError(error.error);
+				throw new InvalidCredentialsError(getErrorMessage(json));
 			}
-			throw new SignInNetworkError(error.error);
+			throw new SignInNetworkError(getErrorMessage(json));
 		}
 
-		return json;
+		if (!isRecord(json)) throw new SignInNetworkError();
+		return json as unknown as SignInResponse;
 	}
 
 	async refreshToken(
@@ -97,7 +96,7 @@ export class AuthSource {
 	): Promise<StoredAuthSession> {
 		let response;
 		try {
-			response = await this.httpClient.request<unknown>('/v1/auth/token', {
+			response = await this.fetcher('/api/v1/auth/token', {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',
@@ -109,15 +108,16 @@ export class AuthSource {
 			throw new RefreshTokenError('Gagal terhubung ke server autentikasi.');
 		}
 
+		const data: unknown = await response.json().catch(() => null);
 		if (!response.ok) {
-			const message = getErrorMessage(response.data);
+			const message = getErrorMessage(data);
 			if ([400, 401, 403].includes(response.status)) {
 				throw new InvalidRefreshTokenError(message);
 			}
 			throw new RefreshTokenError(message);
 		}
 
-		const session = extractSession(response.data, currentSession);
+		const session = extractSession(data, currentSession);
 		if (!session) throw new RefreshTokenError('Response refresh token tidak valid.');
 
 		return session;
@@ -125,7 +125,7 @@ export class AuthSource {
 
 	async signOut(payload: SignOutRequest): Promise<boolean> {
 		try {
-			const response = await this.httpClient.request('/v1/auth/signout', {
+			const response = await this.fetcher('/api/v1/auth/signout', {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',

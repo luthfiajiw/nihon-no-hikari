@@ -1,4 +1,3 @@
-import { HttpClient, type RequestConfig } from '$lib/http-client';
 import {
 	AdminError,
 	type AdminCatalog,
@@ -15,29 +14,29 @@ import {
 type ApiPayload<T> = { data: T; error?: string; message?: string };
 
 export class AdminSource {
-	constructor(private readonly httpClient: HttpClient) {}
+	constructor(private readonly fetcher: typeof fetch) {}
 
-	private async request<T>(path: string, options: RequestConfig = {}): Promise<T> {
+	private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		try {
-			const response = await this.httpClient.request<T & { error?: string; message?: string }>(
-				`/v1/admin${path}`,
-				{
-					...options,
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-						...options.headers
-					}
+			const response = await this.fetcher(`/api/v1/admin${path}`, {
+				...options,
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					...Object.fromEntries(new Headers(options.headers))
 				}
-			);
+			});
+			if (response.status === 204) return undefined as T;
+			const data = (await response.json().catch(() => ({}))) as T & {
+				error?: string;
+				message?: string;
+			};
 			if (!response.ok)
 				throw new AdminError(
 					response.status,
-					response.data?.error ||
-						response.data?.message ||
-						'Operasi admin gagal. Silakan coba lagi.'
+					data?.error || data?.message || 'Operasi admin gagal. Silakan coba lagi.'
 				);
-			return response.data;
+			return data;
 		} catch (error) {
 			if (error instanceof AdminError) throw error;
 			throw new AdminError(502, 'Gagal terhubung ke server.');

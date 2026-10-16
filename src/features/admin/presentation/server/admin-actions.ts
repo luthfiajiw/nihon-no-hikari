@@ -1,6 +1,10 @@
 import { fail, json, redirect, type RequestEvent } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
-import { createAdminDependencies } from '$dependencies/admin.dependency';
+import {
+	manageAdminContentUseCase,
+	changeAdminUserRoleUseCase,
+	previewAdminLessonUseCase
+} from '$dependencies/admin.dependency';
 import { AdminError, type AdminContentAction } from '../../domain/entities/admin.entity';
 
 function actionFailure(cause: unknown) {
@@ -14,12 +18,7 @@ export async function manageAdminContent(event: RequestEvent, action: AdminConte
 	let result;
 	try {
 		const payload = action === 'save' ? (await event.request.formData()).get('payload') : undefined;
-		result = await createAdminDependencies(event).manageAdminContentUseCase.exec(
-			action,
-			kind,
-			id,
-			payload
-		);
+		result = await manageAdminContentUseCase.exec(action, kind, id, payload);
 	} catch (cause) {
 		return actionFailure(cause);
 	}
@@ -38,11 +37,7 @@ export async function manageAdminContent(event: RequestEvent, action: AdminConte
 export async function changeAdminUserRole(event: RequestEvent) {
 	try {
 		const form = await event.request.formData();
-		await createAdminDependencies(event).changeAdminUserRoleUseCase.exec(
-			event.locals.user,
-			form.get('userId'),
-			form.get('role')
-		);
+		await changeAdminUserRoleUseCase.exec(event.locals.user, form.get('userId'), form.get('role'));
 		return { message: 'Role pengguna berhasil diperbarui.' };
 	} catch (cause) {
 		return actionFailure(cause);
@@ -56,7 +51,7 @@ export async function previewAdminLesson(event: RequestEvent) {
 		} catch {
 			throw new AdminError(400, 'Konten lesson tidak valid.');
 		}
-		const content = await createAdminDependencies(event).previewAdminLessonUseCase.exec(payload);
+		const content = await previewAdminLessonUseCase.exec(payload);
 		return json({ data: content });
 	} catch (cause) {
 		if (!(cause instanceof AdminError)) throw cause;

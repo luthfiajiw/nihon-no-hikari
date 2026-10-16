@@ -1,8 +1,7 @@
-import { env } from '$env/dynamic/private';
 import { InvalidRefreshTokenError } from '$features/auth/domain/entities/auth.entity';
 import type { StoredAuthSession } from '$features/auth/domain/entities/auth.entity';
 import type { RequestEvent } from '@sveltejs/kit';
-import { createAuthServerDependencies } from '../../dependencies/auth.dependency';
+import { refreshTokenUseCase, signOutUseCase } from '../../dependencies/auth.dependency';
 import { clearAuthState, clearLegacyAuthCookies, readAuthState, setAuthState } from './auth-cookie';
 
 const ACCESS_TOKEN_CLOCK_SKEW_MS = 15_000;
@@ -16,12 +15,6 @@ type RefreshResult =
 // example due to preloading). A refresh token may only be rotated once, so all
 // requests using the same session/token must share the in-flight refresh.
 const pendingRefreshes = new Map<string, Promise<RefreshResult>>();
-
-function getApiBaseUrl(): string {
-	const baseUrl = env.API_BASE_URL?.replace(/\/$/, '');
-	if (!baseUrl) throw new Error('API_BASE_URL belum dikonfigurasi.');
-	return baseUrl;
-}
 
 export function initializeAuthLocals(event: RequestEvent): void {
 	clearLegacyAuthCookies(event.cookies);
@@ -41,7 +34,6 @@ export async function refreshAuthSession(event: RequestEvent): Promise<StoredAut
 	if (!pendingRefresh) {
 		pendingRefresh = (async (): Promise<RefreshResult> => {
 			try {
-				const { refreshTokenUseCase } = createAuthServerDependencies(event.fetch, getApiBaseUrl());
 				const session = await refreshTokenUseCase.exec(current);
 				return { status: 'refreshed', session };
 			} catch (error) {
@@ -100,7 +92,6 @@ export async function revokeAuthSession(event: RequestEvent): Promise<boolean> {
 	if (!session) return true;
 
 	try {
-		const { signOutUseCase } = createAuthServerDependencies(event.fetch, getApiBaseUrl());
 		return await signOutUseCase.exec(session.id);
 	} catch {
 		return false;

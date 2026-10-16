@@ -1,6 +1,13 @@
 import { error, redirect, type RequestEvent } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
-import { createAdminDependencies } from '$dependencies/admin.dependency';
+import {
+	checkAdminAccessUseCase,
+	getAdminCatalogUseCase,
+	getAdminContentListUseCase,
+	getAdminCourseDetailUseCase,
+	getAdminEditorUseCase,
+	getAdminUsersUseCase
+} from '$dependencies/admin.dependency';
 import { AdminError, isAdminContentKind } from '../../domain/entities/admin.entity';
 
 async function loadAdmin<T>(operation: () => Promise<T>): Promise<T> {
@@ -13,45 +20,39 @@ async function loadAdmin<T>(operation: () => Promise<T>): Promise<T> {
 		error(cause.status, cause.message);
 	}
 }
-export function loadAdminAccess(event: RequestEvent) {
-	return loadAdmin(() => createAdminDependencies(event).checkAdminAccessUseCase.exec());
+export function loadAdminAccess() {
+	return loadAdmin(() => checkAdminAccessUseCase.exec());
 }
-export async function loadAdminDashboard(event: RequestEvent) {
+export async function loadAdminDashboard() {
 	return {
-		catalog: await loadAdmin(() => createAdminDependencies(event).getAdminCatalogUseCase.exec())
+		catalog: await loadAdmin(() => getAdminCatalogUseCase.exec())
 	};
 }
-export async function loadAdminCourses(event: RequestEvent) {
+export async function loadAdminCourses() {
 	return {
-		courses: await loadAdmin(() =>
-			createAdminDependencies(event).getAdminContentListUseCase.exec('course')
-		)
+		courses: await loadAdmin(() => getAdminContentListUseCase.exec('course'))
 	};
 }
-export async function loadAdminQuestionSets(event: RequestEvent) {
+export async function loadAdminQuestionSets() {
 	return {
-		sets: await loadAdmin(() =>
-			createAdminDependencies(event).getAdminContentListUseCase.exec('question_set')
-		)
+		sets: await loadAdmin(() => getAdminContentListUseCase.exec('question_set'))
 	};
 }
 export function loadAdminCourseDetail(event: RequestEvent) {
-	return loadAdmin(() =>
-		createAdminDependencies(event).getAdminCourseDetailUseCase.exec(event.params.id!)
-	);
+	return loadAdmin(() => getAdminCourseDetailUseCase.exec(event.params.id!));
 }
 export function loadAdminEditor(event: RequestEvent) {
 	if (!isAdminContentKind(event.params.kind ?? '')) redirect(303, resolve('/admin'));
 	return loadAdmin(() =>
-		createAdminDependencies(event).getAdminEditorUseCase.exec(
+		getAdminEditorUseCase.exec(
 			event.params.kind!,
 			event.params.id!,
 			event.url.searchParams.get('parent')
 		)
 	);
 }
-export async function loadAdminUsers(event: RequestEvent) {
+export async function loadAdminUsers() {
 	return {
-		users: await loadAdmin(() => createAdminDependencies(event).getAdminUsersUseCase.exec())
+		users: await loadAdmin(() => getAdminUsersUseCase.exec())
 	};
 }

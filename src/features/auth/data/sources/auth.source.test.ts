@@ -1,9 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HttpClient } from '$lib/http-client';
 import { InvalidCredentialsError, SignInNetworkError } from '../../domain/entities/auth.entity';
 import { AuthSource } from './auth.source';
 
 describe('AuthSource', () => {
+	it('handles a non-JSON gateway failure as a domain network error', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValue(new Response('Bad gateway', { status: 502 }));
+		await expect(
+			new AuthSource(fetch).signIn({ email: 'user@example.test', password: 'password' })
+		).rejects.toBeInstanceOf(SignInNetworkError);
+	});
 	const credentials = {
 		email: 'user@example.com',
 		password: 'password123'
@@ -33,7 +40,7 @@ describe('AuthSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const service = new AuthSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const service = new AuthSource(mockFetch);
 
 		const result = await service.signIn(credentials);
 
@@ -59,7 +66,7 @@ describe('AuthSource', () => {
 					headers: { 'Content-Type': 'application/json' }
 				})
 			);
-			const service = new AuthSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+			const service = new AuthSource(mockFetch);
 			const result = service.signIn(credentials);
 
 			await expect(result).rejects.toBeInstanceOf(InvalidCredentialsError);
@@ -76,7 +83,7 @@ describe('AuthSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const service = new AuthSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const service = new AuthSource(mockFetch);
 
 		const result = service.signIn(credentials);
 

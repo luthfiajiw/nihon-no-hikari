@@ -1,8 +1,4 @@
-import { env } from '$env/dynamic/private';
-import type { RequestEvent } from '@sveltejs/kit';
-import { HttpClient } from '$lib/http-client';
-import { getValidAccessToken } from '$lib/server/auth';
-import { AdminError } from '$features/admin/domain/entities/admin.entity';
+import { requestFetch } from '#request-fetch';
 import { AdminSource } from '$features/admin/data/sources/admin.source';
 import { AdminRepositoryImpl } from '$features/admin/data/repositories/admin.repository.impl';
 import { CheckAdminAccessUseCase } from '$features/admin/domain/usecases/check-admin-access.usecase';
@@ -15,28 +11,14 @@ import { GetAdminUsersUseCase } from '$features/admin/domain/usecases/get-admin-
 import { ChangeAdminUserRoleUseCase } from '$features/admin/domain/usecases/change-admin-user-role.usecase';
 import { PreviewAdminLessonUseCase } from '$features/admin/domain/usecases/preview-admin-lesson.usecase';
 
-// Bind credentials and fetch to this request, so concurrent admins never share auth state.
-export function createAdminDependencies(event: RequestEvent) {
-	const client = new HttpClient({
-		fetch: event.fetch,
-		baseUrl: env.API_BASE_URL?.replace(/\/$/, '') ?? ''
-	});
-	client.onRequest(async (config) => {
-		const token = await getValidAccessToken(event);
-		if (!token) throw new AdminError(401, 'Silakan masuk kembali.');
-		if (!env.API_BASE_URL) throw new AdminError(500, 'API_BASE_URL belum dikonfigurasi.');
-		return { ...config, headers: { ...config.headers, Authorization: `Bearer ${token}` } };
-	});
-	const repository = new AdminRepositoryImpl(new AdminSource(client));
-	return {
-		checkAdminAccessUseCase: new CheckAdminAccessUseCase(repository),
-		getAdminCatalogUseCase: new GetAdminCatalogUseCase(repository),
-		getAdminContentListUseCase: new GetAdminContentListUseCase(repository),
-		getAdminCourseDetailUseCase: new GetAdminCourseDetailUseCase(repository),
-		getAdminEditorUseCase: new GetAdminEditorUseCase(repository),
-		manageAdminContentUseCase: new ManageAdminContentUseCase(repository),
-		getAdminUsersUseCase: new GetAdminUsersUseCase(repository),
-		changeAdminUserRoleUseCase: new ChangeAdminUserRoleUseCase(repository),
-		previewAdminLessonUseCase: new PreviewAdminLessonUseCase(repository)
-	};
-}
+const repository = new AdminRepositoryImpl(new AdminSource(requestFetch));
+
+export const checkAdminAccessUseCase = new CheckAdminAccessUseCase(repository);
+export const getAdminCatalogUseCase = new GetAdminCatalogUseCase(repository);
+export const getAdminContentListUseCase = new GetAdminContentListUseCase(repository);
+export const getAdminCourseDetailUseCase = new GetAdminCourseDetailUseCase(repository);
+export const getAdminEditorUseCase = new GetAdminEditorUseCase(repository);
+export const manageAdminContentUseCase = new ManageAdminContentUseCase(repository);
+export const getAdminUsersUseCase = new GetAdminUsersUseCase(repository);
+export const changeAdminUserRoleUseCase = new ChangeAdminUserRoleUseCase(repository);
+export const previewAdminLessonUseCase = new PreviewAdminLessonUseCase(repository);

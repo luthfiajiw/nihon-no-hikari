@@ -3,6 +3,12 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"imports": {
+		"#request-fetch": {
+			"browser": "./src/lib/request-fetch.ts",
+			"default": "./src/lib/server/request-fetch.ts"
+		}
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -14,6 +20,7 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test:admin": "node tests/admin-navigation.mjs",
+		"test:api-proxy": "node tests/api-proxy.mjs",
 		"test": "npm run test:unit -- --run"
 	},
 	"devDependencies": {

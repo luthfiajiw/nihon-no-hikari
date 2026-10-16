@@ -1,16 +1,22 @@
-import { getCourseModulesUseCase } from '../../../../../dependencies/course.dependency';
-import { apiClient } from '../../../../../dependencies/api.dependency';
+import { getCourseModulesUseCase } from '$dependencies/course.dependency';
 import type { QuestionSet } from '$features/question/domain/entities/question.entity';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, fetch }) => {
 	try {
 		const response = await getCourseModulesUseCase.exec(params.id);
 		const moduleExams: Record<string, QuestionSet[]> = {};
-		await Promise.all(response.data.map(async ({ module }) => {
-			const result = await apiClient.request<{ data: QuestionSet[] }>(`/v1/modules/${encodeURIComponent(module.id)}/question-sets`, { method: 'GET' });
-			moduleExams[module.id] = result.ok ? result.data.data : [];
-		}));
+		await Promise.all(
+			response.data.map(async ({ module }) => {
+				const result = await fetch(
+					`/api/v1/modules/${encodeURIComponent(module.id)}/question-sets`,
+					{ method: 'GET' }
+				);
+				moduleExams[module.id] = result.ok
+					? ((await result.json()) as { data: QuestionSet[] }).data
+					: [];
+			})
+		);
 
 		return {
 			courseId: params.id,

@@ -15,7 +15,7 @@
 	import AssessmentStatusCard from '../components/assessment-status-card.svelte';
 	import AssessmentSubmitDialog from '../components/assessment-submit-dialog.svelte';
 	import { getAssessmentContext } from '../contexts/assessment-context';
-	import { submitQuestionSetAttempt } from '../remotes/submit-question-set-attempt.remote';
+	import { submitQuestionSetAttemptUseCase } from '$dependencies/question.dependency';
 
 	interface Props {
 		questionSetId: string;
@@ -69,11 +69,7 @@
 	);
 
 	function abandonPracticeAttempt(): Promise<void> | undefined {
-		if (
-			submitResult ||
-			!attempt ||
-			attempt.status !== 'in_progress'
-		) {
+		if (submitResult || !attempt || attempt.status !== 'in_progress') {
 			return;
 		}
 
@@ -173,11 +169,11 @@
 		submitError = null;
 
 		try {
-			const response = await submitQuestionSetAttempt({
+			const response = await submitQuestionSetAttemptUseCase.exec(
 				questionSetId,
-				attemptId: attempt.id,
-				request: createSubmitRequest()
-			});
+				attempt.id,
+				createSubmitRequest()
+			);
 
 			if (!response.success || !('data' in response)) {
 				throw new Error(response.message);

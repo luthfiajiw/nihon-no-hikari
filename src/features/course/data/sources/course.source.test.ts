@@ -1,8 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HttpClient } from '$lib/http-client';
 import { CourseSource } from './course.source';
 
 describe('CourseSource', () => {
+	it('reports a useful error when the proxy returns a non-JSON failure', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValue(new Response('Bad gateway', { status: 502 }));
+		await expect(new CourseSource(fetch).getList()).rejects.toThrow(
+			'Gagal mengambil daftar kursus.'
+		);
+	});
 	it('gets and returns the course list', async () => {
 		const responseData = {
 			success: true,
@@ -25,13 +32,11 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
 		const result = await source.getList();
 
-		expect(mockFetch).toHaveBeenCalledWith('http://localhost:8080/api/v1/courses', {
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/courses', {
 			method: 'GET',
 			headers: { Accept: 'application/json' }
 		});
@@ -45,7 +50,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getList()).rejects.toThrow('Kursus tidak dapat diambil.');
 	});
@@ -71,12 +76,10 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getDetail('course/1')).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith('http://localhost:8080/api/v1/courses/course%2F1', {
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/courses/course%2F1', {
 			method: 'GET',
 			headers: { Accept: 'application/json' }
 		});
@@ -89,7 +92,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getDetail('missing')).rejects.toThrow('Kursus tidak ditemukan.');
 	});
@@ -128,18 +131,13 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getModules('course/1')).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/lessons?courseId=course%2F1',
-			{
-				method: 'GET',
-				headers: { Accept: 'application/json' }
-			}
-		);
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/lessons?courseId=course%2F1', {
+			method: 'GET',
+			headers: { Accept: 'application/json' }
+		});
 	});
 
 	it('throws the API message when getting course modules fails', async () => {
@@ -149,7 +147,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getModules('missing')).rejects.toThrow('Materi tidak ditemukan.');
 	});
@@ -172,18 +170,13 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getLesson('lesson/1')).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/lessons/lesson%2F1',
-			{
-				method: 'GET',
-				headers: { Accept: 'application/json' }
-			}
-		);
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/lessons/lesson%2F1', {
+			method: 'GET',
+			headers: { Accept: 'application/json' }
+		});
 	});
 
 	it('throws the API message when getting a lesson detail fails', async () => {
@@ -193,7 +186,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(source.getLesson('missing')).rejects.toThrow('Materi tidak ditemukan.');
 	});
@@ -206,15 +199,13 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
 		await expect(
 			source.updateModuleProgress('course/1', 'module/1', { status: 'completed' })
 		).resolves.toEqual(responseData);
 		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/courses/course%2F1/modules/module%2F1/progress',
+			'/api/v1/courses/course%2F1/modules/module%2F1/progress',
 			{
 				method: 'PUT',
 				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -230,7 +221,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(
 			source.updateModuleProgress('course-1', 'module-1', { status: 'in_progress' })
@@ -245,21 +236,16 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(
-			new HttpClient({ fetch: mockFetch, baseUrl: 'http://localhost:8080/api' })
-		);
+		const source = new CourseSource(mockFetch);
 
-		await expect(
-			source.updateLessonProgress('lesson/1', { status: 'unlocked' })
-		).resolves.toEqual(responseData);
-		expect(mockFetch).toHaveBeenCalledWith(
-			'http://localhost:8080/api/v1/lessons/lesson%2F1/progress',
-			{
-				method: 'PUT',
-				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-				body: JSON.stringify({ status: 'unlocked' })
-			}
+		await expect(source.updateLessonProgress('lesson/1', { status: 'unlocked' })).resolves.toEqual(
+			responseData
 		);
+		expect(mockFetch).toHaveBeenCalledWith('/api/v1/lessons/lesson%2F1/progress', {
+			method: 'PUT',
+			headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+			body: JSON.stringify({ status: 'unlocked' })
+		});
 	});
 
 	it('throws the API message when updating lesson progress fails', async () => {
@@ -269,7 +255,7 @@ describe('CourseSource', () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 		);
-		const source = new CourseSource(new HttpClient({ fetch: mockFetch, baseUrl: '' }));
+		const source = new CourseSource(mockFetch);
 
 		await expect(
 			source.updateLessonProgress('lesson-1', { status: 'in_progress' })

@@ -11,7 +11,7 @@
 	import CourseDetailMotivationBanner from '../components/course-detail-motivation-banner.svelte';
 	import CourseDetailProgressCard from '../components/course-detail-progress-card.svelte';
 	import { getCourseLearningContext } from '../contexts/course-learning-context';
-	import { updateModuleProgress } from '../remotes/update-module-progress.remote';
+	import { updateModuleProgressUseCase } from '$dependencies/course.dependency';
 
 	interface Props {
 		course: CourseDetail | null;
@@ -49,9 +49,7 @@
 
 		try {
 			if (shouldStartModule) {
-				const result = await updateModuleProgress({
-					courseId,
-					moduleId,
+				const result = await updateModuleProgressUseCase.exec(courseId, moduleId, {
 					status: 'in_progress'
 				});
 

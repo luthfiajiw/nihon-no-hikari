@@ -1,4 +1,4 @@
-import { getCourseDetailUseCase } from '../../../../dependencies/course.dependency';
+import { getCourseDetailUseCase } from '$dependencies/course.dependency';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
