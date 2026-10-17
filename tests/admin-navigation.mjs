@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { testCourseReorder } from './admin-course-reorder.mjs';
+import { lessonHTMLValue, testLessonEditor, waitForLessonHTML } from './admin-lesson-editor.mjs';
 
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
@@ -60,7 +61,10 @@ const lessons = ['Baris A (あ)', 'Baris KA (か)'].map((title, index) => ({
 	is_entry: index === 0,
 	lesson_prerequisites: index === 0 ? [] : ['33333333-3333-4333-8333-333333333330'],
 	order_index: index,
-	content: { content: '<p>Belajar hiragana.</p>', tips: '' }
+	content: {
+		content: index === 0 ? '<p>Belajar hiragana.</p>' : '<p>\r\n  Belajar hiragana.\r\n</p>',
+		tips: ''
+	}
 }));
 const set = {
 	id: '44444444-4444-4444-8444-444444444444',
@@ -503,6 +507,12 @@ try {
 	// Existing lesson prerequisite is cleared when entry content is saved and published.
 	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
 	assert.equal(await page.title(), 'Edit Lesson | Admin - Nihongo no Hikari');
+	await page.getByRole('textbox', { name: 'Kode HTML', exact: true }).waitFor();
+	assert.equal(
+		await lessonHTMLValue(page),
+		lessons[1].content.content,
+		'Opening the editor preserves untouched source line endings'
+	);
 	const lessonPicker = page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true });
 	await lessonPicker.filter({ hasText: 'Baris A' }).waitFor();
 	await lessonPicker.click();
@@ -524,11 +534,14 @@ try {
 	assert.equal(lessons[1].is_entry, true);
 	await page.goto(`${origin}/admin/content/lesson/${lessons[0].id}`, { waitUntil: 'networkidle' });
 	assert.equal(await page.getByRole('button', { name: 'Visual', exact: true }).count(), 0);
+	await testLessonEditor(page);
 	const lessonHTML = await readFile(
 		new URL('./fixtures/lesson-vocabulary.html', import.meta.url),
 		'utf8'
 	);
 	await page.getByLabel('Kode HTML', { exact: true }).fill(lessonHTML);
+	await waitForLessonHTML(page, lessonHTML);
+	await page.locator('.cm-editor').screenshot({ path: join(screenshotDir, 'lesson-html.png') });
 	await page.getByLabel('Tips tambahan', { exact: true }).fill('Latih kosakata あか setiap hari.');
 	await page.getByRole('button', { name: 'Preview', exact: true }).click();
 	await page
@@ -537,25 +550,22 @@ try {
 		.waitFor();
 	assert(mutations.some((request) => request.path.endsWith('/lesson-content/preview')));
 	await page.getByRole('button', { name: 'HTML', exact: true }).click();
-	assert.equal(await page.getByLabel('Kode HTML', { exact: true }).inputValue(), lessonHTML);
+	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
 	await submitContentWithLoading('save');
 	await page
 		.getByRole('status')
 		.filter({ hasText: 'Fixture: operasi gagal. Silakan coba lagi.' })
 		.waitFor();
-	assert.equal(
-		await page.getByLabel('Kode HTML', { exact: true }).inputValue(),
-		lessonHTML,
-		'Failed save preserves HTML'
-	);
+	assert.equal(await lessonHTMLValue(page), lessonHTML, 'Failed save preserves HTML');
 	await submitContentWithLoading('save');
 	await page.getByRole('status').filter({ hasText: 'Draft berhasil disimpan.' }).waitFor();
 	await page.waitForLoadState('networkidle');
 	assert.equal(drafts.get(lessons[0].id).content.content, lessonHTML);
 	assert.equal(drafts.get(lessons[0].id).content.tips, 'Latih kosakata あか setiap hari.');
 	await page.reload({ waitUntil: 'networkidle' });
-	assert.equal(await page.getByLabel('Kode HTML', { exact: true }).inputValue(), lessonHTML);
+	await page.getByRole('textbox', { name: 'Kode HTML', exact: true }).waitFor();
+	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
 	await submitContentWithLoading('publish');
 	await page
@@ -592,6 +602,13 @@ try {
 	);
 	await page.screenshot({ path: join(screenshotDir, 'courses-mobile.png'), fullPage: true });
 	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
+	const mobileEditor = page.getByRole('textbox', { name: 'Kode HTML', exact: true });
+	await mobileEditor.fill(`<p style="color: red">${'あいうえお'.repeat(100)}</p>`);
+	assert(
+		await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+		'HTML editor must wrap long lines within the mobile viewport'
+	);
+	await mobileEditor.screenshot({ path: join(screenshotDir, 'lesson-html-mobile.png') });
 	assert.equal(await lessonPicker.count(), 0, 'Entry lesson hides picker on mobile too');
 	await page.getByRole('checkbox', { name: 'Lesson awal (is_entry)', exact: true }).uncheck();
 	await page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true }).click();
@@ -611,7 +628,7 @@ try {
 		'Admin transport must use the proxy and server credentials'
 	);
 	console.log(
-		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, lesson preview, single prerequisite search/replace/clear/reload/publish, entry visibility, page titles, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML highlighting/autocomplete/indentation/undo, lesson preview, single prerequisite search/replace/clear/reload/publish, entry visibility, page titles, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);

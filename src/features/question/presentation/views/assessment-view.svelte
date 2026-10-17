@@ -207,7 +207,8 @@
 			{#if submitResult}
 				<AssessmentResultCard result={submitResult} {assessmentLabel} {backHref} />
 			{:else if activeQuestion}
-				{#key activeQuestion.id}<AssessmentQuestionCard
+				{#key activeQuestion.id}
+					<AssessmentQuestionCard
 						question={activeQuestion}
 						questionNumber={activeIndex + 1}
 						totalQuestions={questions.length}
@@ -222,7 +223,8 @@
 						onStrokeChange={setStrokeAnswer}
 						onPrevious={() => goToQuestion(activeIndex - 1)}
 						onNext={goNext}
-					/>{/key}
+					/>
+				{/key}
 			{/if}
 
 			<div class="hidden xl:block">
@@ -254,9 +256,9 @@
 				>
 					<Drawer.Header class="sr-only">
 						<Drawer.Title>Daftar nomor soal</Drawer.Title>
-						<Drawer.Description
-							>Pilih nomor soal untuk berpindah ke soal tersebut.</Drawer.Description
-						>
+						<Drawer.Description>
+							Pilih nomor soal untuk berpindah ke soal tersebut.
+						</Drawer.Description>
 					</Drawer.Header>
 					<Drawer.Close
 						class="absolute top-2 right-3 z-10 flex size-8 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100"

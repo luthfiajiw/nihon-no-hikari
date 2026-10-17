@@ -73,11 +73,7 @@
 			</div>
 		</div>
 
-		<Button
-			type="button"
-			onclick={() => goto(resolve(backHref as Pathname))}
-			class="mt-6 bg-sky-600 text-white"
-		>
+		<Button type="button" onclick={() => goto(resolve(backHref as Pathname))} class="mt-6">
 			Kembali ke materi
 		</Button>
 	</div>

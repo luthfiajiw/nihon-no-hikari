@@ -223,7 +223,9 @@
 								class="h-9 w-full rounded-lg border bg-slate-50 pr-3 pl-9 text-sm outline-none focus:border-blue-400 sm:w-80"
 							/>
 						</form>
-					{:else}<p class="pl-1 text-base">Ganbare, {firstName}!</p>{/if}
+					{:else}
+						<p class="pl-1 text-base">Ganbare, {firstName}!</p>
+					{/if}
 				</div>
 
 				<div class="flex shrink-0 items-center gap-2 pr-3 sm:pr-6">
@@ -282,14 +284,18 @@
 							<LoaderCircle class="size-4 animate-spin motion-reduce:animate-none" /> Membuka halaman…
 						</p>
 						<div class="h-12 w-72 rounded-xl bg-slate-200/70"></div>
-						{#each [1, 2, 3] as row (row)}<div
-								class="h-32 rounded-2xl border border-slate-200 bg-white"
-							></div>{/each}
+						{#each [1, 2, 3] as row (row)}
+							<div class="h-32 rounded-2xl border border-slate-200 bg-white"></div>
+						{/each}
 					</div>
 				{/if}
-				{#if isAdminRoute}<div class:hidden={Boolean(navigating.to)}>
+				{#if isAdminRoute}
+					<div class:hidden={Boolean(navigating.to)}>
 						{@render children?.()}
-					</div>{:else}{@render children?.()}{/if}
+					</div>
+				{:else}
+					{@render children?.()}
+				{/if}
 			</section>
 		</Sidebar.Inset>
 	</Sidebar.Provider>

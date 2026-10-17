@@ -171,8 +171,10 @@
 						y={stroke.points[0].y - 3}
 						fill={colors[index % colors.length]}
 						font-size="7"
-						font-weight="bold">{index + 1}</text
+						font-weight="bold"
 					>
+						{index + 1}
+					</text>
 					{#if index === value.length}
 						<line
 							x1={stroke.points[25].x}
@@ -229,14 +231,19 @@
 			class="underline"
 			href="https://kanjivg.tagaini.net/"
 			target="_blank"
-			rel="noopener noreferrer">KanjiVG</a
+			rel="noopener noreferrer"
 		>
+			KanjiVG
+		</a>
 		© Ulrich Apel dan kontributor,
 		<a
 			class="underline"
 			href="https://creativecommons.org/licenses/by-sa/3.0/"
 			target="_blank"
-			rel="noopener noreferrer">CC BY-SA 3.0</a
-		>.
+			rel="noopener noreferrer"
+		>
+			CC BY-SA 3.0
+		</a>
+		.
 	</p>
 </div>

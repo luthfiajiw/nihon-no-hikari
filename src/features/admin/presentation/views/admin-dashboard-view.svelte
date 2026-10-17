@@ -3,15 +3,7 @@
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import {
-		BookOpen,
-		Layers,
-		FileText,
-		ClipboardCheck,
-		ArrowUpRight,
-		Plus,
-		LayoutDashboard
-	} from 'lucide-svelte';
+	import { BookOpen, Layers, FileText, ClipboardCheck, ArrowUpRight, Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import type { AdminDashboardData } from '../models/admin-view.model';
 	let { data }: { data: AdminDashboardData } = $props();
@@ -56,21 +48,24 @@
 	<AdminPageHeader
 		title="Ringkasan Admin"
 		description="Ruang kerja untuk materi dan penilaian siswa."
-		icon={LayoutDashboard}
 	/>
 	<div class="admin-fields xl:grid-cols-4">
-		{#each cards as card (card.key)}<button
+		{#each cards as card (card.key)}
+			<button
 				type="button"
 				onclick={() => goto(resolve(card.href as Pathname))}
 				class="group admin-panel w-full text-left transition-shadow hover:shadow-md"
-				><div class="flex items-center justify-between">
-					<span class="flex size-11 items-center justify-center rounded-xl {card.color}"
-						><card.icon class="size-5" /></span
-					><ArrowUpRight class="size-4 text-slate-300 group-hover:text-blue-500" />
+			>
+				<div class="flex items-center justify-between">
+					<span class="flex size-11 items-center justify-center rounded-xl {card.color}">
+						<card.icon class="size-5" />
+					</span>
+					<ArrowUpRight class="size-4 text-slate-300 group-hover:text-blue-500" />
 				</div>
 				<p class="mt-4 text-3xl font-bold tracking-tight">{data.catalog[card.key]?.length ?? 0}</p>
-				<p class="mt-1 text-sm text-slate-500">{card.label}</p></button
-			>{/each}
+				<p class="mt-1 text-sm text-slate-500">{card.label}</p>
+			</button>
+		{/each}
 	</div>
 	<section
 		class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-4 sm:p-6"
@@ -87,9 +82,8 @@
 				sebagai draft sebelum diterbitkan.
 			</p>
 		</div>
-		<Button
-			onclick={() => goto(resolve('/admin/content/course/new'))}
-			class="h-10 bg-blue-600 px-4 hover:bg-blue-700"><Plus class="size-4" /> Buat Kursus</Button
-		>
+		<Button onclick={() => goto(resolve('/admin/content/course/new'))} class="px-4">
+			<Plus class="size-4" /> Buat Kursus
+		</Button>
 	</section>
 </div>

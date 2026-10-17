@@ -53,9 +53,9 @@
 				onclick={() => toggleModule(mod.id)}
 			>
 				<div class="flex flex-col gap-0.5">
-					<span class="text-sm font-bold tracking-wider text-muted-foreground uppercase"
-						>{mod.title}</span
-					>
+					<span class="text-sm font-bold tracking-wider text-muted-foreground uppercase">
+						{mod.title}
+					</span>
 					<span class="text-xs text-muted-foreground/70">{mod.completedCount}</span>
 				</div>
 				{#if isExpanded}
@@ -95,15 +95,18 @@
 								<span
 									class="text-sm leading-snug {isActive
 										? 'font-semibold text-sky-700 dark:text-sky-400'
-										: 'font-normal text-foreground'}">{lesson.title}</span
+										: 'font-normal text-foreground'}"
 								>
+									{lesson.title}
+								</span>
 								<span class="flex items-center gap-1.5 text-xs text-muted-foreground">
 									{lesson.order}
 									{#if lesson.isFree}
 										<span
 											class="rounded bg-sky-100 px-1.5 py-0.5 text-xs font-semibold text-sky-700 dark:bg-sky-950/60 dark:text-sky-400"
-											>Gratis</span
 										>
+											Gratis
+										</span>
 									{/if}
 								</span>
 							</div>

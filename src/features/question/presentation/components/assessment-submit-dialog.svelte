@@ -48,13 +48,7 @@
 			>
 				Periksa lagi
 			</Button>
-			<Button
-				type="button"
-				disabled={isSubmitting}
-				isLoading={isSubmitting}
-				onclick={onSubmit}
-				class="bg-sky-600 text-white"
-			>
+			<Button type="button" disabled={isSubmitting} isLoading={isSubmitting} onclick={onSubmit}>
 				{isSubmitting ? 'Mengirim...' : 'Ya, kirim jawaban'}
 			</Button>
 		</Dialog.Footer>

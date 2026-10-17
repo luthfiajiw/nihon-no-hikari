@@ -26,10 +26,7 @@ export class QuestionRepositoryImpl implements QuestionRepository {
 		return this.questionSource.submitAttempt(questionSetId, attemptId, request);
 	}
 
-	abandonAttempt(
-		questionSetId: string,
-		attemptId: string
-	): Promise<void> {
+	abandonAttempt(questionSetId: string, attemptId: string): Promise<void> {
 		return this.questionSource.abandonAttempt(questionSetId, attemptId);
 	}
 }

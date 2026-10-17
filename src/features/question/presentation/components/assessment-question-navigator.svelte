@@ -78,10 +78,10 @@
 					class={cn(
 						'aspect-square h-auto w-full rounded-lg border p-0 text-sm font-bold shadow-xs transition-colors',
 						active
-							? 'border-sky-600 bg-sky-600 text-white hover:bg-sky-700 hover:text-white'
+							? 'border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
 							: isDone
 								? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800'
-								: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
+								: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-primary/40 hover:bg-primary/10 hover:text-primary'
 					)}
 				>
 					{index + 1}
@@ -94,7 +94,7 @@
 			<div class="mt-4 space-y-3">
 				<div class="flex items-start gap-3">
 					<span
-						class="mt-0.5 size-5 shrink-0 rounded-md border border-sky-600 bg-sky-600 shadow-xs"
+						class="mt-0.5 size-5 shrink-0 rounded-md border border-primary bg-primary shadow-xs"
 						aria-hidden="true"
 					></span>
 					<p class="text-sm text-slate-900">Soal aktif</p>

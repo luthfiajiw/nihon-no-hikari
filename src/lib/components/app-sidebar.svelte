@@ -126,9 +126,9 @@
 			>
 				日本 の 光
 			</h1>
-			{#if mode === 'admin'}<p class="text-[10px] font-semibold tracking-[0.16em] text-slate-500">
-					PANEL ADMIN
-				</p>{/if}
+			{#if mode === 'admin'}
+				<p class="text-[10px] font-semibold tracking-[0.16em] text-slate-500">PANEL ADMIN</p>
+			{/if}
 		</div>
 	</Sidebar.Header>
 
@@ -199,9 +199,8 @@
 					onclick={() => goto(resolve('/'))}
 					class="flex w-full items-center gap-2 rounded-xl border border-blue-200 px-3 py-3 text-sm font-medium text-blue-600 group-data-[collapsible=icon]:justify-center hover:bg-blue-50"
 				>
-					<ArrowUpRight class="size-4 shrink-0" /><span class="group-data-[collapsible=icon]:hidden"
-						>Lihat tampilan siswa</span
-					>
+					<ArrowUpRight class="size-4 shrink-0" />
+					<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
 				</button>
 			</div>
 		{:else}

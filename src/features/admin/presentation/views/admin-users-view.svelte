@@ -1,6 +1,5 @@
 <script lang="ts">
 	import AdminPageHeader from '../components/admin-page-header.svelte';
-	import { Users } from 'lucide-svelte';
 	import type { AdminUsersData, AdminFormResult } from '../models/admin-view.model';
 
 	let { data, form }: { data: AdminUsersData; form?: AdminFormResult } = $props();
@@ -15,7 +14,6 @@
 	<AdminPageHeader
 		title="Kelola Pengguna"
 		description="Atur akses User dan Admin untuk akun yang sudah terdaftar."
-		icon={Users}
 	/>
 	{#if form?.message}
 		<p class="admin-notice" role="status">{form.message}</p>
@@ -23,11 +21,12 @@
 	<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
 		<table class="w-full text-left text-sm">
 			<thead class="border-b bg-slate-50 text-slate-600">
-				<tr
-					><th class="admin-row">Nama</th><th class="admin-row">Email</th><th class="admin-row"
-						>Role</th
-					><th class="admin-row">Aksi</th></tr
-				>
+				<tr>
+					<th class="admin-row">Nama</th>
+					<th class="admin-row">Email</th>
+					<th class="admin-row">Role</th>
+					<th class="admin-row">Aksi</th>
+				</tr>
 			</thead>
 			<tbody>
 				{#each data.users as user (user.id)}

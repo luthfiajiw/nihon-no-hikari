@@ -32,28 +32,29 @@
 					{activeModule.status === 'in_progress' ? 'Lanjutkan' : 'Berikutnya'}
 				</Badge>
 				<div>
-					<Card.Title class="text-xl font-bold text-slate-900 dark:text-slate-100"
-						>{activeModule.title}</Card.Title
-					>
+					<Card.Title class="text-xl font-bold text-slate-900 dark:text-slate-100">
+						{activeModule.title}
+					</Card.Title>
 					<Card.Description
 						class="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
-						>{activeModule.description}</Card.Description
 					>
+						{activeModule.description}
+					</Card.Description>
 				</div>
 			</div>
 			<div class="flex items-center justify-between pt-4">
 				<div class="flex items-center gap-1">
 					<ClockIcon class="size-3 text-slate-500" />
-					<span class="text-xs font-medium text-slate-400"
-						>{formatDuration(activeModule.estimated_minutes)}</span
-					>
+					<span class="text-xs font-medium text-slate-400">
+						{formatDuration(activeModule.estimated_minutes)}
+					</span>
 				</div>
 				<Button
 					type="button"
 					onclick={onOpenLessons}
 					disabled={isOpeningLessons}
 					isLoading={isOpeningLessons}
-					class="rounded-xl bg-sky-600 font-medium text-white shadow-xs hover:bg-sky-700"
+					class="rounded-xl font-medium shadow-xs"
 				>
 					{isOpeningLessons
 						? 'Membuka...'

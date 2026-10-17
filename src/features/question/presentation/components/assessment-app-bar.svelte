@@ -36,12 +36,18 @@
 	>
 		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
 			<CircleQuestionMarkIcon class="size-4 text-sky-500" />
-			<span>{questionCount}<span class="ml-1 hidden sm:inline"> Soal</span></span>
+			<span>
+				{questionCount}
+				<span class="ml-1 hidden sm:inline">Soal</span>
+			</span>
 		</span>
 		<Separator orientation="vertical" class="data-[orientation=vertical]:h-5" />
 		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
 			<TargetIcon class="size-4 text-sky-500" />
-			<span><span class="mr-1 hidden sm:inline">Nilai Lulus </span>{passingScore}</span>
+			<span>
+				<span class="mr-1 hidden sm:inline">Nilai Lulus</span>
+				{passingScore}
+			</span>
 		</span>
 	</div>
 </header>

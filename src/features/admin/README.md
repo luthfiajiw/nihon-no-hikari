@@ -14,6 +14,8 @@ Module and lesson editors use a searchable shadcn-svelte Popover/Command combobo
 
 Admin spacing uses 8px within controls, 16px within groups and 24px between sections. Page padding is 16/24/32px across mobile/tablet/desktop; panel padding is 16/24px. Use the shared header and `admin-*` classes in `presentation/styles/admin.css`.
 
+Lesson HTML uses CodeMirror with syntax colors, line numbers, HTML tag/attribute completion, automatic closing tags and two-space indentation. Ctrl+Space opens suggestions; Tab/Shift+Tab changes indentation and Escape followed by Tab moves focus out of the editor. Switching to Preview keeps the editor's cursor and undo history. Source HTML stays in the existing lesson content payload; preview and publication still use the existing sanitization flow.
+
 Navigation uses native buttons or Button components with `onclick={() => goto(resolve(...))}`. Do not use anchor tags or Button `href` for app navigation. Dynamic route IDs include SvelteKit route groups when passing route parameters to `resolve`.
 
 Run `npm run check`, `npm run test:unit -- --run --project server` and `npm run test:admin` to verify. The browser test uses an isolated API fixture.

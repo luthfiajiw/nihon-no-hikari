@@ -29,20 +29,17 @@
 	<AdminPageHeader
 		title="Question Sets"
 		description="Kelola latihan lesson dan ujian akhir module."
-		icon={ClipboardCheck}
-		tone="violet"
 	>
 		{#snippet actions()}
-			<Button
-				onclick={() => goto(resolve('/admin/content/question_set/new'))}
-				class="h-10 bg-blue-600 px-4 hover:bg-blue-700"
-				><Plus class="size-4" /> Buat Question Set</Button
-			>
+			<Button onclick={() => goto(resolve('/admin/content/question_set/new'))} class="px-4">
+				<Plus class="size-4" /> Buat Question Set
+			</Button>
 		{/snippet}
 	</AdminPageHeader>
 	<div class="admin-toolbar">
 		<div class="relative min-w-48 flex-1">
-			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" /><input
+			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
+			<input
 				bind:value={search}
 				aria-label="Cari question set"
 				placeholder="Cari question set..."
@@ -53,38 +50,46 @@
 			bind:value={skill}
 			aria-label="Filter skill"
 			class="h-9 rounded-lg border bg-white px-3 text-sm text-slate-600"
-			><option value="all">Semua skill</option><option value="reading">Reading</option><option
-				value="writing">Writing</option
-			></select
 		>
+			<option value="all">Semua skill</option>
+			<option value="reading">Reading</option>
+			<option value="writing">Writing</option>
+		</select>
 		<select
 			bind:value={status}
 			aria-label="Filter status"
 			class="h-9 rounded-lg border bg-white px-3 text-sm text-slate-600"
-			><option value="all">Semua status</option><option value="published">Terbit</option><option
-				value="draft">Draft</option
-			><option value="archived">Arsip</option></select
 		>
+			<option value="all">Semua status</option>
+			<option value="published">Terbit</option>
+			<option value="draft">Draft</option>
+			<option value="archived">Arsip</option>
+		</select>
 	</div>
 	<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 		<div
 			class="admin-row flex justify-between border-b bg-slate-50/70 text-xs font-medium text-slate-500"
 		>
-			<span>{sets.length} question set</span><span>Kelola soal & pengaturan</span>
+			<span>{sets.length} question set</span>
+			<span>Kelola soal & pengaturan</span>
 		</div>
-		{#each sets as set (set.id)}<button
+		{#each sets as set (set.id)}
+			<button
 				type="button"
 				onclick={() => goto(resolve(`/admin/content/question_set/${set.id}` as Pathname))}
 				class="group admin-row flex w-full items-center gap-4 border-b border-slate-100 text-left transition-colors last:border-0 hover:bg-blue-50/40"
-				><div
+			>
+				<div
 					class="flex size-11 shrink-0 items-center justify-center rounded-xl {set.skill ===
 					'writing'
 						? 'bg-rose-50 text-rose-500'
 						: 'bg-blue-50 text-blue-500'}"
 				>
-					{#if set.skill === 'writing'}<PenLine class="size-5" />{:else}<BookOpen
-							class="size-5"
-						/>{/if}
+					{#if set.skill === 'writing'}
+						<PenLine class="size-5" />
+					{:else}
+						<BookOpen class="size-5" />
+					{/if}
 				</div>
 				<div class="min-w-0 flex-1">
 					<h2 class="truncate text-sm font-semibold text-slate-900 group-hover:text-blue-600">
@@ -99,11 +104,11 @@
 								: 'Gabungan'} · Versi {set.version ?? 1}
 					</p>
 				</div>
-				<StatusBadge item={set} /><ArrowUpRight
-					class="size-4 shrink-0 text-slate-400 group-hover:text-blue-600"
-				/></button
-			>
-		{:else}<div class="admin-empty">
+				<StatusBadge item={set} />
+				<ArrowUpRight class="size-4 shrink-0 text-slate-400 group-hover:text-blue-600" />
+			</button>
+		{:else}
+			<div class="admin-empty">
 				<ClipboardCheck class="mx-auto mb-4 size-10 text-slate-300" />
 				<h2 class="font-semibold">
 					{data.sets.length ? 'Question set tidak ditemukan' : 'Belum ada question set'}
@@ -113,6 +118,7 @@
 						? 'Coba kata kunci atau filter lainnya.'
 						: 'Buat latihan reading atau writing untuk mulai menyusun soal.'}
 				</p>
-			</div>{/each}
+			</div>
+		{/each}
 	</div>
 </div>

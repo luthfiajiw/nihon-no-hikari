@@ -25,29 +25,31 @@
 	<AdminPageHeader
 		title="Kursus & Materi"
 		description="Kelola kursus dan susun perjalanan belajar siswa."
-		icon={BookOpen}
 	>
 		{#snippet actions()}
-			<Button
-				onclick={() => goto(resolve('/admin/content/course/new'))}
-				class="h-10 gap-2 bg-blue-600 px-4 hover:bg-blue-700"
-				><Plus class="size-4" /> Buat Kursus</Button
-			>
+			<Button onclick={() => goto(resolve('/admin/content/course/new'))} class="gap-2 px-4">
+				<Plus class="size-4" /> Buat Kursus
+			</Button>
 		{/snippet}
 	</AdminPageHeader>
 	<div class="admin-toolbar justify-between">
 		<div class="flex gap-1" aria-label="Filter status kursus">
-			{#each [{ value: 'all', label: 'Semua' }, { value: 'published', label: 'Terbit' }, { value: 'draft', label: 'Draft' }, { value: 'archived', label: 'Arsip' }] as tab (tab.value)}<button
+			{#each [{ value: 'all', label: 'Semua' }, { value: 'published', label: 'Terbit' }, { value: 'draft', label: 'Draft' }, { value: 'archived', label: 'Arsip' }] as tab (tab.value)}
+				<button
 					type="button"
 					onclick={() => (status = tab.value)}
 					aria-pressed={status === tab.value}
 					class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {status === tab.value
 						? 'bg-blue-50 text-blue-700'
-						: 'text-slate-500 hover:bg-slate-50'}">{tab.label}</button
-				>{/each}
+						: 'text-slate-500 hover:bg-slate-50'}"
+				>
+					{tab.label}
+				</button>
+			{/each}
 		</div>
 		<div class="relative w-full sm:w-64">
-			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" /><input
+			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
+			<input
 				bind:value={search}
 				aria-label="Cari kursus"
 				placeholder="Cari kursus..."
@@ -66,12 +68,13 @@
 					onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
 					aria-label={`Lihat materi ${course.title}`}
 					class="shrink-0 overflow-hidden rounded-xl"
-					><img
+				>
+					<img
 						src={course.thumbnail_url || courseImage}
 						alt=""
 						class="h-40 w-full object-cover sm:h-28 sm:w-44"
-					/></button
-				>
+					/>
+				</button>
 				<div class="min-w-0 flex-1">
 					<StatusBadge item={course} />
 					<h2 class="mt-2 text-xl font-bold tracking-tight text-slate-900">
@@ -79,33 +82,42 @@
 							type="button"
 							class="text-left hover:text-blue-600"
 							onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
-							>{course.title}</button
 						>
+							{course.title}
+						</button>
 					</h2>
 					<p class="mt-1 line-clamp-2 text-sm text-slate-500">
 						{course.description || 'Susun module dan lesson untuk kursus ini.'}
 					</p>
 					<div class="mt-3 flex gap-4 text-xs text-slate-500">
-						<span class="flex items-center gap-1.5"
-							><Layers class="size-3.5" /> {course.module_count ?? 0} module</span
-						><span class="flex items-center gap-1.5"
-							><FileText class="size-3.5" /> {course.lesson_count ?? 0} lesson</span
-						>
+						<span class="flex items-center gap-1.5">
+							<Layers class="size-3.5" />
+							{course.module_count ?? 0} module
+						</span>
+						<span class="flex items-center gap-1.5">
+							<FileText class="size-3.5" />
+							{course.lesson_count ?? 0} lesson
+						</span>
 					</div>
 				</div>
 				<div class="flex shrink-0 gap-2">
 					<Button
 						variant="outline"
 						onclick={() => goto(resolve(`/admin/content/course/${course.id}` as Pathname))}
-						class="h-10 px-4"><Pencil class="size-3.5" /> Edit</Button
-					><Button
-						onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
-						class="h-10 bg-blue-600 px-4 hover:bg-blue-700"
-						>Lihat Materi <ArrowRight class="size-4" /></Button
+						class="px-4"
 					>
+						<Pencil class="size-3.5" /> Edit
+					</Button>
+					<Button
+						onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
+						class="px-4"
+					>
+						Lihat Materi <ArrowRight class="size-4" />
+					</Button>
 				</div>
 			</article>
-		{:else}<div class="admin-empty rounded-2xl border border-dashed bg-white">
+		{:else}
+			<div class="admin-empty rounded-2xl border border-dashed bg-white">
 				<BookOpen class="mx-auto mb-4 size-10 text-slate-300" />
 				<h2 class="font-semibold text-slate-800">
 					{data.courses.length ? 'Kursus tidak ditemukan' : 'Mulai dengan kursus pertama'}
@@ -115,6 +127,7 @@
 						? 'Coba kata kunci atau filter status lainnya.'
 						: 'Buat kursus, lalu tambahkan module dan lesson di halaman detailnya.'}
 				</p>
-			</div>{/each}
+			</div>
+		{/each}
 	</div>
 </div>

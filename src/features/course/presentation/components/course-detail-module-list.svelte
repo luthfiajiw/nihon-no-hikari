@@ -75,9 +75,9 @@
 							{/if}
 							{getModuleStatusLabel(courseModule.status)}
 						</Badge>
-						<span class="text-xs font-medium text-slate-400"
-							>{formatDuration(courseModule.estimated_minutes)}</span
-						>
+						<span class="text-xs font-medium text-slate-400">
+							{formatDuration(courseModule.estimated_minutes)}
+						</span>
 						<ChevronRightIcon class="size-4 text-slate-400" />
 					</div>
 				</button>

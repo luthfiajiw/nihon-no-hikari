@@ -35,7 +35,7 @@
 			type="button"
 			onclick={() => goto(resolve(backHref as Pathname))}
 			disabled={isSubmitting}
-			class="mt-6 bg-sky-600 text-white"
+			class="mt-6"
 		>
 			Kembali ke materi
 		</Button>

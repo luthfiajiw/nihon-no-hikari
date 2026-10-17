@@ -7,7 +7,7 @@ export interface Lesson {
 	title: string;
 	content?: string;
 	status?: Status;
-	question_sets: QuestionSet[]
+	question_sets: QuestionSet[];
 }
 
 export interface ModuleLesson {

@@ -213,17 +213,6 @@
 			saving = false;
 		}
 	}
-	const accents = [
-		{ strip: 'bg-rose-50/80', icon: 'bg-rose-500' },
-		{ strip: 'bg-blue-50/80', icon: 'bg-blue-500' },
-		{ strip: 'bg-violet-50/80', icon: 'bg-violet-500' },
-		{ strip: 'bg-emerald-50/80', icon: 'bg-emerald-500' }
-	];
-	const accentByModule = untrack(() =>
-		Object.fromEntries(
-			data.modules.map((module, index) => [module.id, accents[index % accents.length]])
-		)
-	);
 </script>
 
 <svelte:head>
@@ -254,13 +243,16 @@
 			<Button
 				variant="outline"
 				onclick={() => goto(resolve(`/admin/content/course/${data.course.id}` as Pathname))}
-				class="h-10 px-4"><Pencil class="size-4" /> Edit Kursus</Button
-			><Button
+				class="px-4"
+			>
+				<Pencil class="size-4" /> Edit Kursus
+			</Button>
+			<Button
 				onclick={() =>
 					goto(resolve(`/admin/content/module/new?parent=${data.course.id}` as Pathname))}
-				class="h-10 bg-blue-600 px-4 hover:bg-blue-700"
-				><Plus class="size-4" /> Tambah Module</Button
 			>
+				<Plus class="size-4" /> Tambah Module
+			</Button>
 		</div>
 	</section>
 	<div class="flex items-center justify-between">
@@ -302,12 +294,8 @@
 		onconsider={(event) => handleConsider(event, 'module', data.course.id)}
 		onfinalize={(event) => handleFinalize(event, 'module', data.course.id)}
 	>
-		{#each modules as module, index (`${module.id}-${module[SHADOW_ITEM_MARKER_PROPERTY_NAME] ?? false}`)}
+		{#each modules as module (`${module.id}-${module[SHADOW_ITEM_MARKER_PROPERTY_NAME] ?? false}`)}
 			{@const lessons = module.lessons}
-			{@const published = lessons.filter(
-				(lesson) => lesson.is_published && !lesson.archived_at
-			).length}
-			{@const accent = accentByModule[module.originalId] ?? accents[index % accents.length]}
 			<details
 				animate:flip={{ duration: flipDurationMs, easing: cubicOut }}
 				data-sort-id={module.originalId}
@@ -322,7 +310,7 @@
 				class="group w-full rounded-2xl border border-slate-200 bg-white p-1.5 text-left shadow-sm"
 			>
 				<summary
-					class="flex cursor-pointer list-none flex-wrap items-center gap-3 rounded-xl p-3 [&::-webkit-details-marker]:hidden {accent.strip}"
+					class="flex cursor-pointer list-none bg-secondary flex-wrap items-center gap-3 rounded-xl p-3 [&::-webkit-details-marker]:hidden"
 				>
 					<span
 						use:dragHandle
@@ -340,38 +328,35 @@
 						onkeydown={(event) => {
 							if (event.key === ' ' || event.key === 'Enter') event.preventDefault();
 						}}
-						class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-xl text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 aria-disabled:cursor-default aria-disabled:opacity-50 {accent.icon}"
-						><GripVertical class="size-5" /></span
+						class="flex shrink-0 cursor-grab touch-none items-center justify-center text-slate-400 aria-disabled:cursor-default aria-disabled:opacity-50"
 					>
+						<GripVertical class="size-5" />
+					</span>
 					<h3 class="min-w-24 flex-1 font-semibold text-slate-900">{module.title}</h3>
 					<StatusBadge item={module} />
 					<span
-						class="rounded-full border border-slate-200 bg-white/60 px-2 py-1 text-[11px] text-slate-500"
-						>{lessons.length} lesson</span
+						class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-500"
 					>
-					<div class="hidden w-32 xl:block">
-						<div class="h-1.5 overflow-hidden rounded-full bg-white">
-							<div
-								class="h-full rounded-full bg-blue-500"
-								style:width={`${lessons.length ? (published / lessons.length) * 100 : 0}%`}
-							></div>
-						</div>
-						<p class="mt-1 text-[10px] text-slate-500">
-							{published}/{lessons.length} lesson terbit
-						</p>
-					</div>
+						{lessons.length} lesson
+					</span>
 					<Button
 						variant="outline"
 						onclick={() => goto(resolve(`/admin/content/module/${module.originalId}` as Pathname))}
-						class="h-10 bg-white px-4"
-						aria-label={`Edit module ${module.title}`}><Pencil class="size-3.5" /> Edit</Button
+						class="bg-white px-4"
+						aria-label={`Edit module ${module.title}`}
 					>
+						<Pencil class="size-3.5" /> Edit
+					</Button>
 					<Button
 						onclick={() =>
 							goto(resolve(`/admin/content/lesson/new?parent=${module.originalId}` as Pathname))}
-						class="h-10 px-4 text-white {accent.icon}"
-						><Plus class="size-4" /> <span class="hidden sm:inline">Tambah</span> Lesson</Button
-					><ChevronDown class="size-4 text-slate-400 transition-transform group-open:rotate-180" />
+						class="px-4 text-white"
+					>
+						<Plus class="size-4" />
+						<span class="hidden sm:inline">Tambah</span>
+						Lesson
+					</Button>
+					<ChevronDown class="size-4 text-slate-400 transition-transform group-open:rotate-180" />
 				</summary>
 				{#if lessons.length > 0}
 					<div
@@ -417,37 +402,44 @@
 										if (event.key === ' ' || event.key === 'Enter') event.preventDefault();
 									}}
 									class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-blue-600 aria-disabled:cursor-default aria-disabled:opacity-50"
-									><GripVertical class="size-4" /></span
 								>
+									<GripVertical class="size-4" />
+								</span>
 								<button
 									type="button"
 									onclick={() => goto(resolve(`/admin/content/lesson/${lesson.id}` as Pathname))}
 									class="flex min-w-0 flex-1 items-center gap-3 py-3 text-left text-sm transition-colors hover:text-blue-600"
-									><span
-										class="flex h-6 min-w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-medium text-slate-500"
-										>{lessonIndex + 1}</span
-									><span class="min-w-0 flex-1 truncate font-medium">{lesson.title}</span
-									><StatusBadge item={lesson} /><Pencil
-										class="size-3.5 shrink-0 text-slate-400"
-									/></button
 								>
+									<span
+										class="flex h-6 min-w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-medium text-slate-500"
+									>
+										{lessonIndex + 1}
+									</span>
+									<span class="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
+									<StatusBadge item={lesson} />
+									<Pencil class="size-3.5 shrink-0 text-slate-400" />
+								</button>
 							</div>
 						{/each}
 					</div>
-				{:else}<div class="flex items-center gap-3 px-4 py-6 text-sm text-slate-500 sm:px-6">
+				{:else}
+					<div class="flex items-center gap-3 px-4 py-6 text-sm text-slate-500 sm:px-6">
 						<FileText class="size-5 text-slate-300" /> Belum ada lesson. Tambahkan materi pertama untuk
 						module ini.
-					</div>{/if}
+					</div>
+				{/if}
 			</details>
 		{/each}
 	</div>
-	{#if modules.length === 0}<div class="admin-empty rounded-2xl border border-dashed bg-white">
+	{#if modules.length === 0}
+		<div class="admin-empty rounded-2xl border border-dashed bg-white">
 			<Layers class="mx-auto mb-3 size-10 text-slate-300" />
 			<h3 class="font-semibold">Belum ada module</h3>
 			<p class="mt-2 text-sm text-slate-500">
 				Tambahkan module untuk mulai menyusun materi kursus.
 			</p>
-		</div>{/if}
+		</div>
+	{/if}
 </div>
 
 <style>

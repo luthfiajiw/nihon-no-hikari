@@ -13,8 +13,5 @@ export interface QuestionRepository {
 		attemptId: string,
 		request: SubmitAttemptRequest
 	): Promise<SubmitAttemptResponse>;
-	abandonAttempt(
-		questionSetId: string,
-		attemptId: string
-	): Promise<void>;
+	abandonAttempt(questionSetId: string, attemptId: string): Promise<void>;
 }
