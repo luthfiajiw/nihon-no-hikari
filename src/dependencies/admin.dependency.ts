@@ -1,4 +1,5 @@
 import { requestFetch } from '#request-fetch';
+import { ReorderAdminContentUseCase } from '$features/admin/domain/usecases/reorder-admin-content.usecase';
 import { AdminSource } from '$features/admin/data/sources/admin.source';
 import { AdminRepositoryImpl } from '$features/admin/data/repositories/admin.repository.impl';
 import { CheckAdminAccessUseCase } from '$features/admin/domain/usecases/check-admin-access.usecase';
@@ -12,6 +13,7 @@ import { ChangeAdminUserRoleUseCase } from '$features/admin/domain/usecases/chan
 import { PreviewAdminLessonUseCase } from '$features/admin/domain/usecases/preview-admin-lesson.usecase';
 
 const repository = new AdminRepositoryImpl(new AdminSource(requestFetch));
+export const reorderAdminContentUseCase = new ReorderAdminContentUseCase(repository);
 
 export const checkAdminAccessUseCase = new CheckAdminAccessUseCase(repository);
 export const getAdminCatalogUseCase = new GetAdminCatalogUseCase(repository);

@@ -1,4 +1,6 @@
 import type {
+	AdminReorderKind,
+	AdminReorderInput,
 	AdminCatalog,
 	AdminContentKind,
 	AdminContentDetail,
@@ -13,6 +15,9 @@ import type { AdminRepository } from '../../domain/repositories/admin.repository
 import { AdminSource } from '../sources/admin.source';
 export class AdminRepositoryImpl implements AdminRepository {
 	constructor(private readonly source: AdminSource) {}
+	reorderContent(kind: AdminReorderKind, input: AdminReorderInput): Promise<void> {
+		return this.source.reorderContent(kind, input);
+	}
 	checkAccess(): Promise<void> {
 		return this.source.checkAccess();
 	}

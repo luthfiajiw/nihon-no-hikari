@@ -2,9 +2,6 @@
 	import QuestionSetQuestionsEditor from './question-set-questions-editor.svelte';
 	import { untrack } from 'svelte';
 	import AdminPageHeader from './admin-page-header.svelte';
-	import type { Pathname } from '$app/types';
-	import { resolve } from '$app/paths';
-	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { Button } from '$lib/components/ui/button';
@@ -16,7 +13,7 @@
 	} from '../models/admin-content-form.model';
 	import LessonEditor from '$features/admin/presentation/components/lesson-editor.svelte';
 	import { contentPayload } from '$features/admin/domain/content-policy';
-	import { ArrowLeft, FilePenLine } from 'lucide-svelte';
+	import { ArrowLeft } from 'lucide-svelte';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
 	import PrerequisiteCombobox from './prerequisite-combobox.svelte';
 
@@ -82,34 +79,13 @@
 	function payload(): string {
 		return contentPayload(data.kind, item);
 	}
-	const parentCourse = $derived(
-		data.kind === 'course'
-			? isNew
-				? null
-				: data.id
-			: data.kind === 'module'
-				? item.course_id
-				: String(modules.find((module) => module.id === item.module_id)?.course_id ?? '')
-	);
-	const backHref = $derived(
-		data.kind === 'question_set'
-			? '/admin/question-sets'
-			: parentCourse
-				? `/admin/courses/${parentCourse}`
-				: '/admin/courses'
-	);
 </script>
 
 <div class="admin-page">
-	<button
-		type="button"
-		class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600"
-		onclick={() => goto(resolve(backHref as Pathname))}
-		><ArrowLeft class="size-4" /> Kembali ke {parentCourse && data.kind !== 'question_set'
-			? 'materi kursus'
-			: 'daftar'}</button
-	>
-	<AdminPageHeader title={`${isNew ? 'Buat' : 'Edit'} ${title}`} icon={FilePenLine}>
+	<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
+		<ArrowLeft />
+	</Button>
+	<AdminPageHeader title={`${isNew ? 'Buat' : 'Edit'} ${title}`}>
 		<div class="flex items-center gap-2">
 			<StatusBadge item={{ archived_at: archived, is_published: published }} />{#if hasDraft}<span
 					class="text-xs text-slate-500">Ada perubahan draft</span

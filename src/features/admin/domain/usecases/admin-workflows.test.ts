@@ -5,9 +5,11 @@ import { GetAdminCourseDetailUseCase } from './get-admin-course-detail.usecase';
 import { ManageAdminContentUseCase } from './manage-admin-content.usecase';
 import { ChangeAdminUserRoleUseCase } from './change-admin-user-role.usecase';
 import { PreviewAdminLessonUseCase } from './preview-admin-lesson.usecase';
+import { ReorderAdminContentUseCase } from './reorder-admin-content.usecase';
 
 function fixture() {
 	return {
+		reorderContent: vi.fn().mockResolvedValue(undefined),
 		checkAccess: vi.fn().mockResolvedValue(undefined),
 		getCatalog: vi
 			.fn()
@@ -25,6 +27,46 @@ function fixture() {
 		previewLesson: vi.fn().mockResolvedValue({ content: '<p>safe</p>', tips: '' })
 	} satisfies AdminRepository;
 }
+describe('admin content ordering', () => {
+	const parent_id = '11111111-1111-4111-8111-111111111111';
+	const id = '22222222-2222-4222-8222-222222222222';
+	it.each(['module', 'lesson'])(
+		'saves a complete %s order independently from publishing',
+		async (kind) => {
+			const repository = fixture();
+			const input = { parent_id, ordered_ids: [id] };
+			await new ReorderAdminContentUseCase(repository).exec(kind, JSON.stringify(input));
+			expect(repository.reorderContent).toHaveBeenCalledWith(kind, input);
+			expect(repository.saveContent).not.toHaveBeenCalled();
+			expect(repository.publishContent).not.toHaveBeenCalled();
+		}
+	);
+	it.each([
+		'{',
+		'null',
+		'[]',
+		'{}',
+		JSON.stringify({ parent_id: 'invalid', ordered_ids: [id] }),
+		JSON.stringify({ parent_id, ordered_ids: [id, id.toUpperCase()] }),
+		JSON.stringify({ parent_id, ordered_ids: ['00000000-0000-0000-0000-000000000000'] }),
+		JSON.stringify({ parent_id, ordered_ids: Array(32769).fill(id) })
+	])('rejects malformed order payload %# before writing', async (payload) => {
+		const repository = fixture();
+		await expect(
+			new ReorderAdminContentUseCase(repository).exec('module', payload)
+		).rejects.toMatchObject({ status: 400 });
+		expect(repository.reorderContent).not.toHaveBeenCalled();
+	});
+	it('rejects unsupported kinds and preserves server conflicts', async () => {
+		const repository = fixture();
+		const useCase = new ReorderAdminContentUseCase(repository);
+		const payload = JSON.stringify({ parent_id, ordered_ids: [id] });
+		await expect(useCase.exec('course', payload)).rejects.toMatchObject({ status: 400 });
+		repository.reorderContent.mockRejectedValue({ status: 409 });
+		await expect(useCase.exec('module', payload)).rejects.toMatchObject({ status: 409 });
+	});
+});
+
 describe('admin editor and catalog loading', () => {
 	it('loads new courses with levels without downloading the catalog or a nonexistent resource', async () => {
 		const repository = fixture();

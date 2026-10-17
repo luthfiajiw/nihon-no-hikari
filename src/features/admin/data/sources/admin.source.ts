@@ -1,4 +1,6 @@
 import {
+	type AdminReorderKind,
+	type AdminReorderInput,
 	AdminError,
 	type AdminCatalog,
 	type AdminContentKind,
@@ -49,6 +51,12 @@ export class AdminSource {
 
 	async checkAccess(): Promise<void> {
 		await this.request('/me');
+	}
+	async reorderContent(kind: AdminReorderKind, input: AdminReorderInput): Promise<void> {
+		await this.request(`/content/${kind}/reorder`, {
+			method: 'POST',
+			body: JSON.stringify(input)
+		});
 	}
 	async getCatalog(courseId?: string): Promise<AdminCatalog> {
 		const payload = await this.request<ApiPayload<AdminCatalog>>(

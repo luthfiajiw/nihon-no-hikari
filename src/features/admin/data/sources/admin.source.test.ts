@@ -9,6 +9,15 @@ function sourceWith(response: Response) {
 	};
 }
 describe('admin source transport', () => {
+	it('sends the order-only contract without saving or publishing material', async () => {
+		const { source, fetch } = sourceWith(Response.json({ success: true }));
+		const input = { parent_id: 'parent', ordered_ids: ['second', 'first'] };
+		await source.reorderContent('lesson', input);
+		expect(fetch).toHaveBeenCalledExactlyOnceWith(
+			'/api/v1/admin/content/lesson/reorder',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify(input) })
+		);
+	});
 	it('preserves the status when an error response is not JSON', async () => {
 		const { source } = sourceWith(new Response('Bad gateway', { status: 502 }));
 		await expect(source.getUsers()).rejects.toMatchObject({

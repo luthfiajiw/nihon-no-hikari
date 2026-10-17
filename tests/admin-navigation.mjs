@@ -7,6 +7,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
+import { testCourseReorder } from './admin-course-reorder.mjs';
 
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
@@ -113,7 +114,19 @@ const api = createServer(async (request, response) => {
 			url.pathname.split('/').includes(item.id)
 		);
 		let result = { success: true };
-		if (url.pathname.endsWith('/lesson-content/preview')) result.data = payload.content;
+		if (url.pathname.endsWith('/reorder')) {
+			const kind = url.pathname.split('/').at(-2);
+			const parentField = kind === 'module' ? 'course_id' : 'module_id';
+			const siblings = (kind === 'module' ? modules : lessons).filter(
+				(item) => item[parentField] === payload.parent_id
+			);
+			assert.deepEqual(new Set(payload.ordered_ids), new Set(siblings.map((item) => item.id)));
+			for (const item of siblings) {
+				item.order_index = payload.ordered_ids.indexOf(item.id);
+				const draft = drafts.get(item.id);
+				if (draft?.[parentField] === payload.parent_id) draft.order_index = item.order_index;
+			}
+		} else if (url.pathname.endsWith('/lesson-content/preview')) result.data = payload.content;
 		else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
 		else if (url.pathname.endsWith('/publish')) {
 			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
@@ -137,12 +150,14 @@ const api = createServer(async (request, response) => {
 	else if (url.pathname.endsWith('/catalog'))
 		data = {
 			courses: [course],
-			modules,
-			lessons: lessons.map((lesson) => {
-				const summary = { ...lesson };
-				delete summary.content;
-				return summary;
-			}),
+			modules: [...modules].sort((a, b) => a.order_index - b.order_index),
+			lessons: [...lessons]
+				.sort((a, b) => a.order_index - b.order_index)
+				.map((lesson) => {
+					const summary = { ...lesson };
+					delete summary.content;
+					return summary;
+				}),
 			question_sets: [set]
 		};
 	else if (url.pathname.endsWith('/levels')) data = [{ id: course.level_id, name: 'N5' }];
@@ -192,6 +207,12 @@ vite.stderr.on('data', (chunk) => {
 let browser;
 let page;
 const errors = [];
+async function clickAdminNavigation(name) {
+	const target = page.getByRole('button', { name, exact: true });
+	if (!(await target.isVisible()))
+		await page.getByRole('button', { name: 'Toggle Sidebar', exact: true }).click();
+	await target.click();
+}
 async function submitContentWithLoading(action) {
 	const saveButton = page.getByRole('button', { name: 'Simpan Draft', exact: true });
 	const publishButton = page.locator('form[action="?/publish"] button[type="submit"]');
@@ -325,11 +346,34 @@ try {
 		'Navigation should stay within the app'
 	);
 	await page.screenshot({ path: join(screenshotDir, 'course-detail.png'), fullPage: true });
+	await testCourseReorder({
+		page,
+		context,
+		course,
+		modules,
+		lessons,
+		mutations,
+		origin,
+		screenshotDir,
+		failNext: () => {
+			failNextMutation = true;
+		},
+		holdMutation: () => {
+			let release;
+			mutationGate = new Promise((resolve) => {
+				release = resolve;
+			});
+			return () => {
+				mutationGate = null;
+				release();
+			};
+		}
+	});
 	await page.getByRole('button', { name: 'Edit Kursus', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Kursus', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Edit Kursus | Admin - Nihongo no Hikari');
 	assert.equal(await page.getByLabel('Judul', { exact: true }).inputValue(), course.title);
-	await page.getByRole('button', { name: 'Question Sets', exact: true }).click();
+	await clickAdminNavigation('Question Sets');
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Question Sets | Admin - Nihongo no Hikari');
 	await page.getByRole('button', { name: /Membaca Hiragana/ }).click();
@@ -345,7 +389,7 @@ try {
 	const payload = JSON.parse(await page.locator('input[name="payload"]').inputValue());
 	assert.equal(payload.title, 'Kursus baru');
 	assert(!('module_id' in payload), 'Course payload must omit unrelated UUID fields');
-	await page.getByRole('button', { name: 'Kursus & Materi', exact: true }).click();
+	await clickAdminNavigation('Kursus & Materi');
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).click();
 	await page.getByRole('button', { name: 'Tambah Module', exact: true }).click();
 	await page.getByRole('heading', { name: 'Buat Module' }).waitFor();

@@ -4,4 +4,6 @@
 	let { data }: PageProps = $props();
 </script>
 
-<View {data} />
+{#key data.course.id}
+	<View {data} />
+{/key}

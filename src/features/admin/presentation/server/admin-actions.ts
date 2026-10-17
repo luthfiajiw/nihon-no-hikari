@@ -1,6 +1,7 @@
 import { fail, json, redirect, type RequestEvent } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
 import {
+	reorderAdminContentUseCase,
 	manageAdminContentUseCase,
 	changeAdminUserRoleUseCase,
 	previewAdminLessonUseCase
@@ -11,6 +12,15 @@ function actionFailure(cause: unknown) {
 	if (!(cause instanceof AdminError)) throw cause;
 	if (cause.status === 401) redirect(303, resolve('/signin'));
 	return fail(cause.status, { message: cause.message });
+}
+export async function reorderAdminContent(event: RequestEvent) {
+	try {
+		const form = await event.request.formData();
+		await reorderAdminContentUseCase.exec(form.get('kind'), form.get('payload'));
+		return { message: 'Urutan berhasil disimpan.' };
+	} catch (cause) {
+		return actionFailure(cause);
+	}
 }
 export async function manageAdminContent(event: RequestEvent, action: AdminContentAction) {
 	const kind = event.params.kind!;

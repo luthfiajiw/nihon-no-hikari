@@ -18,4 +18,6 @@ Navigation uses native buttons or Button components with `onclick={() => goto(re
 
 Run `npm run check`, `npm run test:unit -- --run --project server` and `npm run test:admin` to verify. The browser test uses an isolated API fixture.
 
+Course detail lists use `svelte-dnd-action` drag handles with 220ms FLIP animations and reduced-motion support. Space/Enter picks up or drops an item, arrows preview the new order, and Escape cancels. Drops autosave through the page's `?/reorder` action and the dedicated admin reorder endpoint; keyboard arrow movements do not save until the item is dropped. Each module's lessons use a separate zone type to keep them within their original module. Failed saves restore the list and refresh the catalog; all handles are disabled while saving. Reorder changes live order directly and preserves unpublished material edits.
+
 Set `ADMIN_SMOKE_CHANNEL=msedge` to use an installed Edge browser instead of Playwright's Chromium. After `npm run build`, set `ADMIN_SMOKE_PREVIEW=1` to test the production preview without development dependency optimization.

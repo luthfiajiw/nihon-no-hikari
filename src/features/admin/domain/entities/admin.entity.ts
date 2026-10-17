@@ -1,5 +1,7 @@
 export type AdminContentKind = 'course' | 'module' | 'lesson' | 'question_set';
 export type AdminContentAction = 'save' | 'publish' | 'remove' | 'restore';
+export type AdminReorderKind = 'module' | 'lesson';
+export type AdminReorderInput = { parent_id: string; ordered_ids: string[] };
 export type AdminRecord = {
 	id: string;
 	title: string;

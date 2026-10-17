@@ -1,4 +1,6 @@
 import type {
+	AdminReorderKind,
+	AdminReorderInput,
 	AdminCatalog,
 	AdminContentKind,
 	AdminContentDetail,
@@ -11,6 +13,7 @@ import type {
 } from '../entities/admin.entity';
 
 export interface AdminRepository {
+	reorderContent(kind: AdminReorderKind, input: AdminReorderInput): Promise<void>;
 	checkAccess(): Promise<void>;
 	getCatalog(courseId?: string): Promise<AdminCatalog>;
 	getContentList(kind: AdminContentKind): Promise<AdminRecord[]>;
