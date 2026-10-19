@@ -15,7 +15,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { BellIcon, ChevronDownIcon, LoaderCircle, Search } from 'lucide-svelte';
+	import { BellIcon, ChevronDownIcon, LoaderCircle } from 'lucide-svelte';
 	import type { LayoutProps } from './$types';
 
 	interface AssessmentPageData {
@@ -170,11 +170,11 @@
 {#if isAssessmentRoute}
 	{#if navigating.to}
 		<div
-			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
+			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-pink-100"
 			role="progressbar"
 			aria-label="Memuat halaman"
 		>
-			<div class="route-progress-indicator h-full bg-sky-500"></div>
+			<div class="route-progress-indicator h-full bg-pink-400"></div>
 		</div>
 	{/if}
 	<div class="flex h-svh min-w-0 flex-col overflow-hidden">
@@ -192,44 +192,31 @@
 	<Sidebar.Provider>
 		{#if navigating.to}
 			<div
-				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-sky-100"
+				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-pink-100"
 				role="progressbar"
 				aria-label="Memuat halaman"
 			>
-				<div class="route-progress-indicator h-full bg-sky-500"></div>
+				<div class="route-progress-indicator h-full bg-pink-500"></div>
 			</div>
 		{/if}
 		<AppSidebar mode={isAdminRoute ? 'admin' : 'student'} />
 		<Sidebar.Inset class="relative h-svh overflow-hidden">
 			<header
-				class="flex h-16 shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+				class="flex shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
 			>
 				<div class="flex min-w-0 flex-1 items-center gap-2 px-4">
 					<Sidebar.Trigger />
-					{#if isAdminRoute}
-						<form
-							action={page.url.pathname.startsWith('/admin/question-sets')
-								? '/admin/question-sets'
-								: '/admin/courses'}
-							method="GET"
-							class="relative ml-1 w-full max-w-md"
-						>
-							<Search class="pointer-events-none absolute top-2.5 left-3 size-4 text-slate-400" />
-							<input
-								name="q"
-								aria-label="Cari konten admin"
-								placeholder="Cari kursus atau question set..."
-								value={page.url.searchParams.get('q') ?? ''}
-								class="h-9 w-full rounded-lg border bg-slate-50 pr-3 pl-9 text-sm outline-none focus:border-blue-400 sm:w-80"
-							/>
-						</form>
-					{:else}
+					{#if !isAdminRoute}
 						<p class="pl-1 text-base">Ganbare, {firstName}!</p>
 					{/if}
 				</div>
 
 				<div class="flex shrink-0 items-center gap-2 pr-3 sm:pr-6">
-					<Button variant="outline" size="icon" class="rounded-full border-none">
+					<Button
+						variant="outline"
+						size="icon"
+						class="rounded-full border-none shadow-none transition-none"
+					>
 						<BellIcon />
 					</Button>
 					<Separator orientation="vertical" class="mr-1.5 data-[orientation=vertical]:h-5" />

@@ -34,7 +34,7 @@
 </script>
 
 <div
-	class={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900 ${className}`}
+	class={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md dark:border-slate-800 dark:bg-slate-900 ${className}`}
 >
 	<!-- Header / Top Section -->
 	<div class="px-4 pt-5">
@@ -114,7 +114,7 @@
 			type="button"
 			onclick={() => goto(resolve(`/courses/${id}`))}
 			disabled={!slug}
-			class={`font-semibold transition-all duration-200 ${
+			class={`font-semibold transition-all duration-50 ${
 				isEnrolled
 					? 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
 					: 'text-white active:scale-[0.99]'

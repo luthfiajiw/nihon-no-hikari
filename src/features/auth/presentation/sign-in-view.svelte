@@ -46,7 +46,7 @@
 	}));
 </script>
 
-<Card.Root class="w-full max-w-lg p-8 shadow-lg">
+<Card.Root class="w-full max-w-lg p-8">
 	<Card.Header class="flex flex-col items-center pb-8">
 		<img src={logo} alt="Logo" class="mb-4 h-9" />
 		<Card.Title class="text-xl font-semibold text-primary">Selamat Datang</Card.Title>

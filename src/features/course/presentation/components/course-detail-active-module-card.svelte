@@ -54,7 +54,6 @@
 					onclick={onOpenLessons}
 					disabled={isOpeningLessons}
 					isLoading={isOpeningLessons}
-					class="rounded-xl font-medium shadow-xs"
 				>
 					{isOpeningLessons
 						? 'Membuka...'

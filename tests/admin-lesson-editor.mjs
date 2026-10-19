@@ -15,11 +15,19 @@ export async function waitForLessonHTML(page, content) {
 }
 
 export async function testLessonEditor(page) {
+	const htmlTab = page.getByRole('tab', { name: 'HTML', exact: true });
+	const previewTab = page.getByRole('tab', { name: 'Preview', exact: true });
+	assert.equal(await htmlTab.getAttribute('aria-selected'), 'true');
 	const editor = page.getByRole('textbox', { name: 'Kode HTML', exact: true });
 	await editor.waitFor();
 	assert.equal(await editor.getAttribute('contenteditable'), 'true');
 	assert.equal(await editor.getAttribute('spellcheck'), 'false');
 	assert.equal(await editor.getAttribute('aria-describedby'), 'lesson-html-help');
+	const tabListBounds = await page
+		.getByRole('tablist', { name: 'Mode konten pembelajaran' })
+		.boundingBox();
+	const editorBounds = await editor.boundingBox();
+	assert(tabListBounds.y + tabListBounds.height <= editorBounds.y, 'Tabs sit above the editor');
 	assert(await page.locator('.cm-lineNumbers').isVisible(), 'Editor shows line numbers');
 	const original = await lessonHTMLValue(page);
 	const highlighted =
@@ -76,10 +84,13 @@ export async function testLessonEditor(page) {
 	await editor.evaluate((element) => {
 		element.dataset.editorInstance = 'preserved';
 	});
-	await page.getByRole('button', { name: 'Preview', exact: true }).click();
+	await htmlTab.focus();
+	await htmlTab.press('ArrowRight');
+	assert.equal(await previewTab.getAttribute('aria-selected'), 'true');
 	await page.locator('iframe[title="Preview konten lesson"]').waitFor();
 	assert(!(await editor.isVisible()), 'HTML editor is hidden during preview');
-	await page.getByRole('button', { name: 'HTML', exact: true }).click();
+	await previewTab.press('ArrowLeft');
+	assert.equal(await htmlTab.getAttribute('aria-selected'), 'true');
 	assert.equal(await editor.getAttribute('data-editor-instance'), 'preserved');
 	await editor.focus();
 	await editor.press('Control+z');
@@ -88,6 +99,32 @@ export async function testLessonEditor(page) {
 	await waitForLessonHTML(page, '<p>あ</p>!');
 	await editor.pressSequentially('?');
 	await waitForLessonHTML(page, '<p>あ</p>!?');
+
+	await page.route(
+		'**/api/admin/lesson-preview',
+		async (route) => {
+			await route.fulfill({
+				status: 500,
+				contentType: 'application/json',
+				body: JSON.stringify({ error: 'Fixture: preview gagal.' })
+			});
+		},
+		{ times: 1 }
+	);
+	await previewTab.click();
+	await page.getByRole('alert').filter({ hasText: 'Fixture: preview gagal.' }).waitFor();
+	assert.equal(await page.locator('iframe[title="Preview konten lesson"]').count(), 0);
+	await page.getByRole('button', { name: 'Coba lagi', exact: true }).click();
+	await page.locator('iframe[title="Preview konten lesson"]').waitFor();
+	const tips = page.getByRole('textbox', { name: 'Tips tambahan', exact: true });
+	const originalTips = await tips.inputValue();
+	await tips.fill('Tips preview terbaru.');
+	await page
+		.frameLocator('iframe[title="Preview konten lesson"]')
+		.getByText('Tips preview terbaru.', { exact: false })
+		.waitFor();
+	await tips.fill(originalTips);
+	await htmlTab.click();
 
 	await editor.fill(original);
 	await waitForLessonHTML(page, original);

@@ -60,7 +60,7 @@
 	);
 </script>
 
-<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm">
+<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white">
 	<Card.Content>
 		<div class="flex items-center gap-3">
 			<Badge class="bg-sky-50 text-sky-700">{skillLabels[question.skill]}</Badge>

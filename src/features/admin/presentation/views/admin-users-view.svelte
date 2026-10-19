@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Input } from '$lib/components/ui/input';
 	import AdminPageHeader from '../components/admin-page-header.svelte';
 	import type { AdminUsersData, AdminFormResult } from '../models/admin-view.model';
 
@@ -18,7 +19,7 @@
 	{#if form?.message}
 		<p class="admin-notice" role="status">{form.message}</p>
 	{/if}
-	<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+	<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-md">
 		<table class="w-full text-left text-sm">
 			<thead class="border-b bg-slate-50 text-slate-600">
 				<tr>
@@ -39,8 +40,8 @@
 								<span class="text-slate-500">Akun Anda</span>
 							{:else}
 								<form method="POST" action="?/changeRole" class="flex items-center gap-2">
-									<input type="hidden" name="userId" value={user.id} />
-									<input
+									<Input type="hidden" name="userId" value={user.id} />
+									<Input
 										type="hidden"
 										name="role"
 										value={user.role === 'Admin' ? 'User' : 'Admin'}

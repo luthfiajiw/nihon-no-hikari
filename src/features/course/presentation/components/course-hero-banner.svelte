@@ -10,7 +10,7 @@
 </script>
 
 <div
-	class={`flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-blue-100 bg-cover bg-no-repeat px-6 pt-6 shadow-xs ${className}`}
+	class={`flex w-full flex-col justify-between overflow-hidden rounded-2xl border border-blue-100 bg-cover bg-no-repeat px-6 pt-6 shadow-md ${className}`}
 	style="background-image: url('{bannerBg}'); background-position: center bottom;"
 >
 	<!-- Left Section (Text Details) -->

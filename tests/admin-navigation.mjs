@@ -402,7 +402,17 @@ try {
 		'',
 		'New resource form must reset its state'
 	);
-	assert.equal(await page.getByRole('combobox', { name: /^Kursus/ }).inputValue(), course.id);
+	assert.equal(
+		await page
+			.locator('form[action="?/save"]')
+			.getByRole('button', { name: /^Kursus/ })
+			.innerText(),
+		course.title
+	);
+	assert.equal(
+		JSON.parse(await page.locator('input[name="payload"]').inputValue()).course_id,
+		course.id
+	);
 	await page.goto(`${origin}/admin/content/course/${course.id}`, { waitUntil: 'networkidle' });
 	await page.getByLabel('Judul', { exact: true }).fill('N5 Draft Fixture');
 	await page.getByRole('button', { name: 'Simpan Draft', exact: true }).click();
@@ -542,14 +552,17 @@ try {
 	await page.getByLabel('Kode HTML', { exact: true }).fill(lessonHTML);
 	await waitForLessonHTML(page, lessonHTML);
 	await page.locator('.cm-editor').screenshot({ path: join(screenshotDir, 'lesson-html.png') });
+	await page
+		.locator('[data-slot="tabs"]')
+		.screenshot({ path: join(screenshotDir, 'lesson-tabs.png') });
 	await page.getByLabel('Tips tambahan', { exact: true }).fill('Latih kosakata あか setiap hari.');
-	await page.getByRole('button', { name: 'Preview', exact: true }).click();
+	await page.getByRole('tab', { name: 'Preview', exact: true }).click();
 	await page
 		.frameLocator('iframe[title="Preview konten lesson"]')
 		.getByText('3. Contoh Kosakata', { exact: true })
 		.waitFor();
 	assert(mutations.some((request) => request.path.endsWith('/lesson-content/preview')));
-	await page.getByRole('button', { name: 'HTML', exact: true }).click();
+	await page.getByRole('tab', { name: 'HTML', exact: true }).click();
 	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
 	await submitContentWithLoading('save');
@@ -609,6 +622,9 @@ try {
 		'HTML editor must wrap long lines within the mobile viewport'
 	);
 	await mobileEditor.screenshot({ path: join(screenshotDir, 'lesson-html-mobile.png') });
+	await page
+		.locator('[data-slot="tabs"]')
+		.screenshot({ path: join(screenshotDir, 'lesson-tabs-mobile.png') });
 	assert.equal(await lessonPicker.count(), 0, 'Entry lesson hides picker on mobile too');
 	await page.getByRole('checkbox', { name: 'Lesson awal (is_entry)', exact: true }).uncheck();
 	await page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true }).click();

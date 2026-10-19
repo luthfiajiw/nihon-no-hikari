@@ -307,10 +307,10 @@
 					if (!module[SHADOW_ITEM_MARKER_PROPERTY_NAME])
 						openModules[module.originalId] = event.currentTarget.open;
 				}}
-				class="group w-full rounded-2xl border border-slate-200 bg-white p-1.5 text-left shadow-sm"
+				class="group w-full rounded-2xl border border-slate-200 bg-white p-1.5 text-left shadow-md"
 			>
 				<summary
-					class="flex cursor-pointer list-none bg-secondary flex-wrap items-center gap-3 rounded-xl p-3 [&::-webkit-details-marker]:hidden"
+					class="flex cursor-pointer list-none flex-wrap items-center gap-3 rounded-xl bg-secondary p-3 [&::-webkit-details-marker]:hidden"
 				>
 					<span
 						use:dragHandle

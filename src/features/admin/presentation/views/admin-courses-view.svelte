@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { BookOpen, Plus, Pencil, ArrowRight, Search, Layers, FileText } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
 	import { matchesContent } from '$features/admin/domain/content-policy';
 	import courseImage from '$lib/assets/images/n5-course-bg.png';
@@ -49,11 +50,11 @@
 		</div>
 		<div class="relative w-full sm:w-64">
 			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
-			<input
+			<Input
 				bind:value={search}
 				aria-label="Cari kursus"
 				placeholder="Cari kursus..."
-				class="h-9 w-full rounded-lg border border-slate-200 pr-3 pl-9 text-sm outline-none focus:border-blue-400"
+				class="h-9 pl-9"
 			/>
 		</div>
 	</div>
@@ -61,7 +62,7 @@
 	<div class="admin-stack">
 		{#each courses as course (course.id)}
 			<article
-				class="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:p-6"
+				class="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-md transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:p-6"
 			>
 				<button
 					type="button"

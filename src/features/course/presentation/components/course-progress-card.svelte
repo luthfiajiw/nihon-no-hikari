@@ -34,9 +34,9 @@
 			<Progress value={33} class="mb-3 h-3" />
 		</div>
 		<div class="group flex justify-end pt-2">
-			<Button type="button" class="border-2 border-white transition-all duration-200">
+			<Button type="button" class="border-2 transition-all duration-50">
 				Lanjut Belajar <ArrowRightIcon
-					class="size-4 text-white transition-transform group-hover:translate-x-1"
+					class="size-4 transition-transform group-hover:translate-x-1"
 				/>
 			</Button>
 		</div>

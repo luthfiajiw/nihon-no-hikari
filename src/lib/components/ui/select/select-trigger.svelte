@@ -1,0 +1,25 @@
+<script lang="ts">
+	import { Select as SelectPrimitive } from 'bits-ui';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import { cn, type WithoutChild } from '$lib/utils.js';
+
+	let {
+		ref = $bindable(null),
+		class: className,
+		children,
+		...restProps
+	}: WithoutChild<SelectPrimitive.TriggerProps> = $props();
+</script>
+
+<SelectPrimitive.Trigger
+	bind:ref
+	data-slot="select-trigger"
+	class={cn(
+		'flex h-10 w-fit items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:bg-input/30 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+		className
+	)}
+	{...restProps}
+>
+	{@render children?.()}
+	<ChevronDownIcon class="size-4 opacity-50" />
+</SelectPrimitive.Trigger>

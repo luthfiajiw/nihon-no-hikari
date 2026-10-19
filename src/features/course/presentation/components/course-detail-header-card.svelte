@@ -14,7 +14,7 @@
 </script>
 
 <Card.Root
-	class={`flex w-full flex-col justify-between border-sky-100 bg-linear-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/60 py-6 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-800/80 ${className}`}
+	class={`flex w-full flex-col justify-between border-sky-100 bg-linear-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/60 py-6 dark:border-slate-800 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-800/80 ${className}`}
 >
 	<Card.Content class="flex flex-1 flex-col justify-between">
 		<div class="max-w-2xl space-y-3">

@@ -39,9 +39,7 @@
 	);
 </script>
 
-<Card.Root
-	class="min-h-0 overflow-hidden rounded-2xl bg-white shadow-none ring-0 xl:shadow-sm xl:ring-1"
->
+<Card.Root class="min-h-0 overflow-hidden rounded-2xl bg-white ring-0 xl:ring-1">
 	<Card.Content>
 		<h2 class="text-lg font-extrabold text-slate-900">Soal</h2>
 

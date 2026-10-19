@@ -19,7 +19,7 @@
 	let correctAnswerCount = $derived(result.answers.filter((answer) => answer.is_correct).length);
 </script>
 
-<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white p-6 shadow-sm">
+<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white p-6">
 	<div class="flex flex-col items-center justify-center py-4 text-center">
 		<div
 			class={cn(

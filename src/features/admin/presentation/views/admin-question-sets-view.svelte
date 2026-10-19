@@ -6,6 +6,8 @@
 	import { page } from '$app/state';
 	import { ClipboardCheck, Plus, Search, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import AdminSelect from '../components/admin-select.svelte';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
 	import { matchesContent } from '$features/admin/domain/content-policy';
 	import type { AdminQuestionSetsData } from '../models/admin-view.model';
@@ -13,6 +15,17 @@
 	let search = $derived(page.url.searchParams.get('q') ?? '');
 	let status = $state('all');
 	let skill = $state('all');
+	const skillOptions = [
+		{ value: 'all', label: 'Semua skill' },
+		{ value: 'reading', label: 'Reading' },
+		{ value: 'writing', label: 'Writing' }
+	];
+	const statusOptions = [
+		{ value: 'all', label: 'Semua status' },
+		{ value: 'published', label: 'Terbit' },
+		{ value: 'draft', label: 'Draft' },
+		{ value: 'archived', label: 'Arsip' }
+	];
 	const sets = $derived(
 		data.sets.filter(
 			(set) => matchesContent(set, search, status) && (skill === 'all' || set.skill === skill)
@@ -39,34 +52,27 @@
 	<div class="admin-toolbar">
 		<div class="relative min-w-48 flex-1">
 			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
-			<input
+			<Input
 				bind:value={search}
 				aria-label="Cari question set"
 				placeholder="Cari question set..."
-				class="h-9 w-full rounded-lg border border-slate-200 pr-3 pl-9 text-sm outline-none focus:border-blue-400"
+				class="h-9 pl-9"
 			/>
 		</div>
-		<select
+		<AdminSelect
 			bind:value={skill}
+			options={skillOptions}
 			aria-label="Filter skill"
-			class="h-9 rounded-lg border bg-white px-3 text-sm text-slate-600"
-		>
-			<option value="all">Semua skill</option>
-			<option value="reading">Reading</option>
-			<option value="writing">Writing</option>
-		</select>
-		<select
+			class="h-9 bg-white text-slate-600 sm:w-40"
+		/>
+		<AdminSelect
 			bind:value={status}
+			options={statusOptions}
 			aria-label="Filter status"
-			class="h-9 rounded-lg border bg-white px-3 text-sm text-slate-600"
-		>
-			<option value="all">Semua status</option>
-			<option value="published">Terbit</option>
-			<option value="draft">Draft</option>
-			<option value="archived">Arsip</option>
-		</select>
+			class="h-9 bg-white text-slate-600 sm:w-40"
+		/>
 	</div>
-	<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+	<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
 		<div
 			class="admin-row flex justify-between border-b bg-slate-50/70 text-xs font-medium text-slate-500"
 		>

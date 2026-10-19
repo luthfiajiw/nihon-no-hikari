@@ -1,4 +1,8 @@
 <script lang="ts">
+	import * as Select from '$lib/components/ui/select';
+	import * as RadioGroup from '$lib/components/ui/radio-group';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { Input } from '$lib/components/ui/input';
 	import type { Question } from '../models/admin-content-form.model';
 	import type { AdminContentRecord } from '../../domain/entities/admin.entity';
 	let {
@@ -6,6 +10,13 @@
 		skill,
 		templates
 	}: { questions: Question[]; skill: string; templates: AdminContentRecord[] } = $props();
+	const id = $props.id();
+	const templateItems = $derived(
+		templates.map((template) => ({
+			value: String(template.id),
+			label: `${template.script} ${template.character} · ${template.romaji} (${template.source_version})`
+		}))
+	);
 	function addQuestion() {
 		questions.push({
 			question_type: skill === 'reading' ? 'multiple_choice' : 'stroke_writing',
@@ -44,83 +55,89 @@
 			</div>
 			<label class="block text-sm">
 				Instruksi
-				<input bind:value={question.prompt_text} class="admin-field" />
+				<Input bind:value={question.prompt_text} class="mt-2 h-10" />
 			</label>
 			<label class="block text-sm">
 				Stimulus teks
-				<input bind:value={question.stimulus_text} class="admin-field" />
+				<Input bind:value={question.stimulus_text} class="mt-2 h-10" />
 			</label>
 			<label class="block text-sm">
 				URL media stimulus
-				<input
+				<Input
 					value={question.stimulus_media_url ?? ''}
 					oninput={(e) => (question.stimulus_media_url = e.currentTarget.value || null)}
-					class="admin-field"
+					class="mt-2 h-10"
 				/>
 			</label>
 			<div class="admin-fields">
 				<label class="block text-sm">
 					Poin
-					<input bind:value={question.points} type="number" min="1" class="admin-field" />
+					<Input bind:value={question.points} type="number" min="1" class="mt-2 h-10" />
 				</label>
 				<label class="block text-sm">
 					Penjelasan
-					<input bind:value={question.explanation} class="admin-field" />
+					<Input bind:value={question.explanation} class="mt-2 h-10" />
 				</label>
 			</div>
 			{#if skill === 'writing'}
-				<label class="block text-sm">
-					Template kana
-					<select bind:value={question.stroke_template_id} class="admin-field">
-						<option value={null}>Pilih template</option>
-						{#each templates as template (template.id)}
-							<option value={String(template.id)}>
-								{template.script}
-								{template.character} · {template.romaji} ({template.source_version})
-							</option>
-						{/each}
-					</select>
-				</label>
+				<div class="text-sm">
+					<label for={`${id}-template-${i}`}>Template kana</label>
+					<Select.Root
+						type="single"
+						items={templateItems}
+						value={question.stroke_template_id ?? ''}
+						onValueChange={(value) => (question.stroke_template_id = value || null)}
+						allowDeselect={false}
+					>
+						<Select.Trigger id={`${id}-template-${i}`} class="mt-2 w-full">
+							<Select.Value placeholder="Pilih template" />
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Item value="" label="Pilih template" />
+							{#each templateItems as template (template.value)}
+								<Select.Item value={template.value} label={template.label} />
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				</div>
 				<label class="flex items-center gap-2 text-sm">
-					<input type="checkbox" bind:checked={question.show_writing_guide} />
+					<Checkbox bind:checked={question.show_writing_guide} />
 					Tampilkan panduan goresan
 				</label>
 			{:else}
 				<div class="space-y-2">
 					<p class="text-sm font-medium">Pilihan jawaban</p>
-					{#each question.options as option, j (option)}
-						<div class="grid gap-2 rounded-lg border bg-white p-2 sm:grid-cols-[auto_1fr_auto]">
-							<input
-								type="radio"
-								name={`correct-${i}`}
-								checked={option.is_correct}
-								onchange={() =>
-									question.options.forEach((entry, index) => (entry.is_correct = index === j))}
-								aria-label={`Jawaban benar pilihan ${j + 1}`}
-							/>
-							<div class="space-y-2">
-								<input
-									bind:value={option.label}
-									class="w-full rounded-lg border px-3 py-2"
-									placeholder={`Pilihan ${j + 1}`}
-								/>
-								<input
-									type="url"
-									value={option.media_url ?? ''}
-									oninput={(e) => (option.media_url = e.currentTarget.value || null)}
-									class="w-full rounded-lg border px-3 py-2"
-									placeholder="URL media pilihan (opsional)"
-								/>
+					<RadioGroup.Root
+						value={String(question.options.findIndex((option) => option.is_correct))}
+						onValueChange={(value) =>
+							question.options.forEach(
+								(entry, index) => (entry.is_correct = String(index) === value)
+							)}
+						aria-label={`Jawaban benar soal ${i + 1}`}
+					>
+						{#each question.options as option, j (option)}
+							<div class="grid gap-2 rounded-lg border bg-white p-2 sm:grid-cols-[auto_1fr_auto]">
+								<RadioGroup.Item value={String(j)} aria-label={`Jawaban benar pilihan ${j + 1}`} />
+								<div class="space-y-2">
+									<Input bind:value={option.label} class="h-10" placeholder={`Pilihan ${j + 1}`} />
+									<Input
+										type="url"
+										value={option.media_url ?? ''}
+										oninput={(e) => (option.media_url = e.currentTarget.value || null)}
+										class="h-10"
+										placeholder="URL media pilihan (opsional)"
+									/>
+								</div>
+								<button
+									type="button"
+									class="text-sm text-red-700"
+									onclick={() => question.options.splice(j, 1)}
+								>
+									Hapus
+								</button>
 							</div>
-							<button
-								type="button"
-								class="text-sm text-red-700"
-								onclick={() => question.options.splice(j, 1)}
-							>
-								Hapus
-							</button>
-						</div>
-					{/each}
+						{/each}
+					</RadioGroup.Root>
 					<button
 						type="button"
 						class="text-sm text-blue-700"
