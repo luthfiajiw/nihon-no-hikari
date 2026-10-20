@@ -4,9 +4,10 @@ import Description from './card-description.svelte';
 import Footer from './card-footer.svelte';
 import Header from './card-header.svelte';
 import Title from './card-title.svelte';
-import Root from './card.svelte';
+import Root, { cardVariants } from './card.svelte';
 
 export {
+	cardVariants,
 	Root,
 	Content,
 	Description,

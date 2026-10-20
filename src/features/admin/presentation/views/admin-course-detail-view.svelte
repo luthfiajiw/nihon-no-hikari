@@ -26,6 +26,7 @@
 		Plus
 	} from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
 	import courseImage from '$lib/assets/images/n5-course-bg.png';
 	import type { AdminCourseDetailData } from '../models/admin-view.model';
@@ -228,18 +229,20 @@
 		title="Kursus & Materi"
 		description="Susun module dan lesson untuk kursus ini."
 	/>
-	<section class="admin-toolbar sm:p-6">
-		<img
-			src={data.course.thumbnail_url || courseImage}
-			alt=""
-			class="h-24 w-40 rounded-xl object-cover"
-		/>
+	<Card.Root class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
+		<div class="shrink-0">
+			<img
+				src={data.course.thumbnail_url || courseImage}
+				alt=""
+				class="h-24 w-40 rounded-xl object-cover"
+			/>
+		</div>
 		<div class="min-w-0 flex-1">
 			<StatusBadge item={data.course} />
 			<h2 class="mt-2 text-xl font-bold tracking-tight sm:text-2xl">{data.course.title}</h2>
-			<p class="mt-1 text-sm text-slate-500">/{data.course.slug}</p>
+			<p class="mt-1 text-sm text-muted-foreground">/{data.course.slug}</p>
 		</div>
-		<div class="flex gap-2">
+		<div class="flex flex-wrap gap-2">
 			<Button
 				variant="outline"
 				onclick={() => goto(resolve(`/admin/content/course/${data.course.id}` as Pathname))}
@@ -254,14 +257,14 @@
 				<Plus class="size-4" /> Tambah Module
 			</Button>
 		</div>
-	</section>
+	</Card.Root>
 	<div class="flex items-center justify-between">
-		<h2 class="text-base font-semibold text-slate-800">Struktur pembelajaran</h2>
-		<p class="text-xs text-slate-500">
+		<h2 class="text-base font-semibold text-foreground">Struktur pembelajaran</h2>
+		<p class="text-xs text-muted-foreground">
 			{data.modules.length} module · {data.lessons.length} lesson
 		</p>
 	</div>
-	<p id="reorder-instructions" class="text-xs text-slate-500">
+	<p id="reorder-instructions" class="text-xs text-muted-foreground">
 		Geser pegangan untuk mengubah urutan. Dengan keyboard, tekan Space atau Enter, gunakan panah
 		atas/bawah, lalu tekan lagi untuk menyimpan. Escape untuk membatalkan.
 	</p>
@@ -270,7 +273,7 @@
 		<p
 			class="admin-notice {saveError
 				? 'border-red-200 bg-red-50 text-red-700'
-				: 'border-blue-100 bg-blue-50 text-blue-700'}"
+				: 'border-sky-100 bg-sky-50 text-sky-700'}"
 			role="status"
 		>
 			{message}
@@ -307,10 +310,12 @@
 					if (!module[SHADOW_ITEM_MARKER_PROPERTY_NAME])
 						openModules[module.originalId] = event.currentTarget.open;
 				}}
-				class="group w-full rounded-2xl border border-slate-200 bg-white p-1.5 text-left shadow-md"
+				data-slot="card"
+				data-size="default"
+				class={Card.cardVariants({ class: 'group block w-full p-0 text-left' })}
 			>
 				<summary
-					class="flex cursor-pointer list-none flex-wrap items-center gap-3 rounded-xl bg-secondary p-3 [&::-webkit-details-marker]:hidden"
+					class="flex cursor-pointer list-none flex-wrap items-center gap-3 p-4 sm:px-6 [&::-webkit-details-marker]:hidden"
 				>
 					<span
 						use:dragHandle
@@ -328,21 +333,21 @@
 						onkeydown={(event) => {
 							if (event.key === ' ' || event.key === 'Enter') event.preventDefault();
 						}}
-						class="flex shrink-0 cursor-grab touch-none items-center justify-center text-slate-400 aria-disabled:cursor-default aria-disabled:opacity-50"
+						class="flex shrink-0 cursor-grab touch-none items-center justify-center text-muted-foreground/70 aria-disabled:cursor-default aria-disabled:opacity-50"
 					>
 						<GripVertical class="size-5" />
 					</span>
-					<h3 class="min-w-24 flex-1 font-semibold text-slate-900">{module.title}</h3>
+					<h3 class="min-w-24 flex-1 font-semibold text-foreground">{module.title}</h3>
 					<StatusBadge item={module} />
 					<span
-						class="rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-500"
+						class="rounded-full border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground"
 					>
 						{lessons.length} lesson
 					</span>
 					<Button
 						variant="outline"
 						onclick={() => goto(resolve(`/admin/content/module/${module.originalId}` as Pathname))}
-						class="bg-white px-4"
+						class="px-4"
 						aria-label={`Edit module ${module.title}`}
 					>
 						<Pencil class="size-3.5" /> Edit
@@ -350,13 +355,15 @@
 					<Button
 						onclick={() =>
 							goto(resolve(`/admin/content/lesson/new?parent=${module.originalId}` as Pathname))}
-						class="px-4 text-white"
+						class="px-4"
 					>
 						<Plus class="size-4" />
 						<span class="hidden sm:inline">Tambah</span>
 						Lesson
 					</Button>
-					<ChevronDown class="size-4 text-slate-400 transition-transform group-open:rotate-180" />
+					<ChevronDown
+						class="size-4 text-muted-foreground/70 transition-transform group-open:rotate-180"
+					/>
 				</summary>
 				{#if lessons.length > 0}
 					<div
@@ -383,7 +390,7 @@
 								data-lesson-id={lesson.id}
 								data-is-dnd-shadow-item-hint={lesson[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 								aria-label={lesson.title}
-								class="flex w-full items-center gap-3 border-b border-slate-100 text-sm last:border-0"
+								class="flex w-full items-center gap-3 border-b border-border text-sm last:border-0"
 							>
 								<span
 									use:dragHandle
@@ -401,44 +408,44 @@
 									onkeydown={(event) => {
 										if (event.key === ' ' || event.key === 'Enter') event.preventDefault();
 									}}
-									class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-blue-600 aria-disabled:cursor-default aria-disabled:opacity-50"
+									class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-sky-600 aria-disabled:cursor-default aria-disabled:opacity-50"
 								>
 									<GripVertical class="size-4" />
 								</span>
 								<button
 									type="button"
 									onclick={() => goto(resolve(`/admin/content/lesson/${lesson.id}` as Pathname))}
-									class="flex min-w-0 flex-1 items-center gap-3 py-3 text-left text-sm transition-colors hover:text-blue-600"
+									class="flex min-w-0 flex-1 items-center gap-3 py-3 text-left text-sm transition-colors hover:text-sky-600"
 								>
 									<span
-										class="flex h-6 min-w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-medium text-slate-500"
+										class="flex h-6 min-w-7 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground"
 									>
 										{lessonIndex + 1}
 									</span>
 									<span class="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
 									<StatusBadge item={lesson} />
-									<Pencil class="size-3.5 shrink-0 text-slate-400" />
+									<Pencil class="size-3.5 shrink-0 text-muted-foreground/70" />
 								</button>
 							</div>
 						{/each}
 					</div>
 				{:else}
-					<div class="flex items-center gap-3 px-4 py-6 text-sm text-slate-500 sm:px-6">
-						<FileText class="size-5 text-slate-300" /> Belum ada lesson. Tambahkan materi pertama untuk
-						module ini.
+					<div class="flex items-center gap-3 px-4 py-6 text-sm text-muted-foreground sm:px-6">
+						<FileText class="size-5 text-muted-foreground/50" /> Belum ada lesson. Tambahkan materi pertama
+						untuk module ini.
 					</div>
 				{/if}
 			</details>
 		{/each}
 	</div>
 	{#if modules.length === 0}
-		<div class="admin-empty rounded-2xl border border-dashed bg-white">
-			<Layers class="mx-auto mb-3 size-10 text-slate-300" />
+		<Card.Root class="admin-empty gap-0">
+			<Layers class="mx-auto mb-3 size-10 text-muted-foreground/50" />
 			<h3 class="font-semibold">Belum ada module</h3>
-			<p class="mt-2 text-sm text-slate-500">
+			<p class="mt-2 text-sm text-muted-foreground">
 				Tambahkan module untuk mulai menyusun materi kursus.
 			</p>
-		</div>
+		</Card.Root>
 	{/if}
 </div>
 

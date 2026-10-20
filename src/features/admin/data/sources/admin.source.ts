@@ -13,6 +13,13 @@ import {
 	type AdminLessonContent
 } from '../../domain/entities/admin.entity';
 
+import type {
+	KanaTemplateMetadata,
+	KanaTemplateDetail,
+	KanaTemplateInput,
+	KanaTemplatePreview
+} from '../../domain/entities/kana-template.entity';
+
 type ApiPayload<T> = { data: T; error?: string; message?: string };
 
 export class AdminSource {
@@ -73,8 +80,32 @@ export class AdminSource {
 	async getLevels(): Promise<AdminContentRecord[]> {
 		return (await this.request<ApiPayload<AdminContentRecord[]>>('/levels')).data;
 	}
-	async getTemplates(): Promise<AdminContentRecord[]> {
-		return (await this.request<ApiPayload<AdminContentRecord[]>>('/templates')).data;
+	async getTemplates(): Promise<KanaTemplateMetadata[]> {
+		return (await this.request<ApiPayload<KanaTemplateMetadata[]>>('/templates')).data;
+	}
+	async getTemplate(id: string): Promise<KanaTemplateDetail> {
+		return (
+			await this.request<ApiPayload<KanaTemplateDetail>>(`/templates/${encodeURIComponent(id)}`)
+		).data;
+	}
+	async previewTemplate(input: KanaTemplateInput): Promise<KanaTemplatePreview> {
+		return (
+			await this.request<ApiPayload<KanaTemplatePreview>>('/templates/preview', {
+				method: 'POST',
+				body: JSON.stringify(input)
+			})
+		).data;
+	}
+	async saveTemplate(id: string | null, input: KanaTemplateInput): Promise<KanaTemplateDetail> {
+		return (
+			await this.request<ApiPayload<KanaTemplateDetail>>(
+				`/templates${id ? `/${encodeURIComponent(id)}` : ''}`,
+				{
+					method: id ? 'PATCH' : 'POST',
+					body: JSON.stringify(input)
+				}
+			)
+		).data;
 	}
 	async getUsers(): Promise<ManagedUser[]> {
 		return (await this.request<ApiPayload<ManagedUser[]>>('/users')).data;

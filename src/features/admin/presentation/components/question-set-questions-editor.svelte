@@ -3,13 +3,14 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
+	import * as Card from '$lib/components/ui/card';
 	import type { Question } from '../models/admin-content-form.model';
-	import type { AdminContentRecord } from '../../domain/entities/admin.entity';
+	import type { KanaTemplateMetadata } from '../../domain/entities/kana-template.entity';
 	let {
 		questions = $bindable([]),
 		skill,
 		templates
-	}: { questions: Question[]; skill: string; templates: AdminContentRecord[] } = $props();
+	}: { questions: Question[]; skill: string; templates: KanaTemplateMetadata[] } = $props();
 	const id = $props.id();
 	const templateItems = $derived(
 		templates.map((template) => ({
@@ -46,7 +47,7 @@
 		</button>
 	</div>
 	{#each questions as question, i (question)}
-		<div class="admin-stack rounded-xl border bg-slate-50 p-4">
+		<Card.Root size="sm" class="gap-4 px-(--card-spacing)">
 			<div class="flex justify-between">
 				<h3 class="font-semibold">Soal {i + 1}</h3>
 				<button type="button" class="text-sm text-red-700" onclick={() => questions.splice(i, 1)}>
@@ -116,7 +117,9 @@
 						aria-label={`Jawaban benar soal ${i + 1}`}
 					>
 						{#each question.options as option, j (option)}
-							<div class="grid gap-2 rounded-lg border bg-white p-2 sm:grid-cols-[auto_1fr_auto]">
+							<div
+								class="grid gap-2 rounded-lg border bg-background p-2 sm:grid-cols-[auto_1fr_auto]"
+							>
 								<RadioGroup.Item value={String(j)} aria-label={`Jawaban benar pilihan ${j + 1}`} />
 								<div class="space-y-2">
 									<Input bind:value={option.label} class="h-10" placeholder={`Pilihan ${j + 1}`} />
@@ -140,13 +143,13 @@
 					</RadioGroup.Root>
 					<button
 						type="button"
-						class="text-sm text-blue-700"
+						class="text-sm text-primary"
 						onclick={() => question.options.push({ label: '', media_url: null, is_correct: false })}
 					>
 						Tambah pilihan
 					</button>
 				</div>
 			{/if}
-		</div>
+		</Card.Root>
 	{/each}
 </div>

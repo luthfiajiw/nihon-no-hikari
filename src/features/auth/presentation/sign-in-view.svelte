@@ -46,10 +46,10 @@
 	}));
 </script>
 
-<Card.Root class="w-full max-w-lg p-8">
-	<Card.Header class="flex flex-col items-center pb-8">
+<Card.Root class="w-full max-w-lg">
+	<Card.Header class="flex flex-col items-center">
 		<img src={logo} alt="Logo" class="mb-4 h-9" />
-		<Card.Title class="text-xl font-semibold text-primary">Selamat Datang</Card.Title>
+		<Card.Title class="text-xl">Selamat Datang</Card.Title>
 		<Card.Description class="text-center">
 			Masuk ke akun Nihon no Hikari kamu untuk melanjutkan perjalanan belajar bahasa Jepang.
 		</Card.Description>

@@ -18,6 +18,7 @@
 		BookText,
 		Languages,
 		ClipboardCheck,
+		FileText,
 		ChartColumn,
 		Settings,
 		CircleQuestionMark,
@@ -36,6 +37,7 @@
 		{ name: 'Ringkasan', url: '/admin', icon: House },
 		{ name: 'Kursus & Materi', url: '/admin/courses', icon: BookOpen },
 		{ name: 'Question Sets', url: '/admin/question-sets', icon: ClipboardCheck },
+		{ name: 'Template Kana', url: '/admin/kana-templates', icon: FileText },
 		{ name: 'Pengguna', url: '/admin/users', icon: Users }
 	];
 
@@ -117,7 +119,7 @@
 
 <Sidebar.Root bind:ref {collapsible} class={cn('', className)} {...restProps}>
 	<Sidebar.Header
-		class="flex flex-row items-center gap-3 bg-white p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
+		class="bg-sidebar flex flex-row items-center gap-3 p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
 	>
 		<img src={logo} alt="NihongoPro Logo" class="h-6 w-6 shrink-0 object-contain" />
 		<div class="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
@@ -133,7 +135,7 @@
 	</Sidebar.Header>
 
 	<Sidebar.Content
-		class="flex h-full flex-col bg-white px-3 pt-2 group-data-[collapsible=icon]:px-2"
+		class="bg-sidebar flex h-full flex-col px-3 pt-2 group-data-[collapsible=icon]:px-2"
 	>
 		<Sidebar.Group class="p-0">
 			<Sidebar.Menu class="space-y-2">
@@ -143,7 +145,7 @@
 						<Sidebar.MenuButton
 							isActive={active}
 							tooltipContent={item.name}
-							class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-4 [&_svg]:shrink-0"
+							class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-sky-50 data-[active=true]:font-semibold data-[active=true]:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-sky-950/60 dark:data-[active=true]:text-sky-400 [&_svg]:size-4 [&_svg]:shrink-0"
 						>
 							{#snippet child({ props })}
 								<button
@@ -162,7 +164,7 @@
 											class={cn(
 												'mr-1 size-4 shrink-0 transition-colors',
 												active
-													? 'text-blue-600 dark:text-blue-400'
+													? 'text-sky-600 dark:text-sky-400'
 													: 'text-slate-600 dark:text-slate-400'
 											)}
 										/>
@@ -197,7 +199,7 @@
 				<button
 					type="button"
 					onclick={() => goto(resolve('/'))}
-					class="flex w-full items-center gap-2 rounded-xl border border-blue-200 px-3 py-3 text-sm font-medium text-blue-600 group-data-[collapsible=icon]:justify-center hover:bg-blue-50"
+					class="flex w-full items-center gap-2 rounded-xl border border-sky-200 px-3 py-3 text-sm font-medium text-sky-600 group-data-[collapsible=icon]:justify-center hover:bg-sky-50"
 				>
 					<ArrowUpRight class="size-4 shrink-0" />
 					<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
@@ -214,7 +216,7 @@
 								<Sidebar.MenuButton
 									isActive={active}
 									tooltipContent={item.name}
-									class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-blue-50 data-[active=true]:font-semibold data-[active=true]:text-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-blue-950/60 dark:data-[active=true]:text-blue-400 [&_svg]:size-5 [&_svg]:shrink-0"
+									class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-sky-50 data-[active=true]:font-semibold data-[active=true]:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-sky-950/60 dark:data-[active=true]:text-sky-400 [&_svg]:size-5 [&_svg]:shrink-0"
 								>
 									{#snippet child({ props })}
 										<button
@@ -226,7 +228,7 @@
 												class={cn(
 													'mr-1 size-5 shrink-0 transition-colors',
 													active
-														? 'text-blue-600 dark:text-blue-400'
+														? 'text-sky-600 dark:text-sky-400'
 														: 'text-slate-600 dark:text-slate-400'
 												)}
 											/>

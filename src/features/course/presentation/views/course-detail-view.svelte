@@ -72,7 +72,7 @@
 	<meta name="description" content={course?.description ?? 'Detail kursus'} />
 </svelte:head>
 
-<div class="space-y-4 p-6">
+<div class="space-y-6 p-4 pb-6 sm:p-6 sm:pb-8">
 	<div class="flex items-center gap-4">
 		<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
 			<ArrowLeftIcon />
@@ -93,7 +93,7 @@
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		<div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
+		<div class="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
 			{#if progressError}
 				<p class="text-sm text-red-600 lg:col-span-12 dark:text-red-400">{progressError}</p>
 			{/if}
@@ -111,7 +111,7 @@
 			</div>
 
 			<div class="flex lg:col-span-9">
-				<div class="flex w-full flex-col gap-4">
+				<div class="flex w-full flex-col gap-6">
 					<CourseDetailModuleList {modules} activeModuleId={nextModule?.id ?? null} />
 					<CourseDetailMotivationBanner />
 				</div>

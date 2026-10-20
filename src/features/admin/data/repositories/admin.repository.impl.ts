@@ -13,6 +13,13 @@ import type {
 } from '../../domain/entities/admin.entity';
 import type { AdminRepository } from '../../domain/repositories/admin.repository';
 import { AdminSource } from '../sources/admin.source';
+import type {
+	KanaTemplateMetadata,
+	KanaTemplateDetail,
+	KanaTemplateInput,
+	KanaTemplatePreview
+} from '../../domain/entities/kana-template.entity';
+
 export class AdminRepositoryImpl implements AdminRepository {
 	constructor(private readonly source: AdminSource) {}
 	reorderContent(kind: AdminReorderKind, input: AdminReorderInput): Promise<void> {
@@ -33,8 +40,17 @@ export class AdminRepositoryImpl implements AdminRepository {
 	getLevels(): Promise<AdminContentRecord[]> {
 		return this.source.getLevels();
 	}
-	getTemplates(): Promise<AdminContentRecord[]> {
+	getTemplates(): Promise<KanaTemplateMetadata[]> {
 		return this.source.getTemplates();
+	}
+	getTemplate(id: string): Promise<KanaTemplateDetail> {
+		return this.source.getTemplate(id);
+	}
+	previewTemplate(input: KanaTemplateInput): Promise<KanaTemplatePreview> {
+		return this.source.previewTemplate(input);
+	}
+	saveTemplate(id: string | null, input: KanaTemplateInput): Promise<KanaTemplateDetail> {
+		return this.source.saveTemplate(id, input);
 	}
 	getUsers(): Promise<ManagedUser[]> {
 		return this.source.getUsers();

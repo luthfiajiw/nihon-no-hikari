@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { ClipboardCheck, Plus, Search, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import AdminSelect from '../components/admin-select.svelte';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
@@ -49,9 +50,9 @@
 			</Button>
 		{/snippet}
 	</AdminPageHeader>
-	<div class="admin-toolbar">
+	<Card.Root size="sm" class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
 		<div class="relative min-w-48 flex-1">
-			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
+			<Search class="absolute top-2.5 left-3 size-4 text-muted-foreground/70" />
 			<Input
 				bind:value={search}
 				aria-label="Cari question set"
@@ -63,18 +64,18 @@
 			bind:value={skill}
 			options={skillOptions}
 			aria-label="Filter skill"
-			class="h-9 bg-white text-slate-600 sm:w-40"
+			class="h-9 bg-background text-muted-foreground sm:w-40"
 		/>
 		<AdminSelect
 			bind:value={status}
 			options={statusOptions}
 			aria-label="Filter status"
-			class="h-9 bg-white text-slate-600 sm:w-40"
+			class="h-9 bg-background text-muted-foreground sm:w-40"
 		/>
-	</div>
-	<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
+	</Card.Root>
+	<Card.Root class="gap-0 py-0">
 		<div
-			class="admin-row flex justify-between border-b bg-slate-50/70 text-xs font-medium text-slate-500"
+			class="admin-row flex justify-between border-b bg-muted/70 text-xs font-medium text-muted-foreground"
 		>
 			<span>{sets.length} question set</span>
 			<span>Kelola soal & pengaturan</span>
@@ -83,13 +84,13 @@
 			<button
 				type="button"
 				onclick={() => goto(resolve(`/admin/content/question_set/${set.id}` as Pathname))}
-				class="group admin-row flex w-full items-center gap-4 border-b border-slate-100 text-left transition-colors last:border-0 hover:bg-blue-50/40"
+				class="group admin-row flex w-full items-center gap-4 border-b border-border text-left transition-colors last:border-0 hover:bg-sky-50/40 dark:hover:bg-sky-950/40"
 			>
 				<div
 					class="flex size-11 shrink-0 items-center justify-center rounded-xl {set.skill ===
 					'writing'
 						? 'bg-rose-50 text-rose-500'
-						: 'bg-blue-50 text-blue-500'}"
+						: 'bg-sky-50 text-sky-500'}"
 				>
 					{#if set.skill === 'writing'}
 						<PenLine class="size-5" />
@@ -98,10 +99,10 @@
 					{/if}
 				</div>
 				<div class="min-w-0 flex-1">
-					<h2 class="truncate text-sm font-semibold text-slate-900 group-hover:text-blue-600">
+					<h2 class="truncate text-sm font-semibold text-foreground group-hover:text-sky-600">
 						{set.title}
 					</h2>
-					<p class="mt-1 text-xs text-slate-500">
+					<p class="mt-1 text-xs text-muted-foreground">
 						{set.kind === 'final_exam' ? 'Ujian module' : 'Latihan lesson'} · {set.skill ===
 						'writing'
 							? 'Writing'
@@ -111,20 +112,20 @@
 					</p>
 				</div>
 				<StatusBadge item={set} />
-				<ArrowUpRight class="size-4 shrink-0 text-slate-400 group-hover:text-blue-600" />
+				<ArrowUpRight class="size-4 shrink-0 text-muted-foreground/70 group-hover:text-sky-600" />
 			</button>
 		{:else}
 			<div class="admin-empty">
-				<ClipboardCheck class="mx-auto mb-4 size-10 text-slate-300" />
+				<ClipboardCheck class="mx-auto mb-4 size-10 text-muted-foreground/50" />
 				<h2 class="font-semibold">
 					{data.sets.length ? 'Question set tidak ditemukan' : 'Belum ada question set'}
 				</h2>
-				<p class="mt-2 text-sm text-slate-500">
+				<p class="mt-2 text-sm text-muted-foreground">
 					{data.sets.length
 						? 'Coba kata kunci atau filter lainnya.'
 						: 'Buat latihan reading atau writing untuk mulai menyusun soal.'}
 				</p>
 			</div>
 		{/each}
-	</div>
+	</Card.Root>
 </div>

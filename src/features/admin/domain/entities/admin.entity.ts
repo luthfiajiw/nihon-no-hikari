@@ -1,3 +1,5 @@
+import type { KanaTemplateMetadata } from './kana-template.entity';
+
 export type AdminContentKind = 'course' | 'module' | 'lesson' | 'question_set';
 export type AdminContentAction = 'save' | 'publish' | 'remove' | 'restore';
 export type AdminReorderKind = 'module' | 'lesson';
@@ -36,7 +38,7 @@ export type AdminEditorData = {
 	draft: AdminContentRecord | null;
 	catalog: Partial<AdminCatalog>;
 	levels: AdminContentRecord[];
-	templates: AdminContentRecord[];
+	templates: KanaTemplateMetadata[];
 };
 export type AdminMutationResult = { id?: string };
 export type AdminLessonContent = { content: string; tips: string; [key: string]: unknown };

@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { BookOpen, Plus, Pencil, ArrowRight, Search, Layers, FileText } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import StatusBadge from '$features/admin/presentation/components/status-badge.svelte';
 	import { matchesContent } from '$features/admin/domain/content-policy';
@@ -33,23 +34,26 @@
 			</Button>
 		{/snippet}
 	</AdminPageHeader>
-	<div class="admin-toolbar justify-between">
-		<div class="flex gap-1" aria-label="Filter status kursus">
+	<Card.Root
+		size="sm"
+		class="flex-row flex-wrap items-center justify-between gap-4 px-(--card-spacing)"
+	>
+		<div class="flex flex-wrap gap-1" aria-label="Filter status kursus">
 			{#each [{ value: 'all', label: 'Semua' }, { value: 'published', label: 'Terbit' }, { value: 'draft', label: 'Draft' }, { value: 'archived', label: 'Arsip' }] as tab (tab.value)}
 				<button
 					type="button"
 					onclick={() => (status = tab.value)}
 					aria-pressed={status === tab.value}
 					class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {status === tab.value
-						? 'bg-blue-50 text-blue-700'
-						: 'text-slate-500 hover:bg-slate-50'}"
+						? 'bg-sky-50 text-sky-700'
+						: 'text-muted-foreground hover:bg-muted'}"
 				>
 					{tab.label}
 				</button>
 			{/each}
 		</div>
 		<div class="relative w-full sm:w-64">
-			<Search class="absolute top-2.5 left-3 size-4 text-slate-400" />
+			<Search class="absolute top-2.5 left-3 size-4 text-muted-foreground/70" />
 			<Input
 				bind:value={search}
 				aria-label="Cari kursus"
@@ -57,12 +61,13 @@
 				class="h-9 pl-9"
 			/>
 		</div>
-	</div>
-	<p class="text-xs font-medium text-slate-500">{courses.length} kursus ditampilkan</p>
+	</Card.Root>
+	<p class="text-xs font-medium text-muted-foreground">{courses.length} kursus ditampilkan</p>
 	<div class="admin-stack">
 		{#each courses as course (course.id)}
-			<article
-				class="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-md transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:p-6"
+			<Card.Root
+				role="article"
+				class="group flex-wrap gap-4 px-(--card-spacing) sm:flex-row sm:items-center"
 			>
 				<button
 					type="button"
@@ -78,19 +83,19 @@
 				</button>
 				<div class="min-w-0 flex-1">
 					<StatusBadge item={course} />
-					<h2 class="mt-2 text-xl font-bold tracking-tight text-slate-900">
+					<h2 class="mt-2 text-xl font-bold tracking-tight text-foreground">
 						<button
 							type="button"
-							class="text-left hover:text-blue-600"
+							class="text-left hover:text-sky-600"
 							onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
 						>
 							{course.title}
 						</button>
 					</h2>
-					<p class="mt-1 line-clamp-2 text-sm text-slate-500">
+					<p class="mt-1 line-clamp-2 text-sm text-muted-foreground">
 						{course.description || 'Susun module dan lesson untuk kursus ini.'}
 					</p>
-					<div class="mt-3 flex gap-4 text-xs text-slate-500">
+					<div class="mt-3 flex gap-4 text-xs text-muted-foreground">
 						<span class="flex items-center gap-1.5">
 							<Layers class="size-3.5" />
 							{course.module_count ?? 0} module
@@ -101,7 +106,7 @@
 						</span>
 					</div>
 				</div>
-				<div class="flex shrink-0 gap-2">
+				<div class="flex shrink-0 flex-wrap gap-2 sm:ml-auto">
 					<Button
 						variant="outline"
 						onclick={() => goto(resolve(`/admin/content/course/${course.id}` as Pathname))}
@@ -116,19 +121,19 @@
 						Lihat Materi <ArrowRight class="size-4" />
 					</Button>
 				</div>
-			</article>
+			</Card.Root>
 		{:else}
-			<div class="admin-empty rounded-2xl border border-dashed bg-white">
-				<BookOpen class="mx-auto mb-4 size-10 text-slate-300" />
-				<h2 class="font-semibold text-slate-800">
+			<Card.Root class="admin-empty gap-0">
+				<BookOpen class="mx-auto mb-4 size-10 text-muted-foreground/50" />
+				<h2 class="font-semibold text-foreground">
 					{data.courses.length ? 'Kursus tidak ditemukan' : 'Mulai dengan kursus pertama'}
 				</h2>
-				<p class="mt-2 text-sm text-slate-500">
+				<p class="mt-2 text-sm text-muted-foreground">
 					{data.courses.length
 						? 'Coba kata kunci atau filter status lainnya.'
 						: 'Buat kursus, lalu tambahkan module dan lesson di halaman detailnya.'}
 				</p>
-			</div>
+			</Card.Root>
 		{/each}
 	</div>
 </div>

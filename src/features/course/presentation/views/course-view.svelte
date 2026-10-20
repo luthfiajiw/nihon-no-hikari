@@ -3,6 +3,7 @@
 	import CourseHeroBanner from '../components/course-hero-banner.svelte';
 	import CourseProgressCard from '../components/course-progress-card.svelte';
 	import CourseTile from '../components/course-tile.svelte';
+	import * as Card from '$lib/components/ui/card';
 
 	interface Props {
 		courses: Course[];
@@ -12,9 +13,9 @@
 	let { courses, errorMessage = null }: Props = $props();
 </script>
 
-<div class="space-y-6 p-6">
+<div class="space-y-8 p-4 pb-6 sm:p-6 sm:pb-8">
 	<!-- Row 1: Hero Banner (8 cols) + Progress Card (4 cols) -->
-	<div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
+	<div class="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
 		<div class="flex lg:col-span-8">
 			<CourseHeroBanner class="w-full" />
 		</div>
@@ -32,13 +33,13 @@
 						{errorMessage}
 					</div>
 				{:else if courses.length === 0}
-					<div
-						class="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
-					>
-						Belum ada kursus yang tersedia.
-					</div>
+					<Card.Root>
+						<Card.Content class="py-4 text-center">
+							<Card.Description>Belum ada kursus yang tersedia.</Card.Description>
+						</Card.Content>
+					</Card.Root>
 				{:else}
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 						{#each courses as course (course.id)}
 							<CourseTile {...course} />
 						{/each}

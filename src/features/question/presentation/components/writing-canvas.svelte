@@ -77,9 +77,10 @@
 			onChange([...value, points]);
 			feedback = 'Tulisan tersimpan. Kamu bisa lanjut atau menambah goresan.';
 		} else if (evaluateStroke(guide, value.length, points)) {
-			onChange([...value, points]);
+			const next = [...value, points];
+			onChange(next);
 			feedback =
-				value.length + 1 === guide.strokes.length
+				next.length === guide.strokes.length
 					? 'Bagus! Semua goresan selesai. Kamu bisa lanjut.'
 					: 'Goresan benar. Lanjutkan ke goresan berikutnya.';
 		} else {

@@ -13,7 +13,10 @@
 <div
 	bind:this={ref}
 	data-slot="card-footer"
-	class={cn('flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)', className)}
+	class={cn(
+		'flex items-center gap-3 px-(--card-spacing) pb-(--card-spacing) text-card-foreground',
+		className
+	)}
 	{...restProps}
 >
 	{@render children?.()}

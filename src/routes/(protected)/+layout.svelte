@@ -170,11 +170,11 @@
 {#if isAssessmentRoute}
 	{#if navigating.to}
 		<div
-			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-pink-100"
+			class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-primary/15"
 			role="progressbar"
 			aria-label="Memuat halaman"
 		>
-			<div class="route-progress-indicator h-full bg-pink-400"></div>
+			<div class="route-progress-indicator h-full bg-primary"></div>
 		</div>
 	{/if}
 	<div class="flex h-svh min-w-0 flex-col overflow-hidden">
@@ -184,7 +184,7 @@
 			passingScore={activeAssessmentAttempt?.question_set.passing_score ?? 0}
 			backHref={assessmentData.backHref ?? '/courses'}
 		/>
-		<section class="min-h-0 flex-1 overflow-y-auto bg-neutral-100">
+		<section class="min-h-0 flex-1 overflow-y-auto bg-muted">
 			{@render children?.()}
 		</section>
 	</div>
@@ -192,11 +192,11 @@
 	<Sidebar.Provider>
 		{#if navigating.to}
 			<div
-				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-pink-100"
+				class="absolute inset-x-0 top-0 z-50 h-0.5 overflow-hidden bg-primary/15"
 				role="progressbar"
 				aria-label="Memuat halaman"
 			>
-				<div class="route-progress-indicator h-full bg-pink-500"></div>
+				<div class="route-progress-indicator h-full bg-primary"></div>
 			</div>
 		{/if}
 		<AppSidebar mode={isAdminRoute ? 'admin' : 'student'} />
@@ -212,11 +212,7 @@
 				</div>
 
 				<div class="flex shrink-0 items-center gap-2 pr-3 sm:pr-6">
-					<Button
-						variant="outline"
-						size="icon"
-						class="rounded-full border-none shadow-none transition-none"
-					>
+					<Button variant="ghost" size="icon">
 						<BellIcon />
 					</Button>
 					<Separator orientation="vertical" class="mr-1.5 data-[orientation=vertical]:h-5" />
@@ -263,7 +259,7 @@
 			</header>
 			<section
 				aria-busy={Boolean(navigating.to)}
-				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)]"
+				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)] dark:bg-muted"
 			>
 				{#if isAdminRoute && navigating.to}
 					<div class="mx-auto max-w-7xl space-y-6 p-6 md:p-8" role="status" aria-live="polite">

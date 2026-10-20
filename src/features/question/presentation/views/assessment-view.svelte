@@ -252,7 +252,7 @@
 					<span>Soal {activeIndex + 1} / {questions.length}</span>
 				</Drawer.Trigger>
 				<Drawer.Content
-					class="overflow-hidden rounded-t-2xl border-slate-200 bg-white p-0 data-[vaul-drawer-direction=bottom]:max-h-[85svh] xl:hidden"
+					class="overflow-hidden rounded-t-2xl border-border bg-background p-0 data-[vaul-drawer-direction=bottom]:max-h-[85svh] xl:hidden"
 				>
 					<Drawer.Header class="sr-only">
 						<Drawer.Title>Daftar nomor soal</Drawer.Title>
@@ -266,7 +266,7 @@
 					>
 						<XIcon class="size-5" />
 					</Drawer.Close>
-					<div class="min-h-0 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+					<div class="min-h-0 overflow-y-auto p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
 						<AssessmentQuestionNavigator
 							{questions}
 							{answers}

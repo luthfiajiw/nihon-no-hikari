@@ -32,20 +32,18 @@
 					{activeModule.status === 'in_progress' ? 'Lanjutkan' : 'Berikutnya'}
 				</Badge>
 				<div>
-					<Card.Title class="text-xl font-bold text-slate-900 dark:text-slate-100">
+					<Card.Title class="text-2xl">
 						{activeModule.title}
 					</Card.Title>
-					<Card.Description
-						class="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
-					>
+					<Card.Description class="mt-2">
 						{activeModule.description}
 					</Card.Description>
 				</div>
 			</div>
-			<div class="flex items-center justify-between pt-4">
-				<div class="flex items-center gap-1">
-					<ClockIcon class="size-3 text-slate-500" />
-					<span class="text-xs font-medium text-slate-400">
+			<div class="flex flex-wrap items-center justify-between gap-4 pt-6 pb-1">
+				<div class="flex items-center gap-2 text-muted-foreground">
+					<ClockIcon class="size-4" />
+					<span class="text-sm font-medium">
 						{formatDuration(activeModule.estimated_minutes)}
 					</span>
 				</div>

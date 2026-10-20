@@ -60,14 +60,14 @@
 	);
 </script>
 
-<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white">
+<Card.Root class="min-h-0">
 	<Card.Content>
 		<div class="flex items-center gap-3">
 			<Badge class="bg-sky-50 text-sky-700">{skillLabels[question.skill]}</Badge>
-			<span class="text-sm text-slate-500">Soal {questionNumber} dari {totalQuestions}</span>
+			<span class="text-sm text-muted-foreground">Soal {questionNumber} dari {totalQuestions}</span>
 		</div>
 
-		<h2 class="mt-5 text-xl font-extrabold text-slate-900 sm:text-2xl">
+		<h2 class="mt-5 text-xl font-extrabold text-card-foreground sm:text-2xl">
 			{question.prompt_text}
 		</h2>
 
@@ -81,7 +81,7 @@
 
 		{#if question.stimulus_text}
 			<div
-				class="mx-auto my-5 flex min-h-28 items-center justify-center rounded-xl bg-slate-50 px-6 py-4 text-center text-5xl sm:text-7xl"
+				class="mx-auto my-5 flex min-h-28 items-center justify-center rounded-xl bg-muted px-6 py-4 text-center text-5xl sm:text-7xl"
 			>
 				{question.stimulus_text}
 			</div>
@@ -102,24 +102,25 @@
 					<Button
 						type="button"
 						variant="outline"
+						data-flat
 						onclick={() => onAnswerChange(option.id)}
 						{disabled}
 						aria-pressed={selected}
 						class={cn(
-							'min-h-16 w-full justify-start gap-4 rounded-xl px-4 py-3 text-left whitespace-normal shadow-none transition-colors',
+							'h-auto min-h-16 w-full justify-start gap-4 px-4 py-3 text-left whitespace-normal transition-colors',
 							selected
-								? 'border-primary bg-primary/10 text-slate-900 hover:border-primary hover:bg-primary/20 hover:text-slate-900'
-								: 'border-slate-200 bg-white text-slate-700 hover:border-primary/40 hover:bg-primary/10 hover:text-slate-900'
+								? 'border-primary bg-primary/10 text-card-foreground hover:border-primary hover:bg-primary/20 hover:text-card-foreground'
+								: 'border-border bg-card text-card-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-card-foreground'
 						)}
 					>
 						<span
 							class={cn(
 								'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-								selected ? 'border-primary bg-primary' : 'border-slate-300 bg-white'
+								selected ? 'border-primary bg-primary' : 'border-slate-300 bg-card'
 							)}
 						>
 							{#if selected}
-								<span class="size-1.5 rounded-full bg-white"></span>
+								<span class="size-1.5 rounded-full bg-primary-foreground"></span>
 							{/if}
 						</span>
 
@@ -136,7 +137,7 @@
 				{/each}
 			</div>
 		{:else if question.question_type === 'multiple_choice'}
-			<label class="mt-6 block text-sm font-bold text-slate-900" for="written-answer">
+			<label class="mt-6 block text-sm font-bold text-card-foreground" for="written-answer">
 				Jawaban
 			</label>
 			<Input
@@ -151,7 +152,7 @@
 
 		<footer
 			class={cn(
-				'mt-8 flex items-center gap-4 border-t border-slate-100 pt-5',
+				'mt-8 flex flex-wrap items-center gap-3 border-t border-border pt-5 pb-1',
 				isFirstQuestion ? 'justify-end' : 'justify-between'
 			)}
 		>
@@ -161,7 +162,7 @@
 					variant="outline"
 					onclick={onPrevious}
 					{disabled}
-					class="rounded-lg border-slate-300 px-5 text-slate-800"
+					class="min-w-0 px-2 sm:px-5"
 				>
 					<ArrowLeftIcon class="size-4" />
 					Sebelumnya
@@ -172,7 +173,7 @@
 				type="button"
 				onclick={onNext}
 				disabled={disabled || !writingComplete}
-				class="rounded-lg px-5"
+				class="min-w-0 px-2 sm:px-5"
 			>
 				{isLastQuestion ? 'Selesai' : 'Berikutnya'}
 				{#if isLastQuestion}

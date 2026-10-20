@@ -20,7 +20,7 @@
 </script>
 
 <Select.Root type="single" bind:value items={options} allowDeselect={false}>
-	<Select.Trigger {id} aria-label={ariaLabel} class={cn('w-full min-w-0', className)}>
+	<Select.Trigger {id} aria-label={ariaLabel} class={cn('w-full min-w-0 bg-background', className)}>
 		<Select.Value {placeholder} />
 	</Select.Trigger>
 	<Select.Content>

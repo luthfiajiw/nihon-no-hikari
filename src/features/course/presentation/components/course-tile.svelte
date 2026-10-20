@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
+	import * as Card from '$lib/components/ui/card';
 	import { ClockIcon, BookOpenIcon, ArrowRightIcon } from 'lucide-svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { Course } from '../../domain/entities/course.entity';
@@ -33,11 +33,9 @@
 	);
 </script>
 
-<div
-	class={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md dark:border-slate-800 dark:bg-slate-900 ${className}`}
->
+<Card.Root class={`group h-full justify-between ${className}`}>
 	<!-- Header / Top Section -->
-	<div class="px-4 pt-5">
+	<Card.Content>
 		<!-- Top Meta: Level Tag & Category -->
 		<div class="mb-3.5 flex items-center justify-between gap-2">
 			<!-- Level Badge (N5) -->
@@ -70,40 +68,28 @@
 		{/if}
 
 		<!-- Course Title -->
-		<h3
-			class="mb-2 text-lg font-bold tracking-tight text-slate-900 transition-colors group-hover:text-sky-600 dark:text-slate-100 dark:group-hover:text-sky-400"
-		>
+		<Card.Title role="heading" aria-level={3} class="mb-2 text-xl tracking-tight">
 			{title}
-		</h3>
+		</Card.Title>
 
 		<!-- Course Description -->
-		<p class="mb-4 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+		<Card.Description class="line-clamp-3">
 			{description}
-		</p>
-	</div>
-
-	<div class="px-4">
-		<Separator orientation="horizontal" class="h-px w-full" />
-	</div>
+		</Card.Description>
+	</Card.Content>
 
 	<!-- Bottom Section: Stats & Action Button -->
-	<div
-		class="flex items-center justify-between gap-2 border-slate-100 px-5 pt-4 pb-5 dark:border-slate-800/80"
-	>
+	<Card.Footer class="flex-wrap justify-between gap-4 pb-7">
 		<!-- Course Meta Info: Jam Belajar & Jumlah Materi -->
-		<div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+		<div class="flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground">
 			<!-- Total Jam Belajar -->
-			<div
-				class="flex items-center gap-1.5 rounded-md bg-slate-50 px-2.5 py-1.5 dark:bg-slate-800/60"
-			>
+			<div class="flex items-center gap-1.5">
 				<ClockIcon class="size-4" />
 				<span>{formattedHours}</span>
 			</div>
 
 			<!-- Jumlah Materi -->
-			<div
-				class="flex items-center gap-1.5 rounded-md bg-slate-50 px-2.5 py-1.5 dark:bg-slate-800/60"
-			>
+			<div class="flex items-center gap-1.5">
 				<BookOpenIcon class="size-4" />
 				<span>{formattedLessons}</span>
 			</div>
@@ -112,23 +98,18 @@
 		<!-- Enroll Button -->
 		<Button
 			type="button"
+			variant={isEnrolled ? 'secondary' : 'default'}
 			onclick={() => goto(resolve(`/courses/${id}`))}
 			disabled={!slug}
-			class={`font-semibold transition-all duration-50 ${
-				isEnrolled
-					? 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
-					: 'text-white active:scale-[0.99]'
-			}`}
+			class="ml-auto"
 		>
 			{#if isEnrolled}
 				Terdaftar
-				<ArrowRightIcon
-					class="ml-1.5 size-4 text-sky-500 transition-transform group-hover:translate-x-1"
-				/>
+				<ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-1" />
 			{:else}
 				Lihat Detail
-				<ArrowRightIcon class="ml-1.5 size-4 transition-transform group-hover:translate-x-1" />
+				<ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-1" />
 			{/if}
 		</Button>
-	</div>
-</div>
+	</Card.Footer>
+</Card.Root>

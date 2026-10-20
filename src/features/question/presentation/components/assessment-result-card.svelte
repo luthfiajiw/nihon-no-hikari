@@ -19,7 +19,7 @@
 	let correctAnswerCount = $derived(result.answers.filter((answer) => answer.is_correct).length);
 </script>
 
-<Card.Root class="min-h-0 overflow-hidden rounded-2xl border-slate-200 bg-white p-6">
+<Card.Root class="min-h-0 px-(--card-spacing)">
 	<div class="flex flex-col items-center justify-center py-4 text-center">
 		<div
 			class={cn(
@@ -44,28 +44,32 @@
 		<p class="mt-3 text-sm font-bold tracking-widest text-sky-600 uppercase">
 			Hasil {assessmentLabel}
 		</p>
-		<h2 class="mt-1 text-4xl font-extrabold text-slate-900">Nilai {result.score}</h2>
-		<p class="mt-2 text-sm text-slate-500">
+		<h2 class="mt-1 text-4xl font-extrabold text-card-foreground">Nilai {result.score}</h2>
+		<p class="mt-2 text-sm text-muted-foreground">
 			{correctAnswerCount} dari {result.answers.length} jawaban benar
 		</p>
 
 		<div class="mt-6 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
-			<div class="rounded-xl bg-slate-50 p-4">
-				<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Poin</p>
-				<p class="mt-1 text-lg font-extrabold text-slate-900">
+			<div class="rounded-xl bg-muted p-4">
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Poin</p>
+				<p class="mt-1 text-lg font-extrabold text-card-foreground">
 					{result.earned_points}/{result.total_points}
 				</p>
 			</div>
-			<div class="rounded-xl bg-slate-50 p-4">
-				<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Nilai lulus</p>
-				<p class="mt-1 text-lg font-extrabold text-slate-900">{result.passing_score}</p>
+			<div class="rounded-xl bg-muted p-4">
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+					Nilai lulus
+				</p>
+				<p class="mt-1 text-lg font-extrabold text-card-foreground">{result.passing_score}</p>
 			</div>
-			<div class="rounded-xl bg-slate-50 p-4">
-				<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Status</p>
+			<div class="rounded-xl bg-muted p-4">
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Status</p>
 				<p
 					class={cn(
 						'mt-1 text-lg font-extrabold',
-						result.is_passed ? 'text-emerald-600' : 'text-amber-600'
+						result.is_passed
+							? 'text-emerald-600 dark:text-emerald-400'
+							: 'text-amber-600 dark:text-amber-400'
 					)}
 				>
 					{result.is_passed ? 'Lulus' : 'Belum lulus'}

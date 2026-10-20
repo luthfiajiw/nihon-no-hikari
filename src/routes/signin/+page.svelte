@@ -9,7 +9,7 @@
 </svelte:head>
 
 <div
-	class="flex h-screen w-full items-center justify-center bg-cover bg-center px-4"
+	class="flex min-h-svh w-full items-center justify-center bg-cover bg-center px-4 py-8 sm:px-6"
 	style="background-image: url('{bgImg}')"
 >
 	<SignInView />

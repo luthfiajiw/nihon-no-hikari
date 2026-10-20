@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { testCourseReorder } from './admin-course-reorder.mjs';
 import { lessonHTMLValue, testLessonEditor, waitForLessonHTML } from './admin-lesson-editor.mjs';
+import { createKanaTemplateFixture, testKanaTemplates } from './admin-kana-templates.mjs';
 
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
@@ -95,6 +96,7 @@ const managedUser = {
 const drafts = new Map();
 let mutationGate = null;
 let failNextMutation = false;
+const kanaFixture = createKanaTemplateFixture();
 const api = createServer(async (request, response) => {
 	if (request.headers.authorization !== 'Bearer fixture')
 		transportViolations.push('Missing admin bearer');
@@ -102,6 +104,10 @@ const api = createServer(async (request, response) => {
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	backendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
+	if (url.pathname.startsWith('/api/v1/admin/templates')) {
+		await kanaFixture.handle(request, response, url);
+		return;
+	}
 	if (request.method !== 'GET') {
 		if (mutationGate) await mutationGate;
 		let body = '';
@@ -638,13 +644,23 @@ try {
 		fullPage: true
 	});
 	assert.deepEqual(errors, [], 'Admin navigation must not produce browser errors');
+	await page.setViewportSize({ width: 1440, height: 1000 });
+	await testKanaTemplates({
+		page,
+		origin,
+		fixture: kanaFixture,
+		navigate: clickAdminNavigation,
+		screenshotDir,
+		lessonID: lessons[0].id
+	});
+	assert.deepEqual(errors, [], 'Kana templates must not produce browser errors');
 	assert.deepEqual(
 		transportViolations,
 		[],
 		'Admin transport must use the proxy and server credentials'
 	);
 	console.log(
-		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML highlighting/autocomplete/indentation/undo, lesson preview, single prerequisite search/replace/clear/reload/publish, entry visibility, page titles, dashboard, mobile spacing. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML editor and lesson preview, prerequisite workflows, dashboard, mobile spacing, kana template filters/upload/preview/canvas/create/edit, upload retention and writing template selection. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);

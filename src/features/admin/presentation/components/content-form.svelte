@@ -5,6 +5,7 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -113,12 +114,15 @@
 		<div class="flex items-center gap-2">
 			<StatusBadge item={{ archived_at: archived, is_published: published }} />
 			{#if hasDraft}
-				<span class="text-xs text-slate-500">Ada perubahan draft</span>
+				<span class="text-xs text-muted-foreground">Ada perubahan draft</span>
 			{/if}
 		</div>
 	</AdminPageHeader>
 	{#if form?.message}
-		<p role="status" class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm">
+		<p
+			role="status"
+			class="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-200"
+		>
 			{form.message}
 		</p>
 	{/if}
@@ -126,7 +130,9 @@
 		method="POST"
 		action="?/save"
 		use:enhance={submitContent('save')}
-		class="admin-page admin-panel"
+		data-slot="card"
+		data-size="default"
+		class={Card.cardVariants({ class: 'admin-page block px-(--card-spacing)' })}
 	>
 		<Input type="hidden" name="payload" value={payload()} />
 		{#if data.kind !== 'question_set'}

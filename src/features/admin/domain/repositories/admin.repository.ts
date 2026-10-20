@@ -12,6 +12,13 @@ import type {
 	AdminLessonContent
 } from '../entities/admin.entity';
 
+import type {
+	KanaTemplateMetadata,
+	KanaTemplateDetail,
+	KanaTemplateInput,
+	KanaTemplatePreview
+} from '../entities/kana-template.entity';
+
 export interface AdminRepository {
 	reorderContent(kind: AdminReorderKind, input: AdminReorderInput): Promise<void>;
 	checkAccess(): Promise<void>;
@@ -19,7 +26,10 @@ export interface AdminRepository {
 	getContentList(kind: AdminContentKind): Promise<AdminRecord[]>;
 	getContent(kind: AdminContentKind, id: string): Promise<AdminContentDetail>;
 	getLevels(): Promise<AdminContentRecord[]>;
-	getTemplates(): Promise<AdminContentRecord[]>;
+	getTemplates(): Promise<KanaTemplateMetadata[]>;
+	getTemplate(id: string): Promise<KanaTemplateDetail>;
+	previewTemplate(input: KanaTemplateInput): Promise<KanaTemplatePreview>;
+	saveTemplate(id: string | null, input: KanaTemplateInput): Promise<KanaTemplateDetail>;
 	getUsers(): Promise<ManagedUser[]>;
 	saveContent(
 		kind: AdminContentKind,

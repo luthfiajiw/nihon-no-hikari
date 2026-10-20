@@ -18,6 +18,18 @@ Lesson HTML uses CodeMirror with syntax colors, line numbers, HTML tag/attribute
 
 Navigation uses native buttons or Button components with `onclick={() => goto(resolve(...))}`. Do not use anchor tags or Button `href` for app navigation. Dynamic route IDs include SvelteKit route groups when passing route parameters to `resolve`.
 
+**Template Kana** lives at `/admin/kana-templates` and `/admin/kana-templates/[id]`
+(`new` creates a template). It has a dedicated typed domain workflow and template
+API methods rather than joining the content draft/publish lifecycle. Upload one
+KanjiVG SVG (maximum 256 KiB), preview stroke order/direction and try the existing
+WritingCanvas, then save immediately. All metadata is editable; script/character
+changes require a matching replacement SVG. Metadata-only edits retain stored
+geometry. Enhanced forms preserve input and files on errors. The question-set
+template selector uses the same metadata list. Existing attempts use server-side
+guide snapshots, while future attempts see updated templates. Original SVG files
+are not stored; upload a replacement to change geometry. The browser smoke test
+includes template management and selection in writing questions.
+
 Run `npm run check`, `npm run test:unit -- --run --project server` and `npm run test:admin` to verify. The browser test uses an isolated API fixture.
 
 Course detail lists use `svelte-dnd-action` drag handles with 220ms FLIP animations and reduced-motion support. Space/Enter picks up or drops an item, arrows preview the new order, and Escape cancels. Drops autosave through the page's `?/reorder` action and the dedicated admin reorder endpoint; keyboard arrow movements do not save until the item is dropped. Each module's lessons use a separate zone type to keep them within their original module. Failed saves restore the list and refresh the catalog; all handles are disabled while saving. Reorder changes live order directly and preserves unpublished material edits.

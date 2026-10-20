@@ -17,13 +17,13 @@
 </script>
 
 <header
-	class="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 sm:px-6"
+	class="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border bg-background px-3 sm:px-6"
 >
 	<div class="flex min-w-0 items-center gap-2 sm:gap-3">
 		<button
 			type="button"
 			onclick={() => goto(resolve(backHref as Pathname))}
-			class="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+			class="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
 			aria-label="Kembali ke materi"
 		>
 			<ArrowLeftIcon class="size-5" />
@@ -32,7 +32,7 @@
 	</div>
 
 	<div
-		class="flex shrink-0 items-center gap-2 text-xs font-semibold text-sky-950 sm:gap-2 sm:text-sm"
+		class="flex shrink-0 items-center gap-2 text-xs font-semibold text-primary sm:gap-2 sm:text-sm"
 	>
 		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
 			<CircleQuestionMarkIcon class="size-4 text-sky-500" />

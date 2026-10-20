@@ -14,6 +14,7 @@
 	import { CodeXml, Eye, Lightbulb, LoaderCircle, RefreshCw } from 'lucide-svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { previewLessonContent } from '$dependencies/admin-preview.dependency';
 	import type { AdminLessonContent } from '../../domain/entities/admin.entity';
@@ -122,69 +123,69 @@
 </script>
 
 <div class="min-w-0 space-y-4">
-	<Tabs.Root bind:value={mode} class="min-w-0 flex-col gap-0 rounded-xl border bg-background">
-		<div
-			class="flex flex-wrap items-center justify-between gap-3 rounded-t-xl border-b bg-muted/30 p-3 sm:px-4"
-		>
-			<Tabs.List aria-label="Mode konten pembelajaran" class="h-10 w-full sm:w-auto">
-				<Tabs.Trigger value="html" class="gap-2 px-4">
-					<CodeXml class="size-4" aria-hidden="true" />
-					HTML
-				</Tabs.Trigger>
-				<Tabs.Trigger value="preview" class="gap-2 px-4">
-					<Eye class="size-4" aria-hidden="true" />
-					Preview
-				</Tabs.Trigger>
-			</Tabs.List>
-			<p class="text-xs text-muted-foreground">
-				{mode === 'html'
-					? 'Susun materi pembelajaran dengan HTML.'
-					: 'Periksa materi sebelum diterbitkan.'}
-			</p>
-		</div>
-		<Tabs.Content value="html" class="min-w-0 space-y-3 p-4">
-			<p id="lesson-html-label" class="text-sm font-medium">Kode HTML</p>
-			<div
-				bind:this={editorHost}
-				class="w-full min-w-0 overflow-hidden rounded-lg border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50"
-			></div>
-			<p id="lesson-html-help" class="text-xs leading-relaxed text-muted-foreground">
-				Tab / Shift+Tab untuk indentasi. Tekan Escape lalu Tab untuk keluar dari editor.
-			</p>
-		</Tabs.Content>
-		<Tabs.Content value="preview" class="min-w-0 p-4" aria-busy={previewLoading}>
-			{#if previewLoading}
+	<Card.Root class="gap-0 p-0">
+		<Tabs.Root bind:value={mode} class="min-w-0 flex-col gap-0">
+			<div class="flex flex-wrap items-center justify-between gap-3 border-b p-3 sm:px-4">
+				<Tabs.List aria-label="Mode konten pembelajaran" class="h-10 w-full sm:w-auto">
+					<Tabs.Trigger value="html" class="gap-2 px-4">
+						<CodeXml class="size-4" aria-hidden="true" />
+						HTML
+					</Tabs.Trigger>
+					<Tabs.Trigger value="preview" class="gap-2 px-4">
+						<Eye class="size-4" aria-hidden="true" />
+						Preview
+					</Tabs.Trigger>
+				</Tabs.List>
+				<p class="text-xs text-muted-foreground">
+					{mode === 'html'
+						? 'Susun materi pembelajaran dengan HTML.'
+						: 'Periksa materi sebelum diterbitkan.'}
+				</p>
+			</div>
+			<Tabs.Content value="html" class="min-w-0 space-y-3 p-4">
+				<p id="lesson-html-label" class="text-sm font-medium">Kode HTML</p>
 				<div
-					class="flex min-h-72 items-center justify-center gap-2 text-muted-foreground"
-					role="status"
-				>
-					<LoaderCircle class="size-4 motion-safe:animate-spin" aria-hidden="true" />
-					Menyiapkan preview…
-				</div>
-			{:else if previewError}
-				<div
-					class="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center"
-				>
-					<div role="alert" class="space-y-1">
-						<p class="font-medium text-destructive">Preview belum dapat ditampilkan</p>
-						<p class="text-sm text-muted-foreground">{previewError}</p>
+					bind:this={editorHost}
+					class="w-full min-w-0 overflow-hidden rounded-lg border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50"
+				></div>
+				<p id="lesson-html-help" class="text-xs leading-relaxed text-muted-foreground">
+					Tab / Shift+Tab untuk indentasi. Tekan Escape lalu Tab untuk keluar dari editor.
+				</p>
+			</Tabs.Content>
+			<Tabs.Content value="preview" class="min-w-0 p-4" aria-busy={previewLoading}>
+				{#if previewLoading}
+					<div
+						class="flex min-h-72 items-center justify-center gap-2 text-muted-foreground"
+						role="status"
+					>
+						<LoaderCircle class="size-4 motion-safe:animate-spin" aria-hidden="true" />
+						Menyiapkan preview…
 					</div>
-					<Button type="button" variant="outline" onclick={() => previewRevision++}>
-						<RefreshCw class="size-4" aria-hidden="true" />
-						Coba lagi
-					</Button>
-				</div>
-			{:else if mode === 'preview'}
-				<iframe
-					title="Preview konten lesson"
-					sandbox=""
-					srcdoc={previewHTML}
-					class="h-[32rem] w-full rounded-lg border bg-white"
-				></iframe>
-			{/if}
-		</Tabs.Content>
-	</Tabs.Root>
-	<div class="space-y-3 rounded-xl border bg-muted/30 p-4">
+				{:else if previewError}
+					<div
+						class="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center"
+					>
+						<div role="alert" class="space-y-1">
+							<p class="font-medium text-destructive">Preview belum dapat ditampilkan</p>
+							<p class="text-sm text-muted-foreground">{previewError}</p>
+						</div>
+						<Button type="button" variant="outline" onclick={() => previewRevision++}>
+							<RefreshCw class="size-4" aria-hidden="true" />
+							Coba lagi
+						</Button>
+					</div>
+				{:else if mode === 'preview'}
+					<iframe
+						title="Preview konten lesson"
+						sandbox=""
+						srcdoc={previewHTML}
+						class="h-[32rem] w-full rounded-lg border bg-white"
+					></iframe>
+				{/if}
+			</Tabs.Content>
+		</Tabs.Root>
+	</Card.Root>
+	<Card.Root size="sm" class="px-(--card-spacing)">
 		<div class="flex items-start gap-3">
 			<Lightbulb class="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 			<div class="space-y-1">
@@ -201,5 +202,5 @@
 			placeholder="Contoh: Latih pengucapan setiap kosakata dengan suara lantang."
 			class="min-h-24 bg-background"
 		/>
-	</div>
+	</Card.Root>
 </div>

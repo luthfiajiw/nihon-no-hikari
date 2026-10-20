@@ -9,6 +9,36 @@ function sourceWith(response: Response) {
 	};
 }
 describe('admin source transport', () => {
+	it('uses dedicated template endpoints and unwraps saved details', async () => {
+		const detail = { id: 'kana', character: 'あ', stroke_count: 3 };
+		const { source, fetch } = sourceWith(Response.json({ data: detail }));
+		const input = {
+			script: 'hiragana' as const,
+			character: 'あ',
+			romaji: 'a',
+			source_version: 'test'
+		};
+		await expect(source.saveTemplate('kana/1', input)).resolves.toEqual(detail);
+		expect(fetch).toHaveBeenLastCalledWith(
+			'/api/v1/admin/templates/kana%2F1',
+			expect.objectContaining({ method: 'PATCH', body: JSON.stringify(input) })
+		);
+	});
+	it('sends SVG to the preview endpoint without saving a template', async () => {
+		const { source, fetch } = sourceWith(Response.json({ data: { stroke_count: 1 } }));
+		const input = {
+			script: 'katakana' as const,
+			character: 'カ',
+			romaji: 'ka',
+			source_version: 'test',
+			svg_content: '<svg />'
+		};
+		await source.previewTemplate(input);
+		expect(fetch).toHaveBeenCalledExactlyOnceWith(
+			'/api/v1/admin/templates/preview',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify(input) })
+		);
+	});
 	it('sends the order-only contract without saving or publishing material', async () => {
 		const { source, fetch } = sourceWith(Response.json({ success: true }));
 		const input = { parent_id: 'parent', ordered_ids: ['second', 'first'] };

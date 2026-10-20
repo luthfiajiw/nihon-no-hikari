@@ -31,7 +31,7 @@
 		</Card.Title>
 	</Card.Header>
 	<Card.Content class="flex flex-1 flex-col justify-center space-y-2">
-		<div class="flex items-center gap-4 py-2">
+		<div class="flex flex-wrap items-center justify-center gap-4 py-2">
 			<div class="relative flex size-32 shrink-0 items-center justify-center">
 				<ArcChart
 					data={arcChartData}
@@ -44,7 +44,7 @@
 					{progressPercentage}%
 				</span>
 			</div>
-			<div class="flex-1 space-y-1">
+			<div class="min-w-0 flex-1 basis-24 space-y-1">
 				<p class="text-sm font-semibold text-slate-800 dark:text-slate-200">
 					{completedCount} / {totalModules} Modul
 				</p>

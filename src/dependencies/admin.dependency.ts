@@ -12,7 +12,10 @@ import { GetAdminUsersUseCase } from '$features/admin/domain/usecases/get-admin-
 import { ChangeAdminUserRoleUseCase } from '$features/admin/domain/usecases/change-admin-user-role.usecase';
 import { PreviewAdminLessonUseCase } from '$features/admin/domain/usecases/preview-admin-lesson.usecase';
 
+import { KanaTemplatesUseCase } from '$features/admin/domain/usecases/kana-templates.usecase';
+
 const repository = new AdminRepositoryImpl(new AdminSource(requestFetch));
+export const kanaTemplatesUseCase = new KanaTemplatesUseCase(repository);
 export const reorderAdminContentUseCase = new ReorderAdminContentUseCase(repository);
 
 export const checkAdminAccessUseCase = new CheckAdminAccessUseCase(repository);

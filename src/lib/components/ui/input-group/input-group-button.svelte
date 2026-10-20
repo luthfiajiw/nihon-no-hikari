@@ -41,6 +41,7 @@
 	bind:ref
 	{type}
 	data-size={size}
+	data-flat
 	{variant}
 	class={cn(inputGroupButtonVariants({ size }), className)}
 	{...restProps}
