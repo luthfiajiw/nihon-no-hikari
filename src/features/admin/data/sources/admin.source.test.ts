@@ -41,7 +41,10 @@ describe('admin source transport', () => {
 	});
 	it('sends the order-only contract without saving or publishing material', async () => {
 		const { source, fetch } = sourceWith(Response.json({ success: true }));
-		const input = { parent_id: 'parent', ordered_ids: ['second', 'first'] };
+		const input = {
+			parent_id: '11111111-1111-4111-8111-111111111111',
+			ordered_ids: ['22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333']
+		};
 		await source.reorderContent('lesson', input);
 		expect(fetch).toHaveBeenCalledExactlyOnceWith(
 			'/api/v1/admin/content/lesson/reorder',

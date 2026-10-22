@@ -2,7 +2,10 @@ import { error, fail, json, redirect, type RequestEvent } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
 import { kanaTemplatesUseCase } from '$dependencies/admin.dependency';
 import { AdminError } from '../../domain/entities/admin.entity';
-import { MAX_KANA_SVG_BYTES } from '../../domain/entities/kana-template.entity';
+import {
+	MAX_KANA_SVG_BYTES,
+	type KanaTemplateInput
+} from '../../domain/entities/kana-template.entity';
 
 function accessError(cause: AdminError): never {
 	if (cause.status === 401) redirect(303, resolve('/signin'));
@@ -48,7 +51,7 @@ export async function saveKanaTemplate(event: RequestEvent) {
 			romaji: form.get('romaji'),
 			source_version: form.get('source_version'),
 			...(svg !== undefined ? { svg_content: svg } : {})
-		});
+		} as KanaTemplateInput);
 	} catch (cause) {
 		if (!(cause instanceof AdminError)) throw cause;
 		if (cause.status === 401) redirect(303, resolve('/signin'));
@@ -68,7 +71,7 @@ export async function previewKanaTemplate(event: RequestEvent) {
 		} catch {
 			throw new AdminError(400, 'Data template tidak valid.');
 		}
-		return json({ data: await kanaTemplatesUseCase.preview(body) });
+		return json({ data: await kanaTemplatesUseCase.preview(body as KanaTemplateInput) });
 	} catch (cause) {
 		if (!(cause instanceof AdminError)) throw cause;
 		return json({ error: cause.message }, { status: cause.status });

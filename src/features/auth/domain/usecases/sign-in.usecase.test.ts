@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { SignInUseCase } from './sign-in.usecase';
 import type { AuthRepository } from '../repositories/auth.repository';
-import { DomainError, InvalidCredentialsError } from '../entities/auth.entity';
+import { InvalidCredentialsError } from '../entities/auth.entity';
 
 describe('SignInUseCase', () => {
 	function createMockRepository(signIn = vi.fn()): AuthRepository {
@@ -12,25 +12,7 @@ describe('SignInUseCase', () => {
 		};
 	}
 
-	it('should throw DomainError if email is empty', async () => {
-		const mockRepo = createMockRepository();
-		const useCase = new SignInUseCase(mockRepo);
-
-		await expect(useCase.exec({ email: '', password: 'password123' })).rejects.toThrow(DomainError);
-		expect(mockRepo.signIn).not.toHaveBeenCalled();
-	});
-
-	it('should throw DomainError if password is empty', async () => {
-		const mockRepo = createMockRepository();
-		const useCase = new SignInUseCase(mockRepo);
-
-		await expect(useCase.exec({ email: 'test@example.com', password: '' })).rejects.toThrow(
-			DomainError
-		);
-		expect(mockRepo.signIn).not.toHaveBeenCalled();
-	});
-
-	it('should trim email and call authRepository.signIn with correct payload', async () => {
+	it('forwards credentials unchanged so the server owns validation and normalization', async () => {
 		const mockAuthResult = {
 			success: true,
 			message: 'Sign in berhasil.',
@@ -57,7 +39,7 @@ describe('SignInUseCase', () => {
 		});
 
 		expect(mockRepo.signIn).toHaveBeenCalledWith({
-			email: 'test@example.com',
+			email: '  test@example.com  ',
 			password: 'secretpassword'
 		});
 		expect(result).toEqual(mockAuthResult);

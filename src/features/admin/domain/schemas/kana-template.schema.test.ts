@@ -1,7 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
-import { KanaTemplatesUseCase, parseKanaTemplateInput } from './kana-templates.usecase';
-import type { AdminRepository } from '../repositories/admin.repository';
+import { describe, expect, it } from 'vitest';
+import { kanaTemplateInputSchema, kanaTemplateUploadSchema } from './admin-request.schema';
+import { parseRequest } from '$lib/server/validation';
 import { MAX_KANA_SVG_BYTES } from '../entities/kana-template.entity';
+
+function parseKanaTemplateInput(value: unknown) {
+	return parseRequest(kanaTemplateInputSchema, value);
+}
 
 const metadata = { script: 'hiragana', character: 'あ', romaji: 'a', source_version: 'test' };
 
@@ -41,22 +45,14 @@ describe('kana template workflows', () => {
 			})
 		).toThrow(expect.objectContaining({ status: 413 }));
 	});
-	it('requires SVG for creation/preview and allows metadata-only edits', async () => {
-		const repository = {
-			getTemplates: vi.fn(),
-			getTemplate: vi.fn(),
-			previewTemplate: vi.fn(),
-			saveTemplate: vi.fn()
-		};
-		const usecase = new KanaTemplatesUseCase(repository as unknown as AdminRepository);
-		expect(() => usecase.save(null, metadata)).toThrow('File SVG');
-		expect(() => usecase.preview(metadata)).toThrow('File SVG');
-		await usecase.save('existing', metadata);
-		expect(repository.saveTemplate).toHaveBeenCalledWith('existing', metadata);
-		await usecase.preview({ ...metadata, svg_content: '<svg />' });
-		expect(repository.previewTemplate).toHaveBeenCalledWith({
-			...metadata,
-			svg_content: '<svg />'
-		});
+	it('requires SVG for creation/preview and allows metadata-only edits', () => {
+		expect(() => parseRequest(kanaTemplateUploadSchema, metadata)).toThrow('File SVG');
+		expect(parseKanaTemplateInput(metadata)).toEqual(metadata);
+		expect(parseRequest(kanaTemplateUploadSchema, { ...metadata, svg_content: '<svg />' })).toEqual(
+			{
+				...metadata,
+				svg_content: '<svg />'
+			}
+		);
 	});
 });

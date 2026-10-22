@@ -71,6 +71,7 @@
 						module.originalId === parentId ? { ...module, lessons: items } : module
 					);
 	}
+
 	function handleConsider(
 		event: CustomEvent<DndEvent<LessonItem>>,
 		kind: AdminReorderKind,
@@ -96,6 +97,7 @@
 			previewOrder(kind, parentId, items);
 		}
 	}
+
 	function handleFinalize(
 		event: CustomEvent<DndEvent<LessonItem>>,
 		kind: AdminReorderKind,
@@ -111,6 +113,7 @@
 			void finishOrder(event.detail.items);
 		}
 	}
+
 	async function finishOrder(items: LessonItem[]) {
 		const session = dragSession;
 		if (!session) return;
@@ -140,6 +143,7 @@
 				?.focus({ preventScroll: true });
 		}
 	}
+
 	onMount(() => {
 		function cancelDrag(event: KeyboardEvent) {
 			if (!dragSession || (event.key !== 'Escape' && event.key !== 'Tab')) return;
@@ -155,6 +159,7 @@
 		window.addEventListener('keydown', cancelDrag, true);
 		return () => window.removeEventListener('keydown', cancelDrag, true);
 	});
+
 	async function saveOrder(session: DragSession, ids: string[]) {
 		if (saving) return;
 		const { kind, parentId } = session;

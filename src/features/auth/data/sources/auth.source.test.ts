@@ -3,6 +3,18 @@ import { InvalidCredentialsError, SignInNetworkError } from '../../domain/entiti
 import { AuthSource } from './auth.source';
 
 describe('AuthSource', () => {
+	it('sends credentials unchanged and exposes validation errors returned by the server', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValue(Response.json({ error: 'Format email tidak valid.' }, { status: 400 }));
+		const credentials = { email: ' invalid ', password: 'password' };
+		await expect(new AuthSource(fetch).signIn(credentials)).rejects.toThrow(
+			'Format email tidak valid.'
+		);
+		expect(fetch).toHaveBeenCalledOnce();
+		expect(fetch.mock.calls[0][1]?.body).toBe(JSON.stringify(credentials));
+	});
+
 	it('handles a non-JSON gateway failure as a domain network error', async () => {
 		const fetch = vi
 			.fn<typeof globalThis.fetch>()

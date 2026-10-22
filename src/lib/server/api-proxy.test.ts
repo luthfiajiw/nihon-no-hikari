@@ -69,6 +69,104 @@ describe('API proxy', () => {
 		}
 	);
 
+	it.each([
+		['POST', '/api/v1/auth/signin', { email: 'invalid', password: 'password' }],
+		['POST', '/api/v1/auth/token', { grant_type: 'refresh', token: '' }],
+		['POST', '/api/v1/auth/signout', { session_id: '' }],
+		['PUT', '/api/v1/courses/course/modules/module/progress', { status: 'invalid' }],
+		['PUT', '/api/v1/lessons/lesson/progress', { status: 42 }],
+		['POST', '/api/v1/question-sets/set/attempts/attempt/submit', { answers: 'invalid' }],
+		['POST', '/api/v1/admin/content/course', { title: 'Incomplete' }],
+		['PATCH', '/api/v1/admin/content/module/module', { course_id: 'invalid' }],
+		['PATCH', '/api/v1/admin/content/lesson/lesson', { content: { content: 42 } }],
+		['POST', '/api/v1/admin/content/question_set', { kind: 'invalid' }],
+		['POST', '/api/v1/admin/content/module/reorder', { parent_id: 'invalid', ordered_ids: [] }],
+		['POST', '/api/v1/admin/content/lesson/reorder', { parent_id: 'invalid', ordered_ids: [] }],
+		['PATCH', '/api/v1/admin/users/user/role', { role: 'Owner' }],
+		['POST', '/api/v1/admin/lesson-content/preview', { content: { content: 42 } }],
+		['POST', '/api/v1/admin/templates', { script: 'kanji' }],
+		['POST', '/api/v1/admin/templates/preview', { script: 'kanji' }],
+		['PATCH', '/api/v1/admin/templates/template', { script: 'kanji' }]
+	] as const)(
+		'rejects invalid %s %s bodies without contacting upstream',
+		async (method, path, body) => {
+			const fetch = vi.fn<typeof globalThis.fetch>();
+			const response = await invoke(
+				method,
+				fetch,
+				{
+					body: JSON.stringify(body),
+					headers: { 'Content-Type': 'application/json' }
+				},
+				path
+			);
+			expect(response.status).toBe(400);
+			expect(await response.json()).toEqual({ error: expect.any(String) });
+			expect(fetch).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each(['', '{', 'null', '[]', '42'])(
+		'rejects malformed or non-object JSON %# on a known mutation route',
+		async (body) => {
+			const fetch = vi.fn<typeof globalThis.fetch>();
+			const response = await invoke('PUT', fetch, { body }, '/api/v1/lessons/lesson/progress');
+			expect(response.status).toBe(400);
+			expect(fetch).not.toHaveBeenCalled();
+		}
+	);
+
+	it('forwards the validated mutation payload', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValue(new Response(null, { status: 204 }));
+		const body = '{\n  "status": "completed", "untrusted": true\n}';
+		const response = await invoke(
+			'PUT',
+			fetch,
+			{
+				body,
+				headers: { 'Content-Type': 'application/json' }
+			},
+			'/api/v1/lessons/lesson/progress'
+		);
+		expect(response.status).toBe(204);
+		expect(
+			JSON.parse(new TextDecoder().decode(fetch.mock.calls[0][1]?.body as ArrayBuffer))
+		).toEqual({ status: 'completed' });
+	});
+
+	it('keeps empty DELETE and lifecycle POST requests working', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockImplementation(async () => new Response(null, { status: 204 }));
+		await invoke('DELETE', fetch, {}, '/api/v1/admin/content/lesson/lesson');
+		await invoke('POST', fetch, {}, '/api/v1/admin/content/lesson/lesson/publish');
+		await invoke('POST', fetch, {}, '/api/v1/admin/content/lesson/lesson/restore');
+		await invoke('POST', fetch, { body: '{}' }, '/api/v1/question-sets/set/attempts');
+		expect(fetch).toHaveBeenCalledTimes(4);
+	});
+
+	it('reports an oversized SVG as 413 rather than a gateway error', async () => {
+		const fetch = vi.fn<typeof globalThis.fetch>();
+		const response = await invoke(
+			'POST',
+			fetch,
+			{
+				body: JSON.stringify({
+					script: 'hiragana',
+					character: 'あ',
+					romaji: 'a',
+					source_version: 'test',
+					svg_content: 'あ'.repeat(Math.ceil((256 * 1024) / 3))
+				})
+			},
+			'/api/v1/admin/templates/preview'
+		);
+		expect(response.status).toBe(413);
+		expect(fetch).not.toHaveBeenCalled();
+	});
+
 	it('preserves API errors, status and relevant response headers', async () => {
 		const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
 			Response.json(

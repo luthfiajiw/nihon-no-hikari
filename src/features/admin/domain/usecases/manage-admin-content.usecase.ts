@@ -12,24 +12,12 @@ export class ManageAdminContentUseCase {
 		action: AdminContentAction,
 		kind: string,
 		id: string,
-		payload?: unknown
+		payload?: AdminContentRecord
 	): Promise<AdminMutationResult> {
 		if (!isAdminContentKind(kind)) throw new AdminError(400, 'Jenis konten tidak valid.');
 		if (action === 'save') {
-			if (typeof payload !== 'string') throw new AdminError(400, 'Form tidak lengkap.');
-			let parsed: unknown;
-			try {
-				parsed = JSON.parse(payload);
-			} catch {
-				throw new AdminError(400, 'Data form tidak valid.');
-			}
-			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
-				throw new AdminError(400, 'Data form tidak valid.');
-			return this.repository.saveContent(
-				kind,
-				id === 'new' ? null : id,
-				parsed as AdminContentRecord
-			);
+			if (payload === undefined) throw new AdminError(400, 'Form tidak lengkap.');
+			return this.repository.saveContent(kind, id === 'new' ? null : id, payload);
 		}
 		if (id === 'new')
 			throw new AdminError(

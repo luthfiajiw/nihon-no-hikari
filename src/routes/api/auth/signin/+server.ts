@@ -9,8 +9,9 @@ export const POST: RequestHandler = async ({ request, fetch, cookies }) => {
 			method: 'POST',
 			headers: {
 				Accept: request.headers.get('accept') ?? 'application/json',
-				'Content-Type': request.headers.get('content-type') ?? 'application/json'
+				'Content-Type': 'application/json'
 			},
+			// The API proxy validates and normalizes credentials once before forwarding.
 			body: await request.text()
 		});
 	} catch {

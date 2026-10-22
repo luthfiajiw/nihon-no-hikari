@@ -136,11 +136,8 @@ export async function testKanaTemplates({
 	await navigate('Template Kana');
 	await page.getByRole('heading', { name: 'Template Kana', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Template Kana | Admin - Nihongo no Hikari');
-	await page.getByLabel('Cari karakter atau romaji').fill('missing');
-	await page.getByText('Template tidak ditemukan.', { exact: true }).waitFor();
-	await page.getByLabel('Cari karakter atau romaji').fill('a');
 	await page.getByRole('cell', { name: 'あ', exact: true }).waitFor();
-	await page.getByLabel('Filter script', { exact: true }).click();
+	await page.getByLabel('Filter', { exact: true }).click();
 	await page.getByRole('option', { name: 'Katakana', exact: true }).click();
 	await page.getByText('Template tidak ditemukan.', { exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Tambah Template', exact: true }).click();

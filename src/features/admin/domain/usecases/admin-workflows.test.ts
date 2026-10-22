@@ -33,38 +33,21 @@ function fixture() {
 describe('admin content ordering', () => {
 	const parent_id = '11111111-1111-4111-8111-111111111111';
 	const id = '22222222-2222-4222-8222-222222222222';
-	it.each(['module', 'lesson'])(
+	it.each(['module', 'lesson'] as const)(
 		'saves a complete %s order independently from publishing',
 		async (kind) => {
 			const repository = fixture();
 			const input = { parent_id, ordered_ids: [id] };
-			await new ReorderAdminContentUseCase(repository).exec(kind, JSON.stringify(input));
+			await new ReorderAdminContentUseCase(repository).exec(kind, input);
 			expect(repository.reorderContent).toHaveBeenCalledWith(kind, input);
 			expect(repository.saveContent).not.toHaveBeenCalled();
 			expect(repository.publishContent).not.toHaveBeenCalled();
 		}
 	);
-	it.each([
-		'{',
-		'null',
-		'[]',
-		'{}',
-		JSON.stringify({ parent_id: 'invalid', ordered_ids: [id] }),
-		JSON.stringify({ parent_id, ordered_ids: [id, id.toUpperCase()] }),
-		JSON.stringify({ parent_id, ordered_ids: ['00000000-0000-0000-0000-000000000000'] }),
-		JSON.stringify({ parent_id, ordered_ids: Array(32769).fill(id) })
-	])('rejects malformed order payload %# before writing', async (payload) => {
-		const repository = fixture();
-		await expect(
-			new ReorderAdminContentUseCase(repository).exec('module', payload)
-		).rejects.toMatchObject({ status: 400 });
-		expect(repository.reorderContent).not.toHaveBeenCalled();
-	});
-	it('rejects unsupported kinds and preserves server conflicts', async () => {
+	it('preserves server conflicts', async () => {
 		const repository = fixture();
 		const useCase = new ReorderAdminContentUseCase(repository);
-		const payload = JSON.stringify({ parent_id, ordered_ids: [id] });
-		await expect(useCase.exec('course', payload)).rejects.toMatchObject({ status: 400 });
+		const payload = { parent_id, ordered_ids: [id] };
 		repository.reorderContent.mockRejectedValue({ status: 409 });
 		await expect(useCase.exec('module', payload)).rejects.toMatchObject({ status: 409 });
 	});
@@ -110,25 +93,33 @@ describe('admin content lifecycle', () => {
 	it('creates and edits drafts using the same parsed payload contract', async () => {
 		const repository = fixture();
 		const useCase = new ManageAdminContentUseCase(repository);
-		await expect(useCase.exec('save', 'course', 'new', '{"title":"N5"}')).resolves.toEqual({
+		const course = {
+			title: 'N5',
+			slug: 'n5',
+			level_id: '11111111-1111-4111-8111-111111111111'
+		};
+		const lesson = {
+			title: 'Hiragana',
+			slug: 'hiragana',
+			module_id: '22222222-2222-4222-8222-222222222222',
+			content: { content: '<p>あ</p>', tips: '' }
+		};
+		await expect(useCase.exec('save', 'course', 'new', course)).resolves.toEqual({
 			id: 'created'
 		});
-		await useCase.exec('save', 'lesson', 'existing', '{"content":{"content":"<p>あ</p>"}}');
+		await useCase.exec('save', 'lesson', 'existing', lesson);
 		expect(repository.saveContent.mock.calls).toEqual([
-			['course', null, { title: 'N5' }],
-			['lesson', 'existing', { content: { content: '<p>あ</p>' } }]
+			['course', null, course],
+			['lesson', 'existing', lesson]
 		]);
 	});
-	it.each(['{', 'null', '[]', '42'])(
-		'rejects invalid draft payload %s without writing data',
-		async (payload) => {
-			const repository = fixture();
-			await expect(
-				new ManageAdminContentUseCase(repository).exec('save', 'course', 'new', payload)
-			).rejects.toMatchObject({ status: 400 });
-			expect(repository.saveContent).not.toHaveBeenCalled();
-		}
-	);
+	it('requires a payload when saving a draft', async () => {
+		const repository = fixture();
+		await expect(
+			new ManageAdminContentUseCase(repository).exec('save', 'course', 'new')
+		).rejects.toMatchObject({ status: 400 });
+		expect(repository.saveContent).not.toHaveBeenCalled();
+	});
 	it('requires a saved draft before publishing and preserves a new published version id', async () => {
 		const repository = fixture();
 		const useCase = new ManageAdminContentUseCase(repository);
@@ -149,20 +140,14 @@ describe('admin content lifecycle', () => {
 		expect(repository.restoreContent).toHaveBeenCalledWith('lesson', 'lesson');
 	});
 });
-describe('admin role and preview validation', () => {
+describe('admin role authorization and preview', () => {
 	const userId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-	it('rejects unauthorized actors and malformed role changes before writing', async () => {
+	it('rejects unauthorized actors before writing', async () => {
 		const repository = fixture();
 		const useCase = new ChangeAdminUserRoleUseCase(repository);
 		await expect(
 			useCase.exec({ id: 'actor', role: 'User' }, userId, 'Admin')
 		).rejects.toMatchObject({ status: 403 });
-		await expect(
-			useCase.exec({ id: 'actor', role: 'Admin' }, 'invalid', 'Admin')
-		).rejects.toMatchObject({ status: 400 });
-		await expect(
-			useCase.exec({ id: 'actor', role: 'Admin' }, userId, 'Owner')
-		).rejects.toMatchObject({ status: 400 });
 		expect(repository.changeRole).not.toHaveBeenCalled();
 	});
 	it('sends a valid role change', async () => {
@@ -174,12 +159,12 @@ describe('admin role and preview validation', () => {
 		);
 		expect(repository.changeRole).toHaveBeenCalledWith(userId, 'User');
 	});
-	it('rejects malformed preview requests and preserves sanitized content', async () => {
+	it('preserves sanitized content returned by the server', async () => {
 		const repository = fixture();
 		const useCase = new PreviewAdminLessonUseCase(repository);
-		await expect(useCase.exec({ content: 'invalid' })).rejects.toMatchObject({ status: 400 });
-		await expect(
-			useCase.exec({ content: { content: '<script>unsafe</script>', tips: '' } })
-		).resolves.toEqual({ content: '<p>safe</p>', tips: '' });
+		await expect(useCase.exec({ content: '<script>unsafe</script>', tips: '' })).resolves.toEqual({
+			content: '<p>safe</p>',
+			tips: ''
+		});
 	});
 });

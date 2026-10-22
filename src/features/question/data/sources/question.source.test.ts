@@ -91,8 +91,8 @@ describe('QuestionSource', () => {
 		const request = {
 			answers: [
 				{
-					question_id: 'question/1',
-					selected_option_id: 'option-1',
+					question_id: '11111111-1111-4111-8111-111111111111',
+					selected_option_id: '22222222-2222-4222-8222-222222222222',
 					stroke_input: null
 				}
 			]

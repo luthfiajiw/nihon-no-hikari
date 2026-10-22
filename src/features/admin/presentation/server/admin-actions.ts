@@ -6,7 +6,23 @@ import {
 	changeAdminUserRoleUseCase,
 	previewAdminLessonUseCase
 } from '$dependencies/admin.dependency';
-import { AdminError, type AdminContentAction } from '../../domain/entities/admin.entity';
+import {
+	AdminError,
+	type AdminContentAction,
+	type AdminContentRecord,
+	type AdminLessonContent,
+	type AdminReorderInput,
+	type AdminUserRole
+} from '../../domain/entities/admin.entity';
+
+function readFormPayload(value: FormDataEntryValue | null): unknown {
+	if (typeof value !== 'string') throw new AdminError(400, 'Form tidak lengkap.');
+	try {
+		return JSON.parse(value);
+	} catch {
+		throw new AdminError(400, 'Data form tidak valid.');
+	}
+}
 
 function actionFailure(cause: unknown) {
 	if (!(cause instanceof AdminError)) throw cause;
@@ -16,7 +32,11 @@ function actionFailure(cause: unknown) {
 export async function reorderAdminContent(event: RequestEvent) {
 	try {
 		const form = await event.request.formData();
-		await reorderAdminContentUseCase.exec(form.get('kind'), form.get('payload'));
+		const kind = form.get('kind');
+		if (kind !== 'module' && kind !== 'lesson')
+			throw new AdminError(400, 'Jenis konten urutan tidak valid.');
+		const input = readFormPayload(form.get('payload')) as AdminReorderInput;
+		await reorderAdminContentUseCase.exec(kind, input);
 		return { message: 'Urutan berhasil disimpan.' };
 	} catch (cause) {
 		return actionFailure(cause);
@@ -27,7 +47,10 @@ export async function manageAdminContent(event: RequestEvent, action: AdminConte
 	const id = event.params.id!;
 	let result;
 	try {
-		const payload = action === 'save' ? (await event.request.formData()).get('payload') : undefined;
+		const payload =
+			action === 'save'
+				? (readFormPayload((await event.request.formData()).get('payload')) as AdminContentRecord)
+				: undefined;
 		result = await manageAdminContentUseCase.exec(action, kind, id, payload);
 	} catch (cause) {
 		return actionFailure(cause);
@@ -47,7 +70,11 @@ export async function manageAdminContent(event: RequestEvent, action: AdminConte
 export async function changeAdminUserRole(event: RequestEvent) {
 	try {
 		const form = await event.request.formData();
-		await changeAdminUserRoleUseCase.exec(event.locals.user, form.get('userId'), form.get('role'));
+		await changeAdminUserRoleUseCase.exec(
+			event.locals.user,
+			String(form.get('userId') ?? ''),
+			form.get('role') as AdminUserRole
+		);
 		return { message: 'Role pengguna berhasil diperbarui.' };
 	} catch (cause) {
 		return actionFailure(cause);
@@ -61,7 +88,8 @@ export async function previewAdminLesson(event: RequestEvent) {
 		} catch {
 			throw new AdminError(400, 'Konten lesson tidak valid.');
 		}
-		const content = await previewAdminLessonUseCase.exec(payload);
+		const input = (payload as { content?: AdminLessonContent } | null)?.content;
+		const content = await previewAdminLessonUseCase.exec(input as AdminLessonContent);
 		return json({ data: content });
 	} catch (cause) {
 		if (!(cause instanceof AdminError)) throw cause;

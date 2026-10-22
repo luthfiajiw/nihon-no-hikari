@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { getApiBaseUrl, isApiRequest, proxyHeaders } from '$lib/server/api-proxy';
 import type { RequestHandler } from './$types';
+import { validateApiRequestBody } from '$lib/server/api-request-validation';
+import { RequestValidationError } from '$lib/server/validation';
 
 const proxy: RequestHandler = async ({ request, url, fetch }) => {
 	let target: URL;
@@ -17,11 +19,23 @@ const proxy: RequestHandler = async ({ request, url, fetch }) => {
 		return json({ error: 'API_BASE_URL belum dikonfigurasi atau tidak valid.' }, { status: 500 });
 	}
 
+	let body: ArrayBuffer | undefined;
+	try {
+		if (!['GET', 'HEAD'].includes(request.method)) {
+			body = await request.arrayBuffer();
+			body = validateApiRequestBody(request.method, url.pathname, body);
+		}
+	} catch (cause) {
+		if (cause instanceof RequestValidationError)
+			return json({ error: cause.message }, { status: cause.status });
+		throw cause;
+	}
+
 	try {
 		const response = await fetch(target, {
 			method: request.method,
 			headers: proxyHeaders(request.headers),
-			body: ['GET', 'HEAD'].includes(request.method) ? undefined : await request.arrayBuffer(),
+			body,
 			credentials: 'omit',
 			redirect: 'manual',
 			signal: request.signal
