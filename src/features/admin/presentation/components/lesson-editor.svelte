@@ -11,8 +11,9 @@
 		syntaxHighlighting
 	} from '@codemirror/language';
 	import { tags } from '@lezer/highlight';
-	import { CodeXml, Eye, Lightbulb, LoaderCircle, RefreshCw } from 'lucide-svelte';
+	import { CodeXml, Eye, Lightbulb, LoaderCircle, Maximize, RefreshCw, X } from 'lucide-svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -20,17 +21,32 @@
 	import type { AdminLessonContent } from '../../domain/entities/admin.entity';
 
 	let { value = $bindable({ content: '', tips: '' }) }: { value: AdminLessonContent } = $props();
+	let open = $state(false);
+	let desktop = $state(false);
 	let mode = $state('html');
 	let previewHTML = $state('');
 	let previewError = $state('');
-	let previewLoading = $state(false);
+	let previewLoading = $state(true);
 	let previewRevision = $state(0);
-	let editorHost: HTMLDivElement;
+	let maximizeButton = $state<HTMLButtonElement | null>(null);
 	let editor = $state.raw<EditorView>();
+	let savedEditorState: EditorView['state'] | undefined;
+	let savedScrollTop = 0;
+	let requestedPreview = false;
+	let requestedRevision = 0;
 
 	onMount(() => {
+		const query = window.matchMedia('(min-width: 768px)');
+		const update = () => (desktop = query.matches);
+		update();
+		query.addEventListener('change', update);
+		return () => query.removeEventListener('change', update);
+	});
+
+	function mountEditor(host: HTMLDivElement) {
 		const view = new EditorView({
-			parent: editorHost,
+			parent: host,
+			state: savedEditorState,
 			doc: value.content,
 			extensions: [
 				basicSetup,
@@ -57,14 +73,13 @@
 					if (update.docChanged) value.content = update.state.doc.toString();
 				}),
 				EditorView.theme({
-					'&': { color: '#0f172a', backgroundColor: '#fff' },
+					'&': { height: '100%', color: '#0f172a', backgroundColor: '#fff' },
 					'&.cm-focused': { outline: 'none' },
 					'.cm-scroller': {
 						fontFamily: 'var(--font-mono, monospace)',
 						fontSize: '14px',
 						lineHeight: '1.6',
-						minHeight: '18rem',
-						maxHeight: '32rem',
+						minHeight: '0',
 						overflow: 'auto'
 					},
 					'.cm-content': { padding: '16px 0' },
@@ -78,11 +93,25 @@
 			]
 		});
 		editor = view;
-		return () => {
-			editor = undefined;
-			view.destroy();
+		const frame = requestAnimationFrame(() => {
+			view.scrollDOM.scrollTop = savedScrollTop;
+			view.requestMeasure();
+		});
+		return {
+			destroy() {
+				cancelAnimationFrame(frame);
+				savedEditorState = view.state;
+				savedScrollTop = view.scrollDOM.scrollTop;
+				editor = undefined;
+				view.destroy();
+			}
 		};
-	});
+	}
+
+	function openEditor() {
+		mode = 'html';
+		open = true;
+	}
 
 	$effect(() => {
 		const view = editor;
@@ -94,13 +123,15 @@
 	});
 
 	$effect(() => {
-		if (mode === 'html') editor?.requestMeasure();
+		if (open && (desktop || mode === 'html')) editor?.requestMeasure();
 	});
 
 	$effect(() => {
-		if (mode !== 'preview') return;
 		const source = { content: value.content, tips: value.tips };
-		void previewRevision;
+		const revision = previewRevision;
+		const immediate = !requestedPreview || revision !== requestedRevision;
+		requestedPreview = true;
+		requestedRevision = revision;
 		let cancelled = false;
 		previewLoading = true;
 		previewError = '';
@@ -115,76 +146,154 @@
 				if (!cancelled) previewLoading = false;
 			}
 		}
-		void loadPreview();
+		const timer = setTimeout(() => void loadPreview(), immediate ? 0 : 300);
 		return () => {
 			cancelled = true;
+			clearTimeout(timer);
 		};
 	});
 </script>
 
+{#snippet preview(title: string)}
+	<div class="flex h-full min-h-0 min-w-0 flex-col gap-3" aria-busy={previewLoading}>
+		{#if previewError}
+			<div
+				class="flex flex-1 flex-col items-center justify-center gap-4 overflow-auto rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center"
+			>
+				<div role="alert" class="space-y-1">
+					<p class="font-medium text-destructive">Preview belum dapat ditampilkan</p>
+					<p class="text-sm text-muted-foreground">{previewError}</p>
+				</div>
+				<Button type="button" variant="outline" onclick={() => previewRevision++}>
+					<RefreshCw class="size-4" aria-hidden="true" />
+					Coba lagi
+				</Button>
+			</div>
+		{:else}
+			{#if previewLoading}
+				<div
+					class={[
+						'flex items-center gap-2 text-sm text-muted-foreground',
+						previewHTML ? 'shrink-0' : 'flex-1 justify-center'
+					]}
+					role="status"
+				>
+					<LoaderCircle class="size-4 motion-safe:animate-spin" aria-hidden="true" />
+					Menyiapkan preview…
+				</div>
+			{/if}
+			{#if previewHTML}
+				<iframe
+					{title}
+					sandbox=""
+					srcdoc={previewHTML}
+					class="min-h-0 w-full flex-1 rounded-lg border bg-white"
+				></iframe>
+			{/if}
+		{/if}
+	</div>
+{/snippet}
+
+{#snippet htmlPanel()}
+	<div class="flex h-full min-h-0 min-w-0 flex-col gap-3">
+		<p id="lesson-html-label" class="flex shrink-0 items-center gap-2 text-sm font-medium">
+			<CodeXml class="size-4" aria-hidden="true" />
+			Kode HTML
+		</p>
+		<div
+			use:mountEditor
+			class="min-h-0 w-full min-w-0 flex-1 overflow-hidden rounded-lg border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50"
+		></div>
+		<p id="lesson-html-help" class="shrink-0 text-xs leading-relaxed text-muted-foreground">
+			Tab / Shift+Tab untuk indentasi. Tekan Escape lalu Tab untuk keluar dari editor.
+		</p>
+	</div>
+{/snippet}
+
+{#snippet previewPanel()}
+	<div class="flex h-full min-h-0 min-w-0 flex-col gap-3">
+		<p class="flex shrink-0 items-center gap-2 text-sm font-medium">
+			<Eye class="size-4" aria-hidden="true" />
+			Preview
+		</p>
+		<div class="min-h-0 flex-1">{@render preview('Preview langsung konten lesson')}</div>
+	</div>
+{/snippet}
+
 <div class="min-w-0 space-y-4">
 	<Card.Root class="gap-0 p-0">
-		<Tabs.Root bind:value={mode} class="min-w-0 flex-col gap-0">
-			<div class="flex flex-wrap items-center justify-between gap-3 border-b p-3 sm:px-4">
-				<Tabs.List aria-label="Mode konten pembelajaran" class="h-10 w-full sm:w-auto">
-					<Tabs.Trigger value="html" class="gap-2 px-4">
-						<CodeXml class="size-4" aria-hidden="true" />
-						HTML
-					</Tabs.Trigger>
-					<Tabs.Trigger value="preview" class="gap-2 px-4">
-						<Eye class="size-4" aria-hidden="true" />
-						Preview
-					</Tabs.Trigger>
-				</Tabs.List>
-				<p class="text-xs text-muted-foreground">
-					{mode === 'html'
-						? 'Susun materi pembelajaran dengan HTML.'
-						: 'Periksa materi sebelum diterbitkan.'}
-				</p>
-			</div>
-			<Tabs.Content value="html" class="min-w-0 space-y-3 p-4">
-				<p id="lesson-html-label" class="text-sm font-medium">Kode HTML</p>
-				<div
-					bind:this={editorHost}
-					class="w-full min-w-0 overflow-hidden rounded-lg border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50"
-				></div>
-				<p id="lesson-html-help" class="text-xs leading-relaxed text-muted-foreground">
-					Tab / Shift+Tab untuk indentasi. Tekan Escape lalu Tab untuk keluar dari editor.
-				</p>
-			</Tabs.Content>
-			<Tabs.Content value="preview" class="min-w-0 p-4" aria-busy={previewLoading}>
-				{#if previewLoading}
-					<div
-						class="flex min-h-72 items-center justify-center gap-2 text-muted-foreground"
-						role="status"
-					>
-						<LoaderCircle class="size-4 motion-safe:animate-spin" aria-hidden="true" />
-						Menyiapkan preview…
-					</div>
-				{:else if previewError}
-					<div
-						class="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center"
-					>
-						<div role="alert" class="space-y-1">
-							<p class="font-medium text-destructive">Preview belum dapat ditampilkan</p>
-							<p class="text-sm text-muted-foreground">{previewError}</p>
-						</div>
-						<Button type="button" variant="outline" onclick={() => previewRevision++}>
-							<RefreshCw class="size-4" aria-hidden="true" />
-							Coba lagi
-						</Button>
-					</div>
-				{:else if mode === 'preview'}
-					<iframe
-						title="Preview konten lesson"
-						sandbox=""
-						srcdoc={previewHTML}
-						class="h-[32rem] w-full rounded-lg border bg-white"
-					></iframe>
-				{/if}
-			</Tabs.Content>
-		</Tabs.Root>
+		<div class="flex items-center justify-between gap-3 border-b p-3 sm:px-4">
+			<p class="flex items-center gap-2 text-sm font-medium">
+				<Eye class="size-4" aria-hidden="true" />
+				Preview
+			</p>
+			<Button
+				bind:ref={maximizeButton}
+				type="button"
+				variant="ghost"
+				size="icon"
+				aria-label="Buka editor konten pembelajaran"
+				aria-haspopup="dialog"
+				aria-expanded={open}
+				onclick={openEditor}
+			>
+				<Maximize class="size-4" aria-hidden="true" />
+			</Button>
+		</div>
+		<div class="h-[32rem] p-4">{@render preview('Preview konten lesson')}</div>
 	</Card.Root>
+	<Dialog.Root bind:open>
+		<Dialog.Content
+			class="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-0"
+			onCloseAutoFocus={(event) => {
+				event.preventDefault();
+				maximizeButton?.focus();
+			}}
+			onEscapeKeydown={(event) => {
+				// Let CodeMirror handle completion dismissal and Escape-then-Tab.
+				if (editor?.hasFocus) event.preventDefault();
+			}}
+		>
+			<div class="flex shrink-0 items-start justify-between gap-4 border-b p-4 md:px-6">
+				<Dialog.Header class="text-left">
+					<Dialog.Title>Editor Konten Pembelajaran</Dialog.Title>
+					<Dialog.Description>
+						Perubahan langsung diterapkan ke form. Gunakan Simpan Draft di halaman untuk menyimpan.
+					</Dialog.Description>
+				</Dialog.Header>
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon"
+					aria-label="Tutup editor konten pembelajaran"
+					onclick={() => (open = false)}
+				>
+					<X class="size-4" aria-hidden="true" />
+				</Button>
+			</div>
+			{#if desktop}
+				<div class="grid min-h-0 min-w-0 flex-1 grid-cols-2 gap-6 p-6">
+					{@render htmlPanel()}
+					{@render previewPanel()}
+				</div>
+			{:else}
+				<Tabs.Root bind:value={mode} class="min-h-0 min-w-0 flex-1 flex-col gap-4 p-4">
+					<Tabs.List aria-label="Mode konten pembelajaran" class="h-10 w-full shrink-0">
+						<Tabs.Trigger value="html" class="flex-1 gap-2">
+							<CodeXml class="size-4" aria-hidden="true" />HTML
+						</Tabs.Trigger>
+						<Tabs.Trigger value="preview" class="flex-1 gap-2">
+							<Eye class="size-4" aria-hidden="true" />Preview
+						</Tabs.Trigger>
+					</Tabs.List>
+					<Tabs.Content value="html" class="min-h-0 min-w-0">{@render htmlPanel()}</Tabs.Content>
+					<Tabs.Content value="preview" class="min-h-0 min-w-0">
+						{@render previewPanel()}
+					</Tabs.Content>
+				</Tabs.Root>
+			{/if}
+		</Dialog.Content>
+	</Dialog.Root>
 	<Card.Root size="sm" class="px-(--card-spacing)">
 		<div class="flex items-start gap-3">
 			<Lightbulb class="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />

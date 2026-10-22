@@ -8,7 +8,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { testCourseReorder } from './admin-course-reorder.mjs';
-import { lessonHTMLValue, testLessonEditor, waitForLessonHTML } from './admin-lesson-editor.mjs';
+import {
+	closeLessonEditor,
+	lessonHTMLValue,
+	openLessonEditor,
+	testLessonEditor,
+	waitForLessonHTML
+} from './admin-lesson-editor.mjs';
 import { createKanaTemplateFixture, testKanaTemplates } from './admin-kana-templates.mjs';
 
 const course = {
@@ -109,10 +115,16 @@ const api = createServer(async (request, response) => {
 		return;
 	}
 	if (request.method !== 'GET') {
-		if (mutationGate) await mutationGate;
 		let body = '';
 		for await (const chunk of request) body += chunk;
 		const payload = body ? JSON.parse(body) : null;
+		// Preview is read-only: it must not consume save failures or mutation gates.
+		if (url.pathname.endsWith('/lesson-content/preview')) {
+			response.writeHead(200, { 'Content-Type': 'application/json' });
+			response.end(JSON.stringify({ data: payload.content }));
+			return;
+		}
+		if (mutationGate) await mutationGate;
 		mutations.push({ path: url.pathname, method: request.method, payload });
 		if (failNextMutation) {
 			failNextMutation = false;
@@ -136,8 +148,7 @@ const api = createServer(async (request, response) => {
 				const draft = drafts.get(item.id);
 				if (draft?.[parentField] === payload.parent_id) draft.order_index = item.order_index;
 			}
-		} else if (url.pathname.endsWith('/lesson-content/preview')) result.data = payload.content;
-		else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
+		} else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
 		else if (url.pathname.endsWith('/publish')) {
 			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
 			drafts.delete(resource.id);
@@ -523,12 +534,13 @@ try {
 	// Existing lesson prerequisite is cleared when entry content is saved and published.
 	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
 	assert.equal(await page.title(), 'Edit Lesson | Admin - Nihongo no Hikari');
-	await page.getByRole('textbox', { name: 'Kode HTML', exact: true }).waitFor();
+	await openLessonEditor(page);
 	assert.equal(
 		await lessonHTMLValue(page),
 		lessons[1].content.content,
 		'Opening the editor preserves untouched source line endings'
 	);
+	await closeLessonEditor(page);
 	const lessonPicker = page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true });
 	await lessonPicker.filter({ hasText: 'Baris A' }).waitFor();
 	await lessonPicker.click();
@@ -555,20 +567,24 @@ try {
 		new URL('./fixtures/lesson-vocabulary.html', import.meta.url),
 		'utf8'
 	);
+	await openLessonEditor(page);
 	await page.getByLabel('Kode HTML', { exact: true }).fill(lessonHTML);
 	await waitForLessonHTML(page, lessonHTML);
-	await page.locator('.cm-editor').screenshot({ path: join(screenshotDir, 'lesson-html.png') });
 	await page
-		.locator('[data-slot="tabs"]')
-		.screenshot({ path: join(screenshotDir, 'lesson-tabs.png') });
+		.frameLocator('iframe[title="Preview langsung konten lesson"]')
+		.getByText('3. Contoh Kosakata', { exact: true })
+		.waitFor();
+	await page.getByLabel('Kode HTML', { exact: true }).press('Control+Home');
+	await page.locator('.cm-editor').screenshot({ path: join(screenshotDir, 'lesson-html.png') });
+	await page.getByRole('dialog').screenshot({ path: join(screenshotDir, 'lesson-dialog.png') });
+	await closeLessonEditor(page);
 	await page.getByLabel('Tips tambahan', { exact: true }).fill('Latih kosakata あか setiap hari.');
-	await page.getByRole('tab', { name: 'Preview', exact: true }).click();
 	await page
 		.frameLocator('iframe[title="Preview konten lesson"]')
 		.getByText('3. Contoh Kosakata', { exact: true })
 		.waitFor();
-	assert(mutations.some((request) => request.path.endsWith('/lesson-content/preview')));
-	await page.getByRole('tab', { name: 'HTML', exact: true }).click();
+	assert(backendRequests.some((request) => request.endsWith('/lesson-content/preview')));
+	await page.screenshot({ path: join(screenshotDir, 'lesson-preview.png'), fullPage: true });
 	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
 	await submitContentWithLoading('save');
@@ -583,7 +599,7 @@ try {
 	assert.equal(drafts.get(lessons[0].id).content.content, lessonHTML);
 	assert.equal(drafts.get(lessons[0].id).content.tips, 'Latih kosakata あか setiap hari.');
 	await page.reload({ waitUntil: 'networkidle' });
-	await page.getByRole('textbox', { name: 'Kode HTML', exact: true }).waitFor();
+	await page.locator('iframe[title="Preview konten lesson"]').waitFor();
 	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
 	await submitContentWithLoading('publish');
@@ -621,6 +637,7 @@ try {
 	);
 	await page.screenshot({ path: join(screenshotDir, 'courses-mobile.png'), fullPage: true });
 	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
+	await openLessonEditor(page);
 	const mobileEditor = page.getByRole('textbox', { name: 'Kode HTML', exact: true });
 	await mobileEditor.fill(`<p style="color: red">${'あいうえお'.repeat(100)}</p>`);
 	assert(
@@ -631,6 +648,18 @@ try {
 	await page
 		.locator('[data-slot="tabs"]')
 		.screenshot({ path: join(screenshotDir, 'lesson-tabs-mobile.png') });
+	await page
+		.getByRole('dialog')
+		.screenshot({ path: join(screenshotDir, 'lesson-dialog-mobile.png') });
+	await page.getByRole('tab', { name: 'Preview', exact: true }).click();
+	await page
+		.frameLocator('iframe[title="Preview langsung konten lesson"]')
+		.getByText('あいうえお'.repeat(100), { exact: true })
+		.waitFor();
+	await page
+		.getByRole('dialog')
+		.screenshot({ path: join(screenshotDir, 'lesson-dialog-mobile-preview.png') });
+	await closeLessonEditor(page);
 	assert.equal(await lessonPicker.count(), 0, 'Entry lesson hides picker on mobile too');
 	await page.getByRole('checkbox', { name: 'Lesson awal (is_entry)', exact: true }).uncheck();
 	await page.getByRole('combobox', { name: 'Prasyarat lesson', exact: true }).click();

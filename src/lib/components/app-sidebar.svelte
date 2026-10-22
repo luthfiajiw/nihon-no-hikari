@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import type { ComponentProps } from 'svelte';
 	import { resolve } from '$app/paths';
 	import type { Pathname } from '$app/types';
@@ -10,7 +11,6 @@
 	import logo from '$lib/assets/images/nnh-logo.png';
 	import bgSidebar from '$lib/assets/images/bg-sidebar.png';
 	import kanjiIcon from '$lib/assets/icons/kanji.svg';
-	import kanjiActiveIcon from '$lib/assets/icons/kanji-active.svg';
 	import {
 		House,
 		BookOpen,
@@ -98,6 +98,20 @@
 	];
 	const isAdmin = $derived((page.data.user as AuthUser | undefined)?.role === 'Admin');
 
+	function menuButtonClass(active: boolean, compact = false): string {
+		return cn(
+			'border-2 border-transparent',
+			!active &&
+				!compact &&
+				'rounded-xl text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800',
+			active && buttonVariants({ variant: 'default' }),
+			'justify-start group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!',
+			compact ? 'h-8 px-1.5 py-1.5' : 'h-10 px-2.5',
+			active &&
+				'hover:text-primary-foreground active:bg-primary active:text-primary-foreground data-active:bg-primary data-active:font-semibold data-active:text-primary-foreground data-active:hover:bg-[color-mix(in_oklch,var(--color-primary),var(--color-primary-foreground)_10%)]'
+		);
+	}
+
 	function isItemActive(url: string): boolean {
 		const currentPath = page.url.pathname;
 		if (mode === 'admin') {
@@ -119,7 +133,7 @@
 
 <Sidebar.Root bind:ref {collapsible} class={cn('', className)} {...restProps}>
 	<Sidebar.Header
-		class="bg-sidebar flex flex-row items-center gap-3 p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
+		class="flex flex-row items-center gap-3 bg-sidebar p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
 	>
 		<img src={logo} alt="NihongoPro Logo" class="h-6 w-6 shrink-0 object-contain" />
 		<div class="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
@@ -135,7 +149,7 @@
 	</Sidebar.Header>
 
 	<Sidebar.Content
-		class="bg-sidebar flex h-full flex-col px-3 pt-2 group-data-[collapsible=icon]:px-2"
+		class="flex h-full flex-col bg-sidebar px-3 pt-2 group-data-[collapsible=icon]:px-2"
 	>
 		<Sidebar.Group class="p-0">
 			<Sidebar.Menu class="space-y-2">
@@ -145,7 +159,8 @@
 						<Sidebar.MenuButton
 							isActive={active}
 							tooltipContent={item.name}
-							class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-sky-50 data-[active=true]:font-semibold data-[active=true]:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-sky-950/60 dark:data-[active=true]:text-sky-400 [&_svg]:size-4 [&_svg]:shrink-0"
+							aria-label={item.name}
+							class={cn(menuButtonClass(active), '[&_svg]:size-4 [&_svg]:shrink-0')}
 						>
 							{#snippet child({ props })}
 								<button
@@ -154,18 +169,24 @@
 									onclick={() => goto(resolve(item.url as Pathname))}
 								>
 									{#if item.url === '/kanji'}
-										<img
-											src={active ? kanjiActiveIcon : kanjiIcon}
-											alt="Kanji"
-											class={cn('mr-1 size-4 shrink-0 transition-all')}
-										/>
+										{#if active}
+											<span
+												aria-hidden="true"
+												class="mr-1 size-4 shrink-0 bg-current mask-contain mask-center mask-no-repeat group-data-[collapsible=icon]:mr-0"
+												style:mask-image={`url(${JSON.stringify(kanjiIcon)})`}
+											></span>
+										{:else}
+											<img
+												src={kanjiIcon}
+												alt=""
+												class="mr-1 size-4 shrink-0 group-data-[collapsible=icon]:mr-0"
+											/>
+										{/if}
 									{:else}
 										<item.icon
 											class={cn(
-												'mr-1 size-4 shrink-0 transition-colors',
-												active
-													? 'text-sky-600 dark:text-sky-400'
-													: 'text-slate-600 dark:text-slate-400'
+												'mr-1 size-4 shrink-0 transition-colors group-data-[collapsible=icon]:mr-0',
+												!active && 'text-slate-600 dark:text-slate-400'
 											)}
 										/>
 									{/if}
@@ -181,10 +202,15 @@
 			<Sidebar.Group class="p-0 pt-2">
 				<Sidebar.Menu>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isItemActive('/admin')} tooltipContent="Panel Admin">
+						<Sidebar.MenuButton
+							isActive={isItemActive('/admin')}
+							tooltipContent="Panel Admin"
+							aria-label="Panel Admin"
+							class={menuButtonClass(isItemActive('/admin'), true)}
+						>
 							{#snippet child({ props })}
 								<button type="button" {...props} onclick={() => goto(resolve('/admin'))}>
-									<Users class="mr-1 size-4" />
+									<Users class="mr-1 size-4 group-data-[collapsible=icon]:mr-0" />
 									<span class="group-data-[collapsible=icon]:hidden">Panel Admin</span>
 								</button>
 							{/snippet}
@@ -216,7 +242,8 @@
 								<Sidebar.MenuButton
 									isActive={active}
 									tooltipContent={item.name}
-									class="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0! hover:bg-slate-100/80 hover:text-slate-900 data-[active=true]:bg-sky-50 data-[active=true]:font-semibold data-[active=true]:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:data-[active=true]:bg-sky-950/60 dark:data-[active=true]:text-sky-400 [&_svg]:size-5 [&_svg]:shrink-0"
+									aria-label={item.name}
+									class={cn(menuButtonClass(active), '[&_svg]:size-5 [&_svg]:shrink-0')}
 								>
 									{#snippet child({ props })}
 										<button
@@ -226,10 +253,8 @@
 										>
 											<item.icon
 												class={cn(
-													'mr-1 size-5 shrink-0 transition-colors',
-													active
-														? 'text-sky-600 dark:text-sky-400'
-														: 'text-slate-600 dark:text-slate-400'
+													'mr-1 size-5 shrink-0 transition-colors group-data-[collapsible=icon]:mr-0',
+													!active && 'text-slate-600 dark:text-slate-400'
 												)}
 											/>
 											<span class="group-data-[collapsible=icon]:hidden">{item.name}</span>
