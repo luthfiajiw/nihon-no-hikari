@@ -19,7 +19,7 @@
 	let current = $state<StrokePoint[]>([]);
 	let pointerId = $state<number | null>(null);
 	let feedback = $state('');
-	const colors = ['#60a5fa', '#fb923c', '#34d399', '#c084fc'];
+	const writingColor = '#0284c7';
 	let complete = $derived(showGuide && value.length === guide.strokes.length);
 
 	function pointFromEvent(event: PointerEvent): StrokePoint {
@@ -129,7 +129,7 @@
 						orient="auto"
 						markerUnits="userSpaceOnUse"
 					>
-						<path d="M0,0 L4,2 L0,4 Z" fill="#0369a1" />
+						<path d="M0,0 L4,2 L0,4 Z" fill="#6b7280" />
 					</marker>
 				</defs>
 				<line
@@ -137,7 +137,7 @@
 					x2="54.5"
 					y1="0"
 					y2="109"
-					stroke="#cbd5e1"
+					stroke="#d1d5db"
 					stroke-dasharray="2 2"
 					stroke-width=".3"
 				/>
@@ -146,7 +146,7 @@
 					x2="109"
 					y1="54.5"
 					y2="54.5"
-					stroke="#cbd5e1"
+					stroke="#d1d5db"
 					stroke-dasharray="2 2"
 					stroke-width=".3"
 				/>
@@ -154,7 +154,7 @@
 					<path
 						d={stroke.path}
 						fill="none"
-						stroke={colors[index % colors.length]}
+						stroke="#9ca3af"
 						stroke-width="4"
 						stroke-linecap="round"
 						stroke-linejoin="round"
@@ -164,13 +164,13 @@
 						cx={stroke.points[0].x}
 						cy={stroke.points[0].y}
 						r="3"
-						fill={colors[index % colors.length]}
+						fill="#6b7280"
 						opacity={index === value.length ? 0.9 : 0.5}
 					/>
 					<text
 						x={stroke.points[0].x - 7}
 						y={stroke.points[0].y - 3}
-						fill={colors[index % colors.length]}
+						fill="#6b7280"
 						font-size="7"
 						font-weight="bold"
 					>
@@ -182,7 +182,7 @@
 							y1={stroke.points[25].y}
 							x2={stroke.points[28].x}
 							y2={stroke.points[28].y}
-							stroke="#0369a1"
+							stroke="#6b7280"
 							stroke-width="1"
 							marker-end="url(#writing-stroke-arrow)"
 						/>
@@ -193,7 +193,7 @@
 				<polyline
 					points={line(points)}
 					fill="none"
-					stroke={colors[index % colors.length]}
+					stroke={writingColor}
 					stroke-width="3"
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -203,7 +203,7 @@
 				<polyline
 					points={line(current)}
 					fill="none"
-					stroke="#0369a1"
+					stroke={writingColor}
 					stroke-width="2.5"
 					stroke-linecap="round"
 					stroke-linejoin="round"

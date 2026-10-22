@@ -31,14 +31,14 @@
 				markerHeight="5"
 				orient="auto-start-reverse"
 			>
-				<path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+				<path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280" />
 			</marker>
 		</defs>
 		{#each guide.strokes as stroke, index (index)}
 			<path
 				d={stroke.path}
 				fill="none"
-				stroke="#334155"
+				stroke="#9ca3af"
 				stroke-width="2.5"
 				stroke-linecap="round"
 			/>
@@ -47,7 +47,7 @@
 				y1={stroke.points[0].y}
 				x2={stroke.points[3].x}
 				y2={stroke.points[3].y}
-				stroke="#2563eb"
+				stroke="#6b7280"
 				stroke-width="1.2"
 				marker-end={`url(#${markerId})`}
 			/>
@@ -55,7 +55,7 @@
 				x={Math.max(4, stroke.points[0].x - 5)}
 				y={Math.max(8, stroke.points[0].y - 5)}
 				font-size="7"
-				fill="#2563eb"
+				fill="#6b7280"
 			>
 				{index + 1}
 			</text>
