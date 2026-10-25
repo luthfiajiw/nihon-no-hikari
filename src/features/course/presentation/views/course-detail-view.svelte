@@ -73,12 +73,9 @@
 </svelte:head>
 
 <div class="space-y-6 p-4 pb-6 sm:p-6 sm:pb-8">
-	<div class="flex items-center gap-4">
-		<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
-			<ArrowLeftIcon />
-		</Button>
-		<p class="text-base font-semibold">Detail Kursus</p>
-	</div>
+	<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
+		<ArrowLeftIcon />
+	</Button>
 
 	{#if errorMessage || !course}
 		<Card.Root>

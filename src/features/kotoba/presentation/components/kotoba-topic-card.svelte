@@ -43,7 +43,7 @@
 				{topic.exerciseCount} Latihan
 			</span>
 		</div>
-		<Button class="ml-auto" aria-label={`Lihat topik ${topic.title}`}>
+		<Button href={`/kotoba/${topic.id}`} class="ml-auto" aria-label={`Lihat topik ${topic.title}`}>
 			Lihat Topik
 			<ArrowRightIcon class="size-4" aria-hidden="true" />
 		</Button>
