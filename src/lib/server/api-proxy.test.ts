@@ -22,6 +22,24 @@ describe('API proxy', () => {
 		env.API_BASE_URL = 'https://api.example.test/api/';
 	});
 
+	it('forwards bodyless speech-token requests and preserves no-store', async () => {
+		const fetch = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValue(
+				Response.json(
+					{ success: true, data: { token: 'temporary' } },
+					{ headers: { 'Cache-Control': 'no-store' } }
+				)
+			);
+		const response = await invoke('POST', fetch, {}, '/api/v1/lessons/lesson/speech-token');
+		expect(String(fetch.mock.calls[0][0])).toBe(
+			'https://api.example.test/api/v1/lessons/lesson/speech-token'
+		);
+		expect((fetch.mock.calls[0][1]?.body as ArrayBuffer).byteLength).toBe(0);
+		expect(response.headers.get('Cache-Control')).toBe('no-store');
+		expect(await response.json()).toMatchObject({ data: { token: 'temporary' } });
+	});
+
 	it('preserves encoded paths and queries while stripping untrusted credentials', async () => {
 		const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json({ data: [] }));
 		await invoke(

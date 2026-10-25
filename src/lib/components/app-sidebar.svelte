@@ -53,13 +53,8 @@
 			icon: BookOpen
 		},
 		{
-			name: 'Latihan',
-			url: '/practice',
-			icon: Zap
-		},
-		{
-			name: 'Kosakata',
-			url: '/kosakata',
+			name: 'Kotoba',
+			url: '/kotoba',
 			icon: Languages
 		},
 		{
@@ -68,9 +63,9 @@
 			icon: BookText
 		},
 		{
-			name: 'Kanji',
-			url: '/kanji',
-			icon: Languages
+			name: 'Latihan',
+			url: '/practice',
+			icon: Zap
 		},
 		{
 			name: 'Ujian & Evaluasi',
@@ -168,7 +163,7 @@
 									{...props}
 									onclick={() => goto(resolve(item.url as Pathname))}
 								>
-									{#if item.url === '/kanji'}
+									{#if item.url === '/kotoba'}
 										{#if active}
 											<span
 												aria-hidden="true"

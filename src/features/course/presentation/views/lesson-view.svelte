@@ -327,6 +327,7 @@
 				</div>
 			{:else}
 				<LessonContent
+					lessonId={activeLessonId}
 					title={lessonDetail?.title ?? activeLesson?.title ?? 'Materi'}
 					content={lessonDetail?.content ?? ''}
 					questionSets={lessonDetail?.question_sets ?? []}

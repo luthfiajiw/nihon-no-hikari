@@ -19,8 +19,11 @@
 		QuestionSkill
 	} from '$features/question/domain/entities/question.entity';
 	import { resolveLessonAudioUrl } from '$lib/lesson-audio';
+	import { claimLessonMedia } from '$lib/lesson-media';
+	import LessonReader from './lesson-reader.svelte';
 
 	interface Props {
+		lessonId?: string;
 		title?: string;
 		content?: string;
 		questionSets?: QuestionSet[];
@@ -44,6 +47,7 @@
 	}
 
 	let {
+		lessonId = '',
 		title = 'Pengenalan Huruf Hiragana',
 		content = '',
 		questionSets = [],
@@ -102,6 +106,8 @@
 	let activeAudio: HTMLAudioElement | null = null;
 	let activeAudioButton: HTMLButtonElement | null = null;
 	let renderedContent = '';
+	let renderedLessonId = '';
+	let releaseAudio: (() => void) | undefined;
 
 	function resetActiveAudio(expectedAudio?: HTMLAudioElement): void {
 		if (expectedAudio && activeAudio !== expectedAudio) return;
@@ -115,6 +121,8 @@
 		activeAudioButton?.setAttribute('aria-pressed', 'false');
 		activeAudio = null;
 		activeAudioButton = null;
+		releaseAudio?.();
+		releaseAudio = undefined;
 	}
 
 	async function handleContentClick(event: MouseEvent): Promise<void> {
@@ -142,6 +150,7 @@
 		}
 
 		resetActiveAudio();
+		releaseAudio = claimLessonMedia(resetActiveAudio);
 
 		const audio = new Audio(audioUrl);
 		activeAudio = audio;
@@ -170,8 +179,9 @@
 
 	$effect(() => {
 		// Hentikan audio lama saat pengguna berpindah ke lesson lain.
-		if (renderedContent === sanitizedContent) return;
+		if (renderedContent === sanitizedContent && renderedLessonId === lessonId) return;
 		renderedContent = sanitizedContent;
+		renderedLessonId = lessonId;
 		resetActiveAudio();
 	});
 
@@ -186,8 +196,7 @@
 			</h1>
 
 			<div class="space-y-4 text-sm leading-relaxed text-foreground sm:text-base" use:lessonAudio>
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				{@html sanitizedContent}
+				<LessonReader {lessonId} content={sanitizedContent} />
 
 				{#if parsedContent.tips}
 					<blockquote

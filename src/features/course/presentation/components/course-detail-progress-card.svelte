@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { ArcChart } from 'layerchart';
 	import { TrendingUpIcon } from 'lucide-svelte';
 	import type { CourseDetail } from '../../domain/entities/course.entity';
 
@@ -19,8 +18,6 @@
 		progressPercentage,
 		class: className = ''
 	}: Props = $props();
-
-	const arcChartData = $derived([{ key: 'completed', value: progressPercentage }]);
 </script>
 
 <Card.Root class={`flex w-full flex-col justify-between ${className}`}>
@@ -32,14 +29,35 @@
 	</Card.Header>
 	<Card.Content class="flex flex-1 flex-col justify-center space-y-2">
 		<div class="flex flex-wrap items-center justify-center gap-4 py-2">
-			<div class="relative flex size-32 shrink-0 items-center justify-center">
-				<ArcChart
-					data={arcChartData}
-					maxValue={100}
-					innerRadius={-18}
-					cornerRadius={4}
-					cRange={['#0284c7']}
-				/>
+			<div
+				class="relative flex size-32 shrink-0 items-center justify-center"
+				role="progressbar"
+				aria-label="Progres kursus"
+				aria-valuemin={0}
+				aria-valuemax={100}
+				aria-valuenow={progressPercentage}
+			>
+				<svg class="size-full -rotate-90 text-sky-600" viewBox="0 0 128 128" aria-hidden="true">
+					<circle
+						cx="64"
+						cy="64"
+						r="55"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="18"
+						opacity="0.1"
+					/>
+					<circle
+						cx="64"
+						cy="64"
+						r="55"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="18"
+						pathLength="100"
+						stroke-dasharray={`${progressPercentage} 100`}
+					/>
+				</svg>
 				<span class="absolute text-lg font-extrabold text-slate-900 dark:text-slate-100">
 					{progressPercentage}%
 				</span>

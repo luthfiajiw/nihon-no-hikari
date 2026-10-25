@@ -51,3 +51,11 @@ Source menerima fungsi bertipe native `fetch` dan mengakses endpoint lokal `/api
 Proxy meneruskan request ke backend. `handleFetch` memasukkan bearer dari cookie session HttpOnly dan menangani refresh serta satu retry 401. Endpoint auth publik dikecualikan dari bearer dan retry. Signin/signout tetap memakai endpoint lokal khusus untuk mengelola cookie; form actions admin tetap dipertahankan.
 
 Unit test server: `npm run test:unit -- --run --project server`. Smoke test browser: `npm run test:api-proxy` dan `npm run test:admin`; keduanya memakai API fixture tanpa database aplikasi. Setelah build, set `API_PROXY_PREVIEW=1` atau `ADMIN_SMOKE_PREVIEW=1` untuk menguji build produksi. Jika Chromium Playwright belum tersedia, set `API_PROXY_CHANNEL=msedge` dan `ADMIN_SMOKE_CHANNEL=msedge` untuk memakai Edge yang terpasang.
+
+## Pembacaan lesson dengan Azure Speech
+
+Konfigurasikan `AZURE_SPEECH_KEY` dan `AZURE_SPEECH_REGION` pada server API. Frontend mendapatkan token sementara melalui proxy autentikasi `/api/v1/lessons/{lessonId}/speech-token`; API key tidak boleh masuk ke variabel `PUBLIC_*` atau `VITE_*`. Tanpa konfigurasi Azure, konten lesson tetap dapat digunakan dan tombol baca menampilkan pesan bahwa layanan belum tersedia.
+
+Ikon baca otomatis tersedia untuk tag `<p>` dan heading `<h1>` sampai `<h6>` yang berisi teks terlihat, termasuk teks dengan markup inline seperti `<strong>` atau `<span>`. Ikon mengambang di sebelah kiri teks, muncul pada hover/fokus, dan selalu terlihat pada perangkat sentuh. Klik kembali untuk berhenti. Narasi Latin memakai suara Indonesia, kana/kanji memakai suara Jepang. Highlight mengikuti timing Azure dan waktu playback; HTML tersimpan tidak diubah. Audio dibuat saat dibutuhkan dan di-cache di memori lesson hingga 20 MiB, sehingga pembacaan pertama memerlukan koneksi internet dan pengulangan menggunakan cache selama tersedia.
+
+Tes speech memakai mock tanpa kuota Azure: `npm run test:unit -- --run --project server` dan `npm run test:unit -- --run --project client src/lib/lesson-speech`. Set `VITEST_BROWSER_CHANNEL=msedge` untuk menjalankan tes komponen/browser menggunakan Edge yang terpasang. Verifikasi pengucapan serta timing pada perangkat desktop dan ponsel setelah kredensial Azure dikonfigurasi.

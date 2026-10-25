@@ -6,6 +6,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	envPrefix: ['VITE_'],
+	optimizeDeps: { include: ['microsoft-cognitiveservices-speech-sdk'] },
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
@@ -25,7 +26,9 @@ export default defineConfig({
 					name: 'client',
 					browser: {
 						enabled: true,
-						provider: playwright(),
+						provider: playwright({
+							launchOptions: { channel: process.env.VITEST_BROWSER_CHANNEL || undefined }
+						}),
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],

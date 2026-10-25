@@ -81,6 +81,7 @@
 		"codemirror": "^6.0.2",
 		"isomorphic-dompurify": "^3.19.0",
 		"lucide-svelte": "^1.0.1",
+		"microsoft-cognitiveservices-speech-sdk": "^1.53.0",
 		"tailwind-merge": "^3.7.0",
 		"tailwind-variants": "^3.3.1",
 		"zod": "^4.6.5"
