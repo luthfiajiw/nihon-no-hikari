@@ -33,10 +33,10 @@
 
 <Card.Root class="h-full gap-0 bg-transparent py-4" aria-labelledby={`word-${vocabulary.id}`}>
 	<Card.Content
-		class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-3 gap-y-4 px-4 sm:grid-cols-[2rem_minmax(0,1fr)] sm:gap-x-4 sm:px-5"
+		class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2 gap-y-4 px-3 sm:grid-cols-[2rem_minmax(0,1fr)] sm:gap-x-3 sm:px-4"
 	>
 		<span
-			class="flex size-7 items-center justify-center rounded-full bg-sky-50 text-xs font-semibold text-slate-700 sm:size-8 dark:bg-sky-950/60 dark:text-sky-200"
+			class="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
 			aria-label={`Kosakata ${number}`}
 		>
 			{number}
@@ -96,7 +96,7 @@
 					</Button>
 				</div>
 			</div>
-			<div class="rounded-xl bg-sky-50/80 px-3.5 py-2.5 dark:bg-sky-950/30">
+			<div class="rounded-xl bg-primary/5 px-3.5 py-2.5">
 				<p class="text-sm leading-relaxed sm:text-base" lang="ja">{vocabulary.example.japanese}</p>
 				<p class="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
 					{vocabulary.example.indonesian}

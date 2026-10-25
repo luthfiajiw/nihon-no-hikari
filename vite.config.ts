@@ -6,7 +6,21 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	envPrefix: ['VITE_'],
-	optimizeDeps: { include: ['microsoft-cognitiveservices-speech-sdk'] },
+	cacheDir: process.env.ADMIN_SMOKE_CACHE_DIR,
+	optimizeDeps: {
+		// Keep the shared UI/runtime graph stable when entering a new admin route.
+		include: [
+			'microsoft-cognitiveservices-speech-sdk',
+			'bits-ui',
+			'@tanstack/svelte-form',
+			'lucide-svelte',
+			'svelte-dnd-action',
+			'tailwind-merge',
+			'tailwind-variants'
+		],
+		// Compile icon subpaths on demand without rebuilding the shared Svelte bundle.
+		exclude: ['@lucide/svelte']
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit(),

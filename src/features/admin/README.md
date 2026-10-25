@@ -32,6 +32,19 @@ includes template management and selection in writing questions.
 
 Run `npm run check`, `npm run test:unit -- --run --project server` and `npm run test:admin` to verify. The browser test uses an isolated API fixture.
 
+**Kotoba** lives at `/admin/kotoba` and `/admin/kotoba/[id]` (`new` creates a topic).
+It is a frontend simulation: a layout-scoped Svelte context owns topic copies and
+selected Files. Client navigation between list and editor retains simulated saves;
+refreshing or leaving this subtree resets them. It never writes to the API or changes
+student fixtures. Only Sekolah has seeded vocabulary (12 words); other topics start
+empty and counts derive from actual words. Editors clone records so Cancel discards
+changes. Cover uploads accept PNG/JPEG up to 2 MiB and audio accepts MP3 up to 1 MiB.
+Unreadable replacements retain the previous valid media. Bundled seed covers are
+existing assets, not subject to upload limits. Object URLs
+are owned by preview components and released on replacement/unmount. Word order uses
+the existing keyboard/drag pattern; furigana segments remain editable. The browser
+smoke test covers simulated CRUD, uploads/audio, ordering, reset, and mobile layouts.
+
 Course detail lists use `svelte-dnd-action` drag handles with 220ms FLIP animations and reduced-motion support. Space/Enter picks up or drops an item, arrows preview the new order, and Escape cancels. Drops autosave through the page's `?/reorder` action and the dedicated admin reorder endpoint; keyboard arrow movements do not save until the item is dropped. Each module's lessons use a separate zone type to keep them within their original module. Failed saves restore the list and refresh the catalog; all handles are disabled while saving. Reorder changes live order directly and preserves unpublished material edits.
 
 Set `ADMIN_SMOKE_CHANNEL=msedge` to use an installed Edge browser instead of Playwright's Chromium. After `npm run build`, set `ADMIN_SMOKE_PREVIEW=1` to test the production preview without development dependency optimization.

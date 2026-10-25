@@ -63,6 +63,8 @@ export async function testCourseReorder({
 			capturedPreview = true;
 		}
 		await page.mouse.up();
+		// Wait for drop cleanup before starting the next pointer or keyboard gesture.
+		await page.locator('#dnd-action-dragged-el').waitFor({ state: 'hidden' });
 	};
 	const firstModule = page.locator(`[data-module-id="${modules[0].id}"]`);
 	await firstModule.locator('summary').click({ position: { x: 110, y: 25 } });

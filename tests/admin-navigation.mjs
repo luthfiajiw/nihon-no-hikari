@@ -16,6 +16,7 @@ import {
 	waitForLessonHTML
 } from './admin-lesson-editor.mjs';
 import { createKanaTemplateFixture, testKanaTemplates } from './admin-kana-templates.mjs';
+import { testKotoba } from './admin-kotoba.mjs';
 
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
@@ -212,7 +213,12 @@ const vite = spawn(
 	{
 		cwd: process.cwd(),
 		windowsHide: true,
-		env: { ...process.env, AUTH_SECRET: secret, API_BASE_URL: `http://127.0.0.1:${apiPort}/api` },
+		env: {
+			...process.env,
+			AUTH_SECRET: secret,
+			API_BASE_URL: `http://127.0.0.1:${apiPort}/api`,
+			ADMIN_SMOKE_CACHE_DIR: join(tmpdir(), `nnh-admin-vite-${port}`)
+		},
 		stdio: ['ignore', 'pipe', 'pipe']
 	}
 );
@@ -274,14 +280,16 @@ async function submitContentWithLoading(action) {
 }
 try {
 	let ready = false;
-	const startupDeadline = Date.now() + 120000;
+	const startupDeadline = Date.now() + 180000;
 	while (Date.now() < startupDeadline) {
 		if (vite.exitCode !== null) throw new Error(`Vite exited: ${serverLog}`);
 		try {
-			await fetch(`${origin}/signin`, { signal: AbortSignal.timeout(5000) });
+			await fetch(`${origin}/signin`, { signal: AbortSignal.timeout(30000) });
 			ready = true;
 			break;
-		} catch {
+		} catch (error) {
+			if (process.env.ADMIN_SMOKE_DEBUG)
+				console.error('Startup:', error.message, error.cause?.code);
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		}
 	}
@@ -331,7 +339,20 @@ try {
 		)
 			transportViolations.push('Browser supplied bearer');
 	});
-	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle', timeout: 120000 });
+	const initialResponse = await page.goto(`${origin}/admin/courses`, {
+		waitUntil: 'networkidle',
+		timeout: 120000
+	});
+	assert.equal(
+		initialResponse.status(),
+		200,
+		`Admin list must load; upstream requests: ${backendRequests.join(', ')}`
+	);
+	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	await mkdir(screenshotDir, { recursive: true });
+	await testKotoba({ page, origin, navigate: clickAdminNavigation, screenshotDir, mutations });
+	assert.deepEqual(errors, [], 'Kotoba must not produce browser errors');
+	await clickAdminNavigation('Kursus & Materi');
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Kursus & Materi | Admin - Nihongo no Hikari');
 	assert.equal(
@@ -689,7 +710,7 @@ try {
 		'Admin transport must use the proxy and server credentials'
 	);
 	console.log(
-		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML editor and lesson preview, prerequisite workflows, dashboard, mobile spacing, kana template filters/upload/preview/canvas/create/edit, upload retention and writing template selection. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML editor and lesson preview, prerequisite workflows, dashboard, mobile spacing, Kotoba simulated CRUD/ordering/furigana/media/audio/reset, kana template filters/upload/preview/canvas/create/edit, upload retention and writing template selection. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);
