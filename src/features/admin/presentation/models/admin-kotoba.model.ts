@@ -2,15 +2,20 @@ import type { KotobaTopic } from '$features/kotoba/data/kotoba-topics';
 import type { KotobaVocabulary } from '$features/kotoba/data/kotoba-topic-detail';
 
 export interface KotobaMedia {
+	mediaId?: string;
+	expiresAt?: string;
 	url: string;
 	file: File | null;
 }
 
 export interface AdminKotobaVocabulary extends KotobaVocabulary {
+	serverId?: string;
 	audio: KotobaMedia | null;
 }
 
 export interface AdminKotobaTopic extends Omit<KotobaTopic, 'vocabularyCount'> {
+	version?: number;
+	vocabularyCount?: number;
 	order: number;
 	active: boolean;
 	visible: boolean;

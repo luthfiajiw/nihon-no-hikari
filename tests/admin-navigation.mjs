@@ -16,7 +16,7 @@ import {
 	waitForLessonHTML
 } from './admin-lesson-editor.mjs';
 import { createKanaTemplateFixture, testKanaTemplates } from './admin-kana-templates.mjs';
-import { testKotoba } from './admin-kotoba.mjs';
+import { testKotoba, createKotobaFixture } from './admin-kotoba.mjs';
 
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
@@ -104,13 +104,22 @@ const drafts = new Map();
 let mutationGate = null;
 let failNextMutation = false;
 const kanaFixture = createKanaTemplateFixture();
+const kotobaFixture = createKotobaFixture(mutations);
 const api = createServer(async (request, response) => {
+	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
+	if (url.pathname.startsWith('/storage/')) {
+		await kotobaFixture.handle(request, response, url);
+		return;
+	}
 	if (request.headers.authorization !== 'Bearer fixture')
 		transportViolations.push('Missing admin bearer');
 	if (request.headers.cookie) transportViolations.push('App cookie reached upstream');
-	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	backendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
+	if (/^\/api\/v1\/(admin\/)?kotoba\//.test(url.pathname)) {
+		await kotobaFixture.handle(request, response, url);
+		return;
+	}
 	if (url.pathname.startsWith('/api/v1/admin/templates')) {
 		await kanaFixture.handle(request, response, url);
 		return;
@@ -331,7 +340,8 @@ try {
 	page.on('pageerror', (error) => errors.push(error.message));
 	page.on('request', (request) => {
 		const url = new URL(request.url());
-		if (url.port === String(apiPort)) transportViolations.push('Browser bypassed proxy');
+		if (url.port === String(apiPort) && url.pathname.startsWith('/api/'))
+			transportViolations.push('Browser bypassed proxy');
 		if (
 			url.origin === origin &&
 			url.pathname.startsWith('/api/') &&
@@ -350,7 +360,13 @@ try {
 	);
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
 	await mkdir(screenshotDir, { recursive: true });
-	await testKotoba({ page, origin, navigate: clickAdminNavigation, screenshotDir, mutations });
+	await testKotoba({
+		page,
+		origin,
+		navigate: clickAdminNavigation,
+		screenshotDir,
+		fixture: kotobaFixture
+	});
 	assert.deepEqual(errors, [], 'Kotoba must not produce browser errors');
 	await clickAdminNavigation('Kursus & Materi');
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
@@ -710,7 +726,7 @@ try {
 		'Admin transport must use the proxy and server credentials'
 	);
 	console.log(
-		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML editor and lesson preview, prerequisite workflows, dashboard, mobile spacing, Kotoba simulated CRUD/ordering/furigana/media/audio/reset, kana template filters/upload/preview/canvas/create/edit, upload retention and writing template selection. Screenshots: ${screenshotDir}`
+		`PASS: course list/detail, keyboard and SPA navigation, course/question set editors, proxy serialization, form reset, draft/publish/archive/restore, user roles, HTML editor and lesson preview, prerequisite workflows, dashboard, mobile spacing, Kotoba API CRUD/ordering/private media/audio/retry, kana template filters/upload/preview/canvas/create/edit, upload retention and writing template selection. Screenshots: ${screenshotDir}`
 	);
 } catch (error) {
 	console.error('Browser errors:', errors);

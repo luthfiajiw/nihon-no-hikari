@@ -164,7 +164,7 @@
 									{...props}
 									onclick={() => goto(resolve(item.url as Pathname))}
 								>
-									{#if item.url === '/kotoba'}
+									{#if item.url === '/kotoba' || item.url === '/admin/kotoba'}
 										{#if active}
 											<span
 												aria-hidden="true"

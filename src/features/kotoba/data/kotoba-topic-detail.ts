@@ -4,6 +4,7 @@ export const kotobaTypes = ['Kata Benda', 'Kata Kerja', 'Kata Sifat', 'Lainnya']
 export type KotobaType = (typeof kotobaTypes)[number];
 
 export interface KotobaVocabulary {
+	audioUrl?: string | null;
 	id: string;
 	kanji: string;
 	hiragana: string;
@@ -22,6 +23,9 @@ export interface KotobaVocabulary {
 }
 
 export interface KotobaTopicDetail {
+	id?: string;
+	coverUrl?: string;
+	mediaExpiresAt?: string;
 	title: string;
 	level: KotobaLevel;
 	description: string;

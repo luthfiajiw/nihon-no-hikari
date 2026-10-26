@@ -5,7 +5,6 @@
 	import * as Card from '$lib/components/ui/card';
 	import type { KotobaTopicDetail } from '../../data/kotoba-topic-detail';
 	import kanjiIcon from '$lib/assets/icons/kanji.svg';
-	import bannerBg from '$lib/assets/images/kotoba-school-bg.png';
 
 	let {
 		topic,
@@ -22,7 +21,9 @@
 
 <Card.Root
 	class="w-full justify-between bg-transparent"
-	style={`background-image: url('${bannerBg}'); background-size: cover; background-position: center; background-repeat: no-repeat;`}
+	style={topic.coverUrl
+		? `background-image: url(${JSON.stringify(topic.coverUrl)}); background-size: cover; background-position: center; background-repeat: no-repeat;`
+		: undefined}
 >
 	<Card.Content class="flex flex-col justify-between gap-6 sm:min-h-40 sm:flex-row sm:items-end">
 		<div class="flex flex-col items-start gap-4">

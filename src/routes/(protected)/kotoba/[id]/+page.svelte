@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { exampleKotobaTopicDetail } from '$features/kotoba/data/kotoba-topic-detail';
 	import KotobaTopicView from '$features/kotoba/presentation/views/kotoba-topic-view.svelte';
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
-	<title>{exampleKotobaTopicDetail.title} - Kotoba - Nihongo no Hikari</title>
-	<meta name="description" content={exampleKotobaTopicDetail.description} />
+	<title>{data.topic.title} - Kotoba - Nihongo no Hikari</title>
+	<meta name="description" content={data.topic.description} />
 </svelte:head>
 
 {#key page.params.id}
-	<KotobaTopicView topic={exampleKotobaTopicDetail} />
+	<KotobaTopicView topic={data.topic} />
 {/key}

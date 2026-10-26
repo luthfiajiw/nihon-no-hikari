@@ -1,5 +1,7 @@
 <script lang="ts">
 	import KotobaView from '$features/kotoba/presentation/views/kotoba-view.svelte';
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
@@ -10,4 +12,4 @@
 	/>
 </svelte:head>
 
-<KotobaView />
+<KotobaView topics={data.topics} />

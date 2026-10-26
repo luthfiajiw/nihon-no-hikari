@@ -11,6 +11,8 @@ export interface KotobaTopic {
 	vocabularyCount: number;
 	exerciseCount: number;
 	createdAt: number;
+	coverUrl?: string;
+	mediaExpiresAt?: string;
 }
 
 // Example topics until a dedicated Kotoba API is available.

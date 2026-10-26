@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { kotobaRepository } from '$dependencies/kotoba.dependency';
+	import { KotobaError } from '$features/kotoba/domain/entities/kotoba-api.entity';
+	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
 	import { resolve } from '$app/paths';
 	import { BookOpen, EyeOff, Languages, Pencil, Plus, Search, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -15,6 +19,46 @@
 	import type { AdminKotobaTopic } from '../models/admin-kotoba.model';
 
 	const kotoba = getAdminKotobaState();
+	let { topics: allTopics }: { topics: AdminKotobaTopic[] } = $props();
+	let busy = $state(false);
+	let message = $state('');
+	onMount(() => {
+		let refreshing = false;
+		async function refresh() {
+			if (refreshing || !allTopics.some((topic) => mediaNeedsRefresh(topic.mediaExpiresAt))) return;
+			refreshing = true;
+			try {
+				await invalidate('kotoba:topics');
+			} catch {
+				message = 'Daftar topik belum dapat diperbarui. Coba lagi sebentar.';
+			} finally {
+				refreshing = false;
+			}
+		}
+		const timer = window.setInterval(() => void refresh(), 60_000);
+		window.addEventListener('focus', refresh);
+		return () => {
+			window.clearInterval(timer);
+			window.removeEventListener('focus', refresh);
+		};
+	});
+	async function removeTopic() {
+		if (!deleting || busy) return;
+		busy = true;
+		message = '';
+		try {
+			await kotobaRepository.remove(deleting.id);
+			kotoba.notice = `Topik “${deleting.title}” berhasil dihapus.`;
+			deleteOpen = false;
+			deleting = null;
+			await invalidate('kotoba:topics');
+		} catch (cause) {
+			message = cause instanceof Error ? cause.message : 'Gagal menghapus topik.';
+			if (cause instanceof KotobaError && cause.status === 401) await goto(resolve('/signin'));
+		} finally {
+			busy = false;
+		}
+	}
 	let search = $state('');
 	let level = $state('all');
 	let status = $state('all');
@@ -22,7 +66,7 @@
 	let deleting = $state<AdminKotobaTopic | null>(null);
 	let deleteOpen = $state(false);
 	const topics = $derived(
-		kotoba.topics
+		allTopics
 			.filter((topic) => {
 				const query = search.trim().toLocaleLowerCase('id');
 				return (
@@ -48,10 +92,9 @@
 			</Button>
 		{/snippet}
 	</AdminPageHeader>
-	<p class="admin-notice bg-muted/30 text-sm text-muted-foreground">
-		Mode simulasi. Perubahan hanya berlaku selama berada di admin kotoba dan akan direset setelah
-		refresh atau keluar dari bagian ini.
-	</p>
+	{#if message}<p class="admin-notice border-destructive text-destructive" role="alert">
+			{message}
+		</p>{/if}
 	{#if kotoba.notice}<p
 			class="admin-notice border-emerald-200 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
 			role="status"
@@ -100,7 +143,7 @@
 		</div>
 	</Card.Root>
 	<p class="text-xs font-medium text-muted-foreground" role="status">
-		{topics.length} dari {kotoba.topics.length} topik ditampilkan
+		{topics.length} dari {allTopics.length} topik ditampilkan
 	</p>
 	<div class="admin-stack">
 		{#each topics as topic (topic.id)}
@@ -131,7 +174,7 @@
 					<p class="line-clamp-2 text-sm text-muted-foreground">{topic.description}</p>
 					<div class="flex flex-wrap gap-4 text-xs text-muted-foreground">
 						<span class="flex items-center gap-1.5">
-							<BookOpen class="size-3.5" />{topic.vocabulary.length} kosakata
+							<BookOpen class="size-3.5" />{topic.vocabularyCount ?? topic.vocabulary.length} kosakata
 						</span>
 						<span>Urutan {topic.order}</span>
 					</div>
@@ -161,14 +204,14 @@
 			<Card.Root class="admin-empty items-center">
 				<Languages class="size-10 text-muted-foreground/50" />
 				<h2 class="font-semibold">
-					{kotoba.topics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
+					{allTopics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
 				</h2>
 				<p class="text-sm text-muted-foreground">
-					{kotoba.topics.length
+					{allTopics.length
 						? 'Coba kata kunci atau filter lainnya.'
 						: 'Mulai dengan membuat topik kosakata pertama.'}
 				</p>
-				{#if kotoba.topics.length}<Button
+				{#if allTopics.length}<Button
 						variant="outline"
 						onclick={() => {
 							search = '';
@@ -188,20 +231,13 @@
 		<Dialog.Header>
 			<Dialog.Title>Hapus topik?</Dialog.Title>
 			<Dialog.Description>
-				Topik “{deleting?.title}” beserta kosakatanya akan dihapus dari simulasi ini.
+				Topik “{deleting?.title}” beserta kosakatanya akan dihapus.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>
-			<Button variant="outline" onclick={() => (deleteOpen = false)}>Batal</Button>
-			<Button
-				variant="destructive"
-				onclick={() => {
-					if (deleting) kotoba.remove(deleting.id);
-					deleteOpen = false;
-					deleting = null;
-				}}
-			>
-				Hapus Topik
+			<Button variant="outline" disabled={busy} onclick={() => (deleteOpen = false)}>Batal</Button>
+			<Button variant="destructive" disabled={busy} onclick={removeTopic}>
+				{busy ? 'Menghapus...' : 'Hapus Topik'}
 			</Button>
 		</Dialog.Footer>
 	</Dialog.Content>

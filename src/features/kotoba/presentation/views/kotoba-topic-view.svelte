@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
+	import { kotobaRepository } from '$dependencies/kotoba.dependency';
+	import { mediaNeedsRefresh, topicDetail } from '../models/kotoba-api.model';
+	import { KotobaPlayer } from '../kotoba-player';
 	import {
 		ArrowDownWideNarrowIcon,
 		ArrowLeftIcon,
@@ -18,7 +21,8 @@
 	import KotobaTopicHeroBanner from '../components/kotoba-topic-hero-banner.svelte';
 	import KotobaVocabularyCard from '../components/kotoba-vocabulary-card.svelte';
 
-	let { topic }: { topic: KotobaTopicDetail } = $props();
+	let { topic: initial }: { topic: KotobaTopicDetail } = $props();
+	let topic = $state(untrack(() => initial));
 	let activeType = $state<KotobaType | 'Semua'>('Semua');
 	let search = $state('');
 	let sort = $state('default');
@@ -26,8 +30,10 @@
 	let playingId = $state<string | null>(null);
 	let playingAll = $state(false);
 	let speechMessage = $state('');
-	let playbackVersion = 0;
-	let currentUtterance: SpeechSynthesisUtterance | null = null;
+	let audioAvailable = $state(false);
+	let player: KotobaPlayer | undefined;
+	let disposed = false;
+	let refreshing: Promise<void> | null = null;
 
 	const sortOptions = [
 		{ value: 'default', label: 'Default' },
@@ -64,56 +70,66 @@
 	});
 
 	function stopPlayback(): void {
-		playbackVersion += 1;
-		if (speechAvailable) window.speechSynthesis.cancel();
-		currentUtterance = null;
-		playingId = null;
-		playingAll = false;
+		player?.stop();
 	}
 
 	function playVocabulary(words: KotobaVocabulary[], all = false): void {
-		stopPlayback();
-		if (!speechAvailable || words.length === 0) return;
-		speechMessage = '';
-		const version = playbackVersion;
-		const voice = window.speechSynthesis.getVoices().find((item) => item.lang.startsWith('ja'));
-		if (!voice) {
-			speechMessage =
-				'Suara bahasa Jepang belum tersedia. Tambahkan suara bahasa Jepang di pengaturan perangkat untuk mendengarkan pelafalan.';
-			return;
-		}
-		playingAll = all;
-
-		function speak(index: number): void {
-			if (version !== playbackVersion) return;
-			const word = words[index];
-			if (!word) {
-				playingId = null;
-				playingAll = false;
-				currentUtterance = null;
-				return;
-			}
-			playingId = word.id;
-			currentUtterance = new SpeechSynthesisUtterance(word.hiragana);
-			currentUtterance.lang = 'ja-JP';
-			currentUtterance.voice = voice ?? null;
-			currentUtterance.rate = 0.8;
-			currentUtterance.onend = () => speak(index + 1);
-			currentUtterance.onerror = () => {
-				if (version !== playbackVersion) return;
-				stopPlayback();
-				speechMessage = 'Pelafalan belum dapat diputar. Silakan coba lagi.';
-			};
-			window.speechSynthesis.speak(currentUtterance);
-		}
-
-		speak(0);
+		void player?.play(
+			words.map((word) => word.id),
+			all
+		);
+	}
+	async function refreshMedia() {
+		if (!topic.id || !mediaNeedsRefresh(topic.mediaExpiresAt)) return;
+		if (!refreshing)
+			refreshing = kotobaRepository
+				.detail(topic.id, false)
+				.then((record) => {
+					if (!disposed) topic = topicDetail(record);
+				})
+				.finally(() => {
+					refreshing = null;
+				});
+		await refreshing;
+	}
+	function canPlay(word: KotobaVocabulary) {
+		return !!(word.audioUrl && audioAvailable) || speechAvailable;
 	}
 
 	onMount(() => {
+		disposed = false;
+		audioAvailable = typeof Audio !== 'undefined';
 		speechAvailable = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 		if (speechAvailable) window.speechSynthesis.getVoices();
-		return stopPlayback;
+		player = new KotobaPlayer(
+			(state) => {
+				playingId = state.playingId;
+				playingAll = state.playingAll;
+				speechMessage = state.message;
+			},
+			async (id) => {
+				await refreshMedia();
+				return topic.vocabulary.find((word) => word.id === id);
+			}
+		);
+		async function refresh() {
+			try {
+				await refreshMedia();
+			} catch (cause) {
+				if (!disposed) {
+					stopPlayback();
+					speechMessage = cause instanceof Error ? cause.message : 'Media belum dapat diperbarui.';
+				}
+			}
+		}
+		const timer = window.setInterval(() => void refresh(), 60_000);
+		window.addEventListener('focus', refresh);
+		return () => {
+			disposed = true;
+			window.clearInterval(timer);
+			window.removeEventListener('focus', refresh);
+			stopPlayback();
+		};
 	});
 </script>
 
@@ -125,7 +141,7 @@
 	<KotobaTopicHeroBanner
 		{topic}
 		{playingAll}
-		playbackDisabled={!speechAvailable || filteredVocabulary.length === 0}
+		playbackDisabled={!filteredVocabulary.some(canPlay)}
 		onTogglePlayback={() =>
 			playingAll ? stopPlayback() : playVocabulary(filteredVocabulary, true)}
 	/>
@@ -196,7 +212,7 @@
 			>
 				{speechMessage}
 			</p>
-		{:else if !speechAvailable}
+		{:else if !speechAvailable && !topic.vocabulary.some((word) => word.audioUrl)}
 			<p class="text-sm text-muted-foreground" role="status">
 				Pelafalan suara tidak tersedia di browser ini.
 			</p>
@@ -208,7 +224,7 @@
 					{vocabulary}
 					number={topic.vocabulary.indexOf(vocabulary) + 1}
 					isPlaying={playingId === vocabulary.id}
-					{speechAvailable}
+					speechAvailable={canPlay(vocabulary)}
 					onPlay={() =>
 						playingId === vocabulary.id ? stopPlayback() : playVocabulary([vocabulary])}
 				/>

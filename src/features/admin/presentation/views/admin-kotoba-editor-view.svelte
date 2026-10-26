@@ -1,6 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { kotobaRepository } from '$dependencies/kotoba.dependency';
+	import { KotobaError } from '$features/kotoba/domain/entities/kotoba-api.entity';
+	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
+	import {
+		adminTopic,
+		saveAdminTopic,
+		editorFieldErrors,
+		refreshEditorMedia
+	} from '../models/admin-kotoba-api.model';
 	import { onMount, tick, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { MediaQuery } from 'svelte/reactivity';
@@ -28,24 +37,20 @@
 	import {
 		cloneTopic,
 		cloneVocabulary,
-		emptyTopic,
 		emptyVocabulary,
 		validateTopic,
-		wholeWordFurigana,
+		type AdminKotobaTopic,
 		type AdminKotobaVocabulary
 	} from '../models/admin-kotoba.model';
 
-	let { id }: { id: string } = $props();
+	let { id, initial }: { id: string; initial: AdminKotobaTopic } = $props();
 	const kotoba = getAdminKotobaState();
-	const initial = untrack(() => kotoba.topics.find((topic) => topic.id === id));
-	const notFound = untrack(() => id !== 'new' && !initial);
-	let item = $state(
-		untrack(() =>
-			initial
-				? cloneTopic(initial)
-				: emptyTopic(Math.max(0, ...kotoba.topics.map((topic) => topic.order)) + 1)
-		)
-	);
+	let item = $state(untrack(() => cloneTopic(initial)));
+	let saving = $state(false);
+	let message = $state('');
+	let progress = $state('');
+	let conflict = $state(false);
+	let serverErrors = $state<Record<string, string>>({});
 	let expanded = $state<Record<string, boolean>>(
 		Object.fromEntries(item.vocabulary.map((word, index) => [word.id, index < 2]))
 	);
@@ -56,7 +61,7 @@
 	let beforeDrag: AdminKotobaVocabulary[] | null = null;
 	let dragSource: SOURCES | null = null;
 	let cancelled = false;
-	const errors = $derived(submitted ? validateTopic(item) : {});
+	const errors = $derived(submitted ? { ...serverErrors, ...validateTopic(item) } : {});
 	const reducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
 	const flipDurationMs = $derived(reducedMotion.current ? 0 : 220);
 	type SortableWord = AdminKotobaVocabulary & { isDndShadowItem?: boolean };
@@ -68,7 +73,7 @@
 	}
 	function addWord(source?: AdminKotobaVocabulary) {
 		const word = source
-			? { ...cloneVocabulary(source), id: crypto.randomUUID() }
+			? { ...cloneVocabulary(source), id: crypto.randomUUID(), serverId: undefined }
 			: emptyVocabulary(crypto.randomUUID());
 		const index = source
 			? item.vocabulary.findIndex((candidate) => candidate.id === source.id) + 1
@@ -101,6 +106,22 @@
 		}
 	}
 	onMount(() => {
+		let disposed = false;
+		let refreshing = false;
+		async function refresh() {
+			if (id === 'new' || saving || refreshing || !mediaNeedsRefresh(item.mediaExpiresAt)) return;
+			refreshing = true;
+			try {
+				const fresh = adminTopic(await kotobaRepository.detail(id, true));
+				if (!disposed) refreshEditorMedia(item, fresh);
+			} catch {
+				if (!disposed) message = 'Media belum dapat diperbarui. Coba lagi sebentar.';
+			} finally {
+				refreshing = false;
+			}
+		}
+		const timer = window.setInterval(() => void refresh(), 60_000);
+		window.addEventListener('focus', refresh);
 		function cancelDrag(event: KeyboardEvent) {
 			if (!beforeDrag || (event.key !== 'Escape' && event.key !== 'Tab')) return;
 			cancelled = true;
@@ -110,14 +131,24 @@
 		}
 		window.addEventListener('keydown', cancelDrag, true);
 		return () => {
+			disposed = true;
+			window.clearInterval(timer);
+			window.removeEventListener('focus', refresh);
 			window.removeEventListener('keydown', cancelDrag, true);
 			playingAudio?.pause();
 		};
 	});
 	async function save(event: SubmitEvent) {
 		event.preventDefault();
-		if (dragging) return;
+		if (dragging || saving) return;
+		if (formElement.querySelector('[data-media][aria-busy="true"]')) {
+			message = 'Tunggu hingga file selesai diperiksa.';
+			return;
+		}
 		submitted = true;
+		serverErrors = {};
+		message = '';
+		conflict = false;
 		if (Object.keys(validateTopic(item)).length) {
 			for (const word of item.vocabulary) {
 				if (Object.keys(errors).some((key) => key.startsWith(`${word.id}.`)))
@@ -127,20 +158,31 @@
 			formElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
 			return;
 		}
-		const saved = cloneTopic(item);
-		saved.vocabulary = saved.vocabulary.map((word) => ({
-			...word,
-			furigana: word.furigana.length ? word.furigana : wholeWordFurigana(word)
-		}));
-		kotoba.save(saved);
-		await goto(resolve('/admin/kotoba'));
+		saving = true;
+		try {
+			const saved = await saveAdminTopic(kotobaRepository, item, (value) => (progress = value));
+			kotoba.notice = `Topik “${saved.title}” berhasil disimpan.`;
+			await goto(resolve('/admin/kotoba'), { invalidateAll: true });
+		} catch (cause) {
+			message = cause instanceof Error ? cause.message : 'Gagal menyimpan topik.';
+			if (cause instanceof KotobaError) {
+				serverErrors = editorFieldErrors(cause, item);
+				conflict = cause.status === 409;
+				if (cause.status === 401) await goto(resolve('/signin'));
+			}
+			for (const word of item.vocabulary)
+				if (Object.keys(serverErrors).some((key) => key.startsWith(`${word.id}.`)))
+					expanded[word.id] = true;
+		} finally {
+			saving = false;
+			progress = '';
+		}
 	}
 </script>
 
 <svelte:head>
 	<title>
-		{notFound ? 'Topik tidak ditemukan' : id === 'new' ? 'Buat Topik Kotoba' : `Edit ${item.title}`} |
-		Admin - Nihongo no Hikari
+		{id === 'new' ? 'Buat Topik Kotoba' : `Edit ${item.title}`} | Admin - Nihongo no Hikari
 	</title>
 	<meta
 		name="description"
@@ -163,20 +205,22 @@
 	>
 		<ArrowLeft class="size-4" />
 	</Button>
-	{#if notFound}
-		<Card.Root class="admin-empty items-center">
-			<h1 class="text-xl font-semibold">Topik tidak ditemukan</h1>
-			<p class="text-sm text-muted-foreground">
-				Topik ini tidak tersedia. Data simulasi akan direset setelah refresh.
-			</p>
-			<Button onclick={() => goto(resolve('/admin/kotoba'))}>Lihat daftar topik</Button>
-		</Card.Root>
-	{:else}
-		<AdminPageHeader
-			title={id === 'new' ? 'Buat Topik Kotoba' : 'Edit Topik Kotoba'}
-			description="Susun informasi topik dan kosakata beserta audio pengucapannya."
-		/>
-		<form bind:this={formElement} onsubmit={save} novalidate class="admin-page">
+	<AdminPageHeader
+		title={id === 'new' ? 'Buat Topik Kotoba' : 'Edit Topik Kotoba'}
+		description="Susun informasi topik dan kosakata beserta audio pengucapannya."
+	/>
+	<form bind:this={formElement} onsubmit={save} novalidate class="admin-page">
+		{#if message}<div class="admin-notice border-destructive text-destructive" role="alert">
+				{message}
+				{#if conflict}<p class="mt-2">
+						Isian belum disimpan. Muat ulang form untuk mengambil versi terbaru.
+					</p>
+					<Button variant="outline" onclick={() => window.location.reload()}>
+						Muat ulang form
+					</Button>{/if}
+			</div>{/if}
+		{#if saving}<p class="admin-notice" role="status">{progress}</p>{/if}
+		<fieldset disabled={saving} class="contents">
 			{#if submitted && Object.keys(errors).length}<p
 					class="admin-notice border-destructive text-destructive"
 					role="alert"
@@ -321,7 +365,7 @@
 											}
 											{errors}
 											{onPlay}
-											dragDisabled={words.length < 2}
+											dragDisabled={saving || words.length < 2}
 											onDuplicate={() => addWord(word)}
 											onRemove={() => item.vocabulary.splice(index, 1)}
 										/>
@@ -404,10 +448,12 @@
 					</Card.Root>
 					<div class="flex flex-wrap justify-end gap-3">
 						<Button variant="outline" onclick={() => goto(resolve('/admin/kotoba'))}>Batal</Button>
-						<Button type="submit" disabled={dragging}>Simpan</Button>
+						<Button type="submit" disabled={dragging || saving}>
+							{saving ? 'Menyimpan...' : 'Simpan'}
+						</Button>
 					</div>
 				</aside>
 			</div>
-		</form>
-	{/if}
+		</fieldset>
+	</form>
 </div>

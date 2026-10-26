@@ -8,10 +8,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
-	import { exampleKotobaTopics, kotobaLevels, type KotobaLevel } from '../../data/kotoba-topics';
+	import { kotobaLevels, type KotobaLevel, type KotobaTopic } from '../../data/kotoba-topics';
 	import KotobaHeroBanner from '../components/kotoba-hero-banner.svelte';
 	import KotobaTopicCard from '../components/kotoba-topic-card.svelte';
 
+	let { topics }: { topics: KotobaTopic[] } = $props();
 	let activeLevel = $state<KotobaLevel>('N5');
 	let search = $state('');
 	let sort = $state('newest');
@@ -22,7 +23,7 @@
 		{ value: 'vocabulary', label: 'Kotoba terbanyak' }
 	];
 	const sortLabel = $derived(sortOptions.find((option) => option.value === sort)?.label);
-	const levelTopics = $derived(exampleKotobaTopics.filter((topic) => topic.level === activeLevel));
+	const levelTopics = $derived(topics.filter((topic) => topic.level === activeLevel));
 	const filteredTopics = $derived.by(() => {
 		const query = search.trim().toLocaleLowerCase('id');
 		return levelTopics

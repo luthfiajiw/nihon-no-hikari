@@ -109,7 +109,7 @@
 	}
 </script>
 
-<div class="min-w-0 space-y-2" data-media={kind}>
+<div class="min-w-0 space-y-2" data-media={kind} aria-busy={reading}>
 	<label for={id} class="text-sm font-medium">{label}</label>
 	<div class={kind === 'cover' && value ? 'grid min-w-0 gap-4 sm:grid-cols-2' : 'space-y-2'}>
 		{#if value}

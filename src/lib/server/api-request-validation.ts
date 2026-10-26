@@ -19,6 +19,10 @@ import {
 } from '$features/admin/domain/schemas/admin-request.schema';
 import type { AdminContentKind } from '$features/admin/domain/entities/admin.entity';
 import { parseRequest, RequestValidationError } from './validation';
+import {
+	createKotobaTopicSchema,
+	updateKotobaTopicSchema
+} from '$features/kotoba/domain/schemas/kotoba-request.schema';
 
 function requestSchema(method: string, pathname: string): z.ZodType | undefined {
 	if (method === 'POST') {
@@ -34,6 +38,8 @@ function requestSchema(method: string, pathname: string): z.ZodType | undefined 
 				return kanaTemplateUploadSchema;
 			case '/api/v1/admin/lesson-content/preview':
 				return previewLessonRequestSchema;
+			case '/api/v1/admin/kotoba/topics':
+				return createKotobaTopicSchema;
 		}
 		if (/^\/api\/v1\/question-sets\/[^/]+\/attempts\/[^/]+\/submit$/.test(pathname))
 			return submitAttemptRequestSchema;
@@ -41,6 +47,7 @@ function requestSchema(method: string, pathname: string): z.ZodType | undefined 
 			return adminReorderRequestSchema;
 	}
 	if (method === 'PUT') {
+		if (/^\/api\/v1\/admin\/kotoba\/topics\/[^/]+$/.test(pathname)) return updateKotobaTopicSchema;
 		if (/^\/api\/v1\/courses\/[^/]+\/modules\/[^/]+\/progress$/.test(pathname))
 			return updateModuleProgressSchema;
 		if (/^\/api\/v1\/lessons\/[^/]+\/progress$/.test(pathname)) return updateLessonProgressSchema;

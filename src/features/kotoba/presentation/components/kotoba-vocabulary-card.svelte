@@ -31,7 +31,7 @@
 	};
 </script>
 
-<Card.Root class="h-full gap-0 bg-transparent py-4" aria-labelledby={`word-${vocabulary.id}`}>
+<Card.Root class="h-full gap-0 py-4" aria-labelledby={`word-${vocabulary.id}`}>
 	<Card.Content
 		class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2 gap-y-4 px-3 sm:grid-cols-[2rem_minmax(0,1fr)] sm:gap-x-3 sm:px-4"
 	>
