@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>Masuk - Nihongo no Hikari</title>
+	<title>Masuk - Gakkobit</title>
 	<meta name="description" content="Masuk ke akun Anda." />
 </svelte:head>
 

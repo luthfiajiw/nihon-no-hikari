@@ -68,7 +68,7 @@
 </script>
 
 <svelte:head>
-	<title>{course?.title ?? 'Kursus'} - Nihongo no Hikari</title>
+	<title>{course?.title ?? 'Kursus'} - Gakkobit</title>
 	<meta name="description" content={course?.description ?? 'Detail kursus'} />
 </svelte:head>
 

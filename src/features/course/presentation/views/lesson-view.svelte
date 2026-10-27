@@ -279,7 +279,7 @@
 </script>
 
 <svelte:head>
-	<title>{courseName ?? 'Kursus'} - Nihongo no Hikari</title>
+	<title>{courseName ?? 'Kursus'} - Gakkobit</title>
 	<meta name="description" content={courseName ?? 'Detail kursus'} />
 </svelte:head>
 

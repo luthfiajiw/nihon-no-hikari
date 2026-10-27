@@ -1,7 +1,7 @@
-import { loadAdminUsers } from '$features/admin/presentation/server/admin-loaders';
+import { loadUserAdminList } from '$features/user/presentation/server/user-admin-loaders';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = loadAdminUsers;
+export const load: PageServerLoad = loadUserAdminList;
 
-import { changeAdminUserRole } from '$features/admin/presentation/server/admin-actions';
-export const actions: Actions = { changeRole: changeAdminUserRole };
+import { changeUserAdminRole } from '$features/user/presentation/server/user-admin-actions';
+export const actions: Actions = { changeRole: changeUserAdminRole };

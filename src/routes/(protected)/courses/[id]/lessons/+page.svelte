@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Kelas - Nihongo no Hikari</title>
+	<title>Kelas - Gakkobit</title>
 	<meta name="description" content="Halaman pelajaran kursus bahasa Jepang" />
 </svelte:head>
 

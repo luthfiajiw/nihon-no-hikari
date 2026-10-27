@@ -135,7 +135,7 @@ export async function testKanaTemplates({
 }) {
 	await navigate('Template Kana');
 	await page.getByRole('heading', { name: 'Template Kana', exact: true }).waitFor();
-	assert.equal(await page.title(), 'Template Kana | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Template Kana | Admin - Gakkobit');
 	await page.getByRole('cell', { name: 'あ', exact: true }).waitFor();
 	await page.getByLabel('Filter', { exact: true }).click();
 	await page.getByRole('option', { name: 'Katakana', exact: true }).click();

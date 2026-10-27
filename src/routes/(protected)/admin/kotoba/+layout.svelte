@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { LayoutProps } from './$types';
 	import {
-		createAdminKotobaState,
-		setAdminKotobaState
-	} from '$features/admin/presentation/contexts/admin-kotoba-context.svelte';
+		createKotobaAdminState,
+		setKotobaAdminState
+	} from '$features/kotoba/presentation/contexts/kotoba-admin-context.svelte';
 	let { children }: LayoutProps = $props();
-	setAdminKotobaState(createAdminKotobaState());
+	setKotobaAdminState(createKotobaAdminState());
 </script>
 
 {@render children()}

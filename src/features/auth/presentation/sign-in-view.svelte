@@ -10,7 +10,7 @@
 	} from '$lib/components/ui/field/index.js';
 	import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
 	import { LockIcon, MailIcon } from 'lucide-svelte';
-	import logo from '$lib/assets/images/nnh-logo.png';
+	import logo from '$lib/assets/images/gakkobit-logo.png';
 
 	import { createForm } from '@tanstack/svelte-form';
 	import { DomainError } from '../domain/entities/auth.entity';
@@ -51,7 +51,7 @@
 		<img src={logo} alt="Logo" class="mb-4 h-9" />
 		<Card.Title class="text-xl">Selamat Datang</Card.Title>
 		<Card.Description class="text-center">
-			Masuk ke akun Nihon no Hikari kamu untuk melanjutkan perjalanan belajar bahasa Jepang.
+			Masuk ke akun Gakkobit kamu untuk melanjutkan perjalanan belajar bahasa Jepang.
 		</Card.Description>
 	</Card.Header>
 	<Card.Content>

@@ -4,7 +4,7 @@
 	// import { page } from '$app/state';
 	// import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/favicon.ico';
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/noto-sans-jp';
 	import '@fontsource/kaisei-tokumin';
@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/x-icon" href={favicon} />
 </svelte:head>
 {@render children?.()}
 

@@ -6,8 +6,8 @@
 </script>
 
 <svelte:head>
-	<title>{data.course?.title ?? 'Detail Kursus'} - Nihongo no Hikari</title>
-	<meta name="description" content={data.course?.description ?? 'Detail Kursus Nihon No Hikari'} />
+	<title>{data.course?.title ?? 'Detail Kursus'} - Gakkobit</title>
+	<meta name="description" content={data.course?.description ?? 'Detail Kursus Gakkobit'} />
 </svelte:head>
 
 <CourseDetailView course={data.course} errorMessage={data.courseError} />

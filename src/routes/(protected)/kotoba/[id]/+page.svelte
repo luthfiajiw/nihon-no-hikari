@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.topic.title} - Kotoba - Nihongo no Hikari</title>
+	<title>{data.topic.title} - Kotoba - Gakkobit</title>
 	<meta name="description" content={data.topic.description} />
 </svelte:head>
 

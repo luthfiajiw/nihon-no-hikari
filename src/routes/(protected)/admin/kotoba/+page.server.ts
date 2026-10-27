@@ -1,8 +1,3 @@
-import { kotobaRepository } from '$dependencies/kotoba.dependency';
-import { kotobaLoad } from '$features/kotoba/presentation/server/kotoba-loaders';
-import { adminTopic } from '$features/admin/presentation/models/admin-kotoba-api.model';
+import { loadKotobaAdminTopics } from '$features/kotoba/presentation/server/kotoba-admin-loaders';
 import type { PageServerLoad } from './$types';
-export const load: PageServerLoad = async ({ depends }) => {
-	depends('kotoba:topics');
-	return kotobaLoad(async () => ({ topics: (await kotobaRepository.list(true)).map(adminTopic) }));
-};
+export const load: PageServerLoad = loadKotobaAdminTopics;

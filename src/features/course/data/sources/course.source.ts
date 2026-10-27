@@ -1,3 +1,17 @@
+import { requestJson } from '$lib/http/request-json';
+import type {
+	CourseAdminReorderKind,
+	CourseAdminReorderInput,
+	CourseAdminCatalog,
+	CourseAdminContentKind,
+	CourseAdminContentDetail,
+	CourseAdminRecord,
+	CourseAdminContentRecord,
+	CourseAdminMutationResult,
+	CourseAdminLessonContent
+} from '../../domain/entities/course-admin.entity';
+import { courseAdminContentResources } from '../course-admin-endpoints';
+type ApiPayload<T> = { data: T; error?: string; message?: string };
 import type {
 	CourseDetailResponse,
 	ListCourseResponse,
@@ -133,5 +147,79 @@ export class CourseSource {
 		}
 
 		return data;
+	}
+	private adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+		return requestJson<T>(this.fetcher, `/api/v1/admin${path}`, options);
+	}
+
+	private contentPath(kind: CourseAdminContentKind, id?: string): string {
+		return `/${courseAdminContentResources[kind]}${id ? `/${encodeURIComponent(id)}` : ''}`;
+	}
+
+	async reorderAdminContent(
+		kind: CourseAdminReorderKind,
+		input: CourseAdminReorderInput
+	): Promise<void> {
+		await this.adminRequest(`${this.contentPath(kind)}/reorder`, {
+			method: 'POST',
+			body: JSON.stringify(input)
+		});
+	}
+
+	async getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog> {
+		const payload = await this.adminRequest<ApiPayload<CourseAdminCatalog>>(
+			`/catalog${courseId ? `?course_id=${encodeURIComponent(courseId)}` : ''}`
+		);
+		return payload.data;
+	}
+
+	async getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]> {
+		return (await this.adminRequest<ApiPayload<CourseAdminRecord[]>>(this.contentPath(kind))).data;
+	}
+
+	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
+		return this.adminRequest(this.contentPath(kind, id));
+	}
+
+	async getAdminLevels(): Promise<CourseAdminContentRecord[]> {
+		return (await this.adminRequest<ApiPayload<CourseAdminContentRecord[]>>('/levels')).data;
+	}
+
+	saveAdminContent(
+		kind: CourseAdminContentKind,
+		id: string | null,
+		payload: CourseAdminContentRecord
+	): Promise<CourseAdminMutationResult> {
+		return this.adminRequest(this.contentPath(kind, id ?? undefined), {
+			method: id ? 'PATCH' : 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	publishAdminContent(
+		kind: CourseAdminContentKind,
+		id: string
+	): Promise<CourseAdminMutationResult> {
+		return this.adminRequest(`${this.contentPath(kind, id)}/publish`, { method: 'POST' });
+	}
+
+	async removeAdminContent(kind: CourseAdminContentKind, id: string): Promise<void> {
+		await this.adminRequest(this.contentPath(kind, id), { method: 'DELETE' });
+	}
+
+	async restoreAdminContent(kind: CourseAdminContentKind, id: string): Promise<void> {
+		await this.adminRequest(`${this.contentPath(kind, id)}/restore`, { method: 'POST' });
+	}
+
+	async previewAdminLesson(content: CourseAdminLessonContent): Promise<CourseAdminLessonContent> {
+		return (
+			await this.adminRequest<ApiPayload<CourseAdminLessonContent>>(
+				`${this.contentPath('lesson')}/preview`,
+				{
+					method: 'POST',
+					body: JSON.stringify({ content })
+				}
+			)
+		).data;
 	}
 }

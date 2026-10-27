@@ -1,4 +1,4 @@
-import { loadAdminCourses } from '$features/admin/presentation/server/admin-loaders';
+import { loadCourseAdminCourses } from '$features/course/presentation/server/course-admin-loaders';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = loadAdminCourses;
+export const load: PageServerLoad = loadCourseAdminCourses;

@@ -1,0 +1,15 @@
+# Course
+
+Owns student course learning and administrative course/module/lesson management, catalog reads, prerequisites, ordering and sanitized lesson previews. See [frontend conventions](../../../docs/frontend-module-conventions.md).
+
+Module and lesson editors use a searchable shadcn-svelte Popover/Command combobox to select one prerequisite, alongside the `is_entry` checkbox. Entry content hides the combobox and saves an empty prerequisite array. Other content saves at most one UUID in the API's prerequisite array; older records with multiple prerequisites load their first prerequisite for editing. Changes are saved with drafts and applied on publish. An empty array clears prerequisites; omitted/null arrays preserve existing relations for older clients and drafts. The API rejects missing, duplicate, self-referencing and cyclic prerequisites.
+
+Admin spacing uses 8px within controls, 16px within groups and 24px between sections. Page padding is 16/24/32px across mobile/tablet/desktop; panel padding is 16/24px. Use the shared header and `admin-*` classes in the [shared management stylesheet](../../lib/styles/management.css).
+
+Lesson content shows a preview card with a Maximize button opening a nearly fullscreen shadcn dialog. At 768px and above the dialog shows CodeMirror on the left and live preview on the right; smaller screens use HTML/Preview tabs. Tips stay on the page. Changes immediately update the form and are persisted with Simpan Draft. Preview loads on entry and debounces changes by 300ms through the existing sanitization endpoint; both previews share the latest result and ignore stale responses. CodeMirror keeps syntax colors, line numbers, HTML tag/attribute completion, automatic closing tags and two-space indentation. Ctrl+Space opens suggestions; Tab/Shift+Tab changes indentation and Escape followed by Tab moves focus out of the editor without closing the dialog. Closing the dialog or changing tabs/layout preserves its cursor and undo history. Source HTML stays in the existing lesson content payload.
+
+Navigation uses native buttons or Button components with `onclick={() => goto(resolve(...))}`. Do not use anchor tags or Button `href` for app navigation. Dynamic route IDs include SvelteKit route groups when passing route parameters to `resolve`.
+
+Course detail lists use `svelte-dnd-action` drag handles with 220ms FLIP animations and reduced-motion support. Space/Enter picks up or drops an item, arrows preview the new order, and Escape cancels. Drops autosave through the page's `?/reorder` action and the dedicated admin reorder endpoint; keyboard arrow movements do not save until the item is dropped. Each module's lessons use a separate zone type to keep them within their original module. Failed saves restore the list and refresh the catalog; all handles are disabled while saving. Reorder changes live order directly and preserves unpublished material edits.
+
+Set `ADMIN_SMOKE_CHANNEL=msedge` to use an installed Edge browser instead of Playwright's Chromium. After `npm run build`, set `ADMIN_SMOKE_PREVIEW=1` to test the production preview without development dependency optimization.

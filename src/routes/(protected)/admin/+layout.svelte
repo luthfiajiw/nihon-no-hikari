@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '$features/admin/presentation/styles/admin.css';
+	import '$lib/styles/management.css';
 	import type { LayoutProps } from './$types';
 	let { children }: LayoutProps = $props();
 </script>

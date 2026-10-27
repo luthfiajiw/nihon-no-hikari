@@ -6,8 +6,8 @@
 </script>
 
 <svelte:head>
-	<title>Kursus - Nihongo no Hikari</title>
-	<meta name="description" content="Kursus Nihon No Hikari" />
+	<title>Kursus - Gakkobit</title>
+	<meta name="description" content="Kursus Gakkobit" />
 </svelte:head>
 
 <CourseView courses={data.courses} errorMessage={data.courseError} />

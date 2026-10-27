@@ -1,3 +1,15 @@
+import type { CourseAdminRepository } from '../../domain/repositories/course-admin.repository';
+import type {
+	CourseAdminReorderKind,
+	CourseAdminReorderInput,
+	CourseAdminCatalog,
+	CourseAdminContentKind,
+	CourseAdminContentDetail,
+	CourseAdminRecord,
+	CourseAdminContentRecord,
+	CourseAdminMutationResult,
+	CourseAdminLessonContent
+} from '../../domain/entities/course-admin.entity';
 import type {
 	CourseDetailResponse,
 	ListCourseResponse,
@@ -13,7 +25,7 @@ import type {
 import type { CourseRepository } from '../../domain/repositories/course.repository';
 import { CourseSource } from '../sources/course.source';
 
-export class CourseRepositoryImpl implements CourseRepository {
+export class CourseRepositoryImpl implements CourseRepository, CourseAdminRepository {
 	constructor(private readonly courseSource: CourseSource) {}
 
 	getList(): Promise<ListCourseResponse> {
@@ -45,5 +57,42 @@ export class CourseRepositoryImpl implements CourseRepository {
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse> {
 		return this.courseSource.updateLessonProgress(lessonId, payload);
+	}
+	reorderAdminContent(kind: CourseAdminReorderKind, input: CourseAdminReorderInput): Promise<void> {
+		return this.courseSource.reorderAdminContent(kind, input);
+	}
+	getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog> {
+		return this.courseSource.getAdminCatalog(courseId);
+	}
+	getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]> {
+		return this.courseSource.getAdminContentList(kind);
+	}
+	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
+		return this.courseSource.getAdminContent(kind, id);
+	}
+	getAdminLevels(): Promise<CourseAdminContentRecord[]> {
+		return this.courseSource.getAdminLevels();
+	}
+	saveAdminContent(
+		kind: CourseAdminContentKind,
+		id: string | null,
+		payload: CourseAdminContentRecord
+	): Promise<CourseAdminMutationResult> {
+		return this.courseSource.saveAdminContent(kind, id, payload);
+	}
+	publishAdminContent(
+		kind: CourseAdminContentKind,
+		id: string
+	): Promise<CourseAdminMutationResult> {
+		return this.courseSource.publishAdminContent(kind, id);
+	}
+	removeAdminContent(kind: CourseAdminContentKind, id: string): Promise<void> {
+		return this.courseSource.removeAdminContent(kind, id);
+	}
+	restoreAdminContent(kind: CourseAdminContentKind, id: string): Promise<void> {
+		return this.courseSource.restoreAdminContent(kind, id);
+	}
+	previewAdminLesson(content: CourseAdminLessonContent): Promise<CourseAdminLessonContent> {
+		return this.courseSource.previewAdminLesson(content);
 	}
 }

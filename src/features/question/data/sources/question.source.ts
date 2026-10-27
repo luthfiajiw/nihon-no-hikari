@@ -1,3 +1,17 @@
+import { requestJson } from '$lib/http/request-json';
+import type {
+	QuestionAdminRecord,
+	QuestionAdminContentRecord,
+	QuestionAdminContentDetail,
+	QuestionAdminMutationResult
+} from '../../domain/entities/question-admin.entity';
+import type {
+	QuestionKanaTemplateMetadata,
+	QuestionKanaTemplateDetail,
+	QuestionKanaTemplateInput,
+	QuestionKanaTemplatePreview
+} from '../../domain/entities/question-kana-template.entity';
+type ApiPayload<T> = { data: T; error?: string; message?: string };
 import type {
 	AttemptResponse,
 	QuestionSetDetailResponse,
@@ -90,5 +104,80 @@ export class QuestionSource {
 			const data = (await response.json().catch(() => ({}))) as ErrorResponse;
 			throw new Error(data?.error || data?.message || 'Gagal membatalkan pengerjaan soal.');
 		}
+	}
+	private adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+		return requestJson<T>(this.fetcher, `/api/v1/admin${path}`, options);
+	}
+
+	private contentPath(id?: string): string {
+		return `/question-sets${id ? `/${encodeURIComponent(id)}` : ''}`;
+	}
+
+	async getAdminContentList(): Promise<QuestionAdminRecord[]> {
+		return (await this.adminRequest<ApiPayload<QuestionAdminRecord[]>>(this.contentPath())).data;
+	}
+
+	getAdminContent(id: string): Promise<QuestionAdminContentDetail> {
+		return this.adminRequest(this.contentPath(id));
+	}
+
+	saveAdminContent(
+		id: string | null,
+		payload: QuestionAdminContentRecord
+	): Promise<QuestionAdminMutationResult> {
+		return this.adminRequest(this.contentPath(id ?? undefined), {
+			method: id ? 'PATCH' : 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	publishAdminContent(id: string): Promise<QuestionAdminMutationResult> {
+		return this.adminRequest(`${this.contentPath(id)}/publish`, { method: 'POST' });
+	}
+
+	async removeAdminContent(id: string): Promise<void> {
+		await this.adminRequest(this.contentPath(id), { method: 'DELETE' });
+	}
+
+	async restoreAdminContent(id: string): Promise<void> {
+		await this.adminRequest(`${this.contentPath(id)}/restore`, { method: 'POST' });
+	}
+
+	async getAdminTemplates(): Promise<QuestionKanaTemplateMetadata[]> {
+		return (await this.adminRequest<ApiPayload<QuestionKanaTemplateMetadata[]>>('/templates')).data;
+	}
+
+	async getAdminTemplate(id: string): Promise<QuestionKanaTemplateDetail> {
+		return (
+			await this.adminRequest<ApiPayload<QuestionKanaTemplateDetail>>(
+				`/templates/${encodeURIComponent(id)}`
+			)
+		).data;
+	}
+
+	async previewAdminTemplate(
+		input: QuestionKanaTemplateInput
+	): Promise<QuestionKanaTemplatePreview> {
+		return (
+			await this.adminRequest<ApiPayload<QuestionKanaTemplatePreview>>('/templates/preview', {
+				method: 'POST',
+				body: JSON.stringify(input)
+			})
+		).data;
+	}
+
+	async saveAdminTemplate(
+		id: string | null,
+		input: QuestionKanaTemplateInput
+	): Promise<QuestionKanaTemplateDetail> {
+		return (
+			await this.adminRequest<ApiPayload<QuestionKanaTemplateDetail>>(
+				`/templates${id ? `/${encodeURIComponent(id)}` : ''}`,
+				{
+					method: id ? 'PATCH' : 'POST',
+					body: JSON.stringify(input)
+				}
+			)
+		).data;
 	}
 }

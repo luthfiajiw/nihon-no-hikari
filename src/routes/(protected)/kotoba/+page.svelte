@@ -5,10 +5,10 @@
 </script>
 
 <svelte:head>
-	<title>Kotoba - Nihongo no Hikari</title>
+	<title>Kotoba - Gakkobit</title>
 	<meta
 		name="description"
-		content="Jelajahi kosakata bahasa Jepang berdasarkan level JLPT dan topik pembelajaran di Nihongo no Hikari."
+		content="Jelajahi kosakata bahasa Jepang berdasarkan level JLPT dan topik pembelajaran di Gakkobit."
 	/>
 </svelte:head>
 

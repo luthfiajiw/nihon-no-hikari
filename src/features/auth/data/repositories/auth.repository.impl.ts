@@ -1,3 +1,5 @@
+import type { AuthAdminRepository } from '../../domain/repositories/auth-admin.repository';
+
 import type { AuthRepository } from '../../domain/repositories/auth.repository';
 import {
 	type RefreshTokenRequest,
@@ -8,7 +10,7 @@ import {
 } from '../../domain/entities/auth.entity';
 import { AuthSource } from '../sources/auth.source';
 
-export class AuthRepositoryImpl implements AuthRepository {
+export class AuthRepositoryImpl implements AuthRepository, AuthAdminRepository {
 	constructor(private readonly apiService: AuthSource) {}
 
 	async signIn(credentials: SignInRequest): Promise<SignInResponse> {
@@ -26,5 +28,8 @@ export class AuthRepositoryImpl implements AuthRepository {
 
 	signOut(payload: SignOutRequest): Promise<boolean> {
 		return this.apiService.signOut(payload);
+	}
+	checkAdminAccess(): Promise<void> {
+		return this.apiService.checkAdminAccess();
 	}
 }

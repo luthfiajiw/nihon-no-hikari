@@ -8,7 +8,7 @@
 	import { page } from '$app/state';
 	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 	import { cn } from '$lib/utils.js';
-	import logo from '$lib/assets/images/nnh-logo.png';
+	import logo from '$lib/assets/images/gakkobit-logo.png';
 	import bgSidebar from '$lib/assets/images/bg-sidebar.png';
 	import kanjiIcon from '$lib/assets/icons/kanji.svg';
 	import {
@@ -97,6 +97,7 @@
 	function menuButtonClass(active: boolean, compact = false): string {
 		return cn(
 			'border-2 border-transparent',
+			!active && 'bg-transparent',
 			!active &&
 				!compact &&
 				'rounded-xl text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800',
@@ -131,12 +132,10 @@
 	<Sidebar.Header
 		class="flex flex-row items-center gap-3 bg-sidebar p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
 	>
-		<img src={logo} alt="NihongoPro Logo" class="h-6 w-6 shrink-0 object-contain" />
+		<img src={logo} alt="NihongoPro Logo" class="size-6 shrink-0 object-contain" />
 		<div class="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
-			<h1
-				class="font-retro text-lg leading-tight font-bold tracking-tight text-slate-900 dark:text-slate-100"
-			>
-				日本 の 光
+			<h1 class="text-lg leading-tight font-bold text-slate-900 dark:text-slate-100">
+				学 校 ビット
 			</h1>
 			{#if mode === 'admin'}
 				<p class="text-[10px] font-semibold tracking-[0.16em] text-slate-500">PANEL ADMIN</p>

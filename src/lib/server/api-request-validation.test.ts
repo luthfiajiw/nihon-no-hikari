@@ -31,7 +31,8 @@ describe('server request validation', () => {
 		{ parent_id: id, ordered_ids: ['00000000-0000-0000-0000-000000000000'] },
 		{ parent_id: id, ordered_ids: Array(32769).fill(id) }
 	])('rejects invalid reorder input %#', (input) => {
-		expect(() => validate('POST', '/api/v1/admin/content/module/reorder', input)).toThrow();
+		for (const path of ['/api/v1/admin/modules/reorder', '/api/v1/admin/lessons/reorder'])
+			expect(() => validate('POST', path, input)).toThrow();
 	});
 	it('normalizes kana metadata before forwarding a PATCH body', () => {
 		const result = validate('PATCH', '/api/v1/admin/templates/template', {
@@ -48,7 +49,7 @@ describe('server request validation', () => {
 		});
 	});
 	it('normalizes legacy lesson content while preserving extra lesson metadata', () => {
-		const result = validate('POST', '/api/v1/admin/content/lesson', {
+		const result = validate('POST', '/api/v1/admin/lessons', {
 			title: 'Hiragana',
 			slug: 'hiragana',
 			module_id: id,
@@ -58,4 +59,66 @@ describe('server request validation', () => {
 			content: { content: '<p>あ</p>', tips: '', audio: 'lesson.mp3' }
 		});
 	});
+	it.each([
+		['modules', { parent_id: id, ordered_ids: [] }],
+		['lessons', { parent_id: id, ordered_ids: [id] }]
+	])('validates the %s reorder body before matching content details', (resource, input) => {
+		const result = validate('POST', `/api/v1/admin/${resource}/reorder`, input);
+		expect(JSON.parse(new TextDecoder().decode(result))).toEqual(input);
+	});
+	it('validates lesson preview before matching a lesson detail', () => {
+		const path = '/api/v1/admin/lessons/preview';
+		expect(() => validate('POST', path, { content: { content: 42 } })).toThrow();
+		const result = validate('POST', path, { content: { content: '<p>あ</p>', audio: 'a.mp3' } });
+		expect(JSON.parse(new TextDecoder().decode(result))).toEqual({
+			content: { content: '<p>あ</p>', tips: '', audio: 'a.mp3' }
+		});
+	});
+});
+
+describe.each([
+	['courses', { title: 'N5', slug: 'n5', level_id: id, description: null, thumbnail_url: '' }],
+	[
+		'modules',
+		{
+			title: 'Kana',
+			slug: 'kana',
+			course_id: id,
+			module_prerequisites: [],
+			estimated_minutes: null
+		}
+	],
+	[
+		'lessons',
+		{
+			title: 'Hiragana',
+			slug: 'hiragana',
+			module_id: id,
+			lesson_prerequisites: null,
+			content: { content: '<p>あ</p>', tips: '', audio: 'a.mp3' }
+		}
+	],
+	[
+		'question-sets',
+		{
+			title: 'Writing',
+			kind: 'practice',
+			skill: 'writing',
+			lesson_id: id,
+			module_id: null,
+			passing_score: 80,
+			questions: [],
+			total_questions: null
+		}
+	]
+] as const)('admin %s payload validation', (resource, input) => {
+	it.each(['POST', 'PATCH'])(
+		'preserves full valid %s payloads and rejects incomplete payloads',
+		(method) => {
+			const path = `/api/v1/admin/${resource}${method === 'PATCH' ? '/item' : ''}`;
+			const result = validate(method, path, input);
+			expect(JSON.parse(new TextDecoder().decode(result))).toEqual(input);
+			expect(() => validate(method, path, {})).toThrow();
+		}
+	);
 });

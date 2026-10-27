@@ -92,6 +92,7 @@ const apiPort = port + 1;
 const origin = `http://127.0.0.1:${port}`;
 const screenshotDir = join(tmpdir(), 'nnh-admin-smoke');
 let backendRequests = [];
+const allBackendRequests = [];
 const mutations = [];
 const transportViolations = [];
 const managedUser = {
@@ -105,6 +106,7 @@ let mutationGate = null;
 let failNextMutation = false;
 const kanaFixture = createKanaTemplateFixture();
 const kotobaFixture = createKotobaFixture(mutations);
+const contentCollections = { courses: [course], modules, lessons, 'question-sets': [set] };
 const api = createServer(async (request, response) => {
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	if (url.pathname.startsWith('/storage/')) {
@@ -115,6 +117,7 @@ const api = createServer(async (request, response) => {
 		transportViolations.push('Missing admin bearer');
 	if (request.headers.cookie) transportViolations.push('App cookie reached upstream');
 	backendRequests.push(url.pathname + url.search);
+	allBackendRequests.push(url.pathname + url.search);
 	await new Promise((resolve) => setTimeout(resolve, 150));
 	if (/^\/api\/v1\/(admin\/)?kotoba\//.test(url.pathname)) {
 		await kotobaFixture.handle(request, response, url);
@@ -124,12 +127,34 @@ const api = createServer(async (request, response) => {
 		await kanaFixture.handle(request, response, url);
 		return;
 	}
+	const contentRoute = url.pathname.match(
+		/^\/api\/v1\/admin\/(courses|modules|lessons|question-sets)(?:\/([^/]+)(?:\/(publish|restore))?)?$/
+	);
+	const collection = contentRoute && contentCollections[contentRoute[1]];
+	const resource = collection?.find((item) => item.id === contentRoute[2]);
+	const preview = request.method === 'POST' && url.pathname === '/api/v1/admin/lessons/preview';
+	const reorder =
+		request.method === 'POST' &&
+		url.pathname.match(/^\/api\/v1\/admin\/(modules|lessons)\/reorder$/);
+	const roleChange =
+		request.method === 'PATCH' && url.pathname === `/api/v1/admin/users/${managedUser.id}/role`;
 	if (request.method !== 'GET') {
+		const contentMutation =
+			contentRoute &&
+			((request.method === 'POST' && !contentRoute[2]) ||
+				(resource &&
+					((request.method === 'POST' && contentRoute[3]) ||
+						(!contentRoute[3] && ['PATCH', 'DELETE'].includes(request.method)))));
+		if (!preview && !reorder && !roleChange && !contentMutation) {
+			response.writeHead(404, { 'Content-Type': 'application/json' });
+			response.end(JSON.stringify({ error: 'Fixture: endpoint tidak ditemukan.' }));
+			return;
+		}
 		let body = '';
 		for await (const chunk of request) body += chunk;
 		const payload = body ? JSON.parse(body) : null;
 		// Preview is read-only: it must not consume save failures or mutation gates.
-		if (url.pathname.endsWith('/lesson-content/preview')) {
+		if (preview) {
 			response.writeHead(200, { 'Content-Type': 'application/json' });
 			response.end(JSON.stringify({ data: payload.content }));
 			return;
@@ -142,14 +167,10 @@ const api = createServer(async (request, response) => {
 			response.end(JSON.stringify({ error: 'Fixture: operasi gagal. Silakan coba lagi.' }));
 			return;
 		}
-		const resource = [course, ...modules, ...lessons, set].find((item) =>
-			url.pathname.split('/').includes(item.id)
-		);
 		let result = { success: true };
-		if (url.pathname.endsWith('/reorder')) {
-			const kind = url.pathname.split('/').at(-2);
-			const parentField = kind === 'module' ? 'course_id' : 'module_id';
-			const siblings = (kind === 'module' ? modules : lessons).filter(
+		if (reorder) {
+			const parentField = reorder[1] === 'modules' ? 'course_id' : 'module_id';
+			const siblings = (reorder[1] === 'modules' ? modules : lessons).filter(
 				(item) => item[parentField] === payload.parent_id
 			);
 			assert.deepEqual(new Set(payload.ordered_ids), new Set(siblings.map((item) => item.id)));
@@ -158,15 +179,15 @@ const api = createServer(async (request, response) => {
 				const draft = drafts.get(item.id);
 				if (draft?.[parentField] === payload.parent_id) draft.order_index = item.order_index;
 			}
-		} else if (url.pathname.endsWith('/role')) managedUser.role = payload.role;
-		else if (url.pathname.endsWith('/publish')) {
+		} else if (roleChange) managedUser.role = payload.role;
+		else if (contentRoute[3] === 'publish') {
 			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
 			drafts.delete(resource.id);
 			result.id = resource.id;
-		} else if (url.pathname.endsWith('/restore')) {
-			course.archived_at = null;
-			course.is_published = false;
-		} else if (request.method === 'DELETE') course.archived_at = new Date().toISOString();
+		} else if (contentRoute[3] === 'restore') {
+			resource.archived_at = null;
+			resource.is_published = false;
+		} else if (request.method === 'DELETE') resource.archived_at = new Date().toISOString();
 		else if (request.method === 'PATCH') {
 			if (resource.is_published) drafts.set(resource.id, payload);
 			else Object.assign(resource, payload);
@@ -176,9 +197,9 @@ const api = createServer(async (request, response) => {
 		return;
 	}
 	let data;
-	if (url.pathname.endsWith('/me')) data = { role: 'Admin' };
-	else if (url.pathname.endsWith('/users')) data = [managedUser];
-	else if (url.pathname.endsWith('/catalog'))
+	if (url.pathname === '/api/v1/admin/me') data = { role: 'Admin' };
+	else if (url.pathname === '/api/v1/admin/users') data = [managedUser];
+	else if (url.pathname === '/api/v1/admin/catalog')
 		data = {
 			courses: [course],
 			modules: [...modules].sort((a, b) => a.order_index - b.order_index),
@@ -191,14 +212,8 @@ const api = createServer(async (request, response) => {
 				}),
 			question_sets: [set]
 		};
-	else if (url.pathname.endsWith('/levels')) data = [{ id: course.level_id, name: 'N5' }];
-	else if (url.pathname.endsWith('/templates')) data = [];
-	else if (url.pathname.endsWith('/content/course')) data = [course];
-	else if (url.pathname.endsWith('/content/question_set')) data = [set];
-	else
-		data = [course, ...modules, ...lessons, set].find((item) =>
-			url.pathname.endsWith(`/${item.id}`)
-		);
+	else if (url.pathname === '/api/v1/admin/levels') data = [{ id: course.level_id, name: 'N5' }];
+	else if (contentRoute && !contentRoute[3]) data = contentRoute[2] ? resource : collection;
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
 	response.end(
 		JSON.stringify({ success: Boolean(data), data, draft: drafts.get(data?.id) ?? null })
@@ -208,6 +223,29 @@ await new Promise((resolve, reject) => {
 	api.once('error', reject);
 	api.listen(apiPort, '127.0.0.1', resolve);
 });
+// Verify that the fixture cannot make legacy or unrelated routes look successful.
+for (const [method, path] of [
+	['GET', '/api/v1/admin/content/course'],
+	['DELETE', `/api/v1/admin/content/course/${course.id}`],
+	['POST', `/api/v1/admin/content/lesson/${lessons[0].id}/publish`],
+	['POST', '/api/v1/admin/content/module/reorder'],
+	['POST', '/api/v1/admin/lesson-content/preview'],
+	['POST', '/api/v1/admin/courses/reorder'],
+	['GET', `/api/v1/admin/unknown/${course.id}`],
+	['POST', `/api/v1/admin/courses/${course.id}/unknown`],
+	['GET', `/api/v1/admin/modules/${course.id}`],
+	['GET', `/api/v1/admin/courses/${course.id}/publish`]
+]) {
+	const response = await fetch(`http://127.0.0.1:${apiPort}${path}`, {
+		method,
+		headers: { Authorization: 'Bearer fixture' }
+	});
+	assert.equal(response.status, 404, `Fixture must reject ${method} ${path}`);
+	await response.arrayBuffer();
+}
+assert.equal(mutations.length, 0, 'Rejected routes must not mutate fixture content');
+backendRequests = [];
+allBackendRequests.length = 0;
 const vite = spawn(
 	process.execPath,
 	[
@@ -370,7 +408,7 @@ try {
 	assert.deepEqual(errors, [], 'Kotoba must not produce browser errors');
 	await clickAdminNavigation('Kursus & Materi');
 	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
-	assert.equal(await page.title(), 'Kursus & Materi | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Kursus & Materi | Admin - Gakkobit');
 	assert.equal(
 		await page.locator('a[href]').count(),
 		0,
@@ -397,7 +435,7 @@ try {
 	await page.keyboard.press('Enter');
 	await page.waitForURL(`**/admin/courses/${course.id}`);
 	await page.getByText('Baris A (あ)', { exact: true }).waitFor();
-	assert.equal(await page.title(), `${course.title} | Admin - Nihongo no Hikari`);
+	assert.equal(await page.title(), `${course.title} | Admin - Gakkobit`);
 	assert.equal(
 		await page.evaluate(() => window.__adminNavigationMarker),
 		'hydrated',
@@ -429,11 +467,11 @@ try {
 	});
 	await page.getByRole('button', { name: 'Edit Kursus', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Kursus', exact: true }).waitFor();
-	assert.equal(await page.title(), 'Edit Kursus | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Edit Kursus | Admin - Gakkobit');
 	assert.equal(await page.getByLabel('Judul', { exact: true }).inputValue(), course.title);
 	await clickAdminNavigation('Question Sets');
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
-	assert.equal(await page.title(), 'Question Sets | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Question Sets | Admin - Gakkobit');
 	await page.getByRole('button', { name: /Membaca Hiragana/ }).click();
 	await page.getByRole('heading', { name: 'Edit Question Set' }).waitFor();
 	assert.equal(await page.getByLabel('Judul set').inputValue(), set.title);
@@ -494,10 +532,10 @@ try {
 		.waitFor();
 	await page.waitForLoadState('networkidle');
 	assert.equal(managedUser.role, 'Admin');
-	assert.equal(await page.title(), 'Kelola Pengguna | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Kelola Pengguna | Admin - Gakkobit');
 	// One module prerequisite: hidden for entry content, search, replace, reload, publish and clear.
 	await page.goto(`${origin}/admin/content/module/${modules[0].id}`, { waitUntil: 'networkidle' });
-	assert.equal(await page.title(), 'Edit Module | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Edit Module | Admin - Gakkobit');
 	const modulePicker = page.getByRole('combobox', { name: 'Prasyarat module', exact: true });
 	assert.equal(await modulePicker.count(), 0, 'Entry module hides its prerequisite picker');
 	await page.getByRole('checkbox', { name: 'Module awal (is_entry)', exact: true }).uncheck();
@@ -570,7 +608,7 @@ try {
 	assert.deepEqual(modules[0].module_prerequisites, []);
 	// Existing lesson prerequisite is cleared when entry content is saved and published.
 	await page.goto(`${origin}/admin/content/lesson/${lessons[1].id}`, { waitUntil: 'networkidle' });
-	assert.equal(await page.title(), 'Edit Lesson | Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Edit Lesson | Admin - Gakkobit');
 	await openLessonEditor(page);
 	assert.equal(
 		await lessonHTMLValue(page),
@@ -620,7 +658,7 @@ try {
 		.frameLocator('iframe[title="Preview konten lesson"]')
 		.getByText('3. Contoh Kosakata', { exact: true })
 		.waitFor();
-	assert(backendRequests.some((request) => request.endsWith('/lesson-content/preview')));
+	assert(backendRequests.some((request) => request === '/api/v1/admin/lessons/preview'));
 	await page.screenshot({ path: join(screenshotDir, 'lesson-preview.png'), fullPage: true });
 	assert.equal(await lessonHTMLValue(page), lessonHTML);
 	failNextMutation = true;
@@ -651,7 +689,7 @@ try {
 	assert.equal(lessons[0].content.content, lessonHTML);
 	await page.goto(`${origin}/admin`, { waitUntil: 'networkidle' });
 	await page.getByRole('heading', { name: 'Ringkasan Admin', exact: true }).waitFor();
-	assert.equal(await page.title(), 'Ringkasan Admin - Nihongo no Hikari');
+	assert.equal(await page.title(), 'Ringkasan Admin - Gakkobit');
 	await page.getByRole('button', { name: /^1 Kursus$/ }).click();
 	await page.waitForURL('**/admin/courses');
 	await page.setViewportSize({ width: 390, height: 844 });
@@ -720,6 +758,27 @@ try {
 		lessonID: lessons[0].id
 	});
 	assert.deepEqual(errors, [], 'Kana templates must not produce browser errors');
+	await page.goto(`${origin}/admin/content/unsupported/new`, { waitUntil: 'networkidle' });
+	assert.equal(new URL(page.url()).pathname, '/admin', 'Unknown content kinds must redirect');
+	assert(
+		allBackendRequests.every(
+			(path) =>
+				!path.startsWith('/api/v1/admin/content/') &&
+				!path.startsWith('/api/v1/admin/lesson-content/')
+		),
+		'Admin API calls must use the migrated resource URLs'
+	);
+	for (const path of [
+		'/api/v1/admin/courses',
+		'/api/v1/admin/question-sets',
+		'/api/v1/admin/lessons/preview'
+	])
+		assert(allBackendRequests.includes(path), `Expected migrated API request: ${path}`);
+	for (const path of ['/api/v1/admin/modules/reorder', '/api/v1/admin/lessons/reorder'])
+		assert(
+			mutations.some((mutation) => mutation.method === 'POST' && mutation.path === path),
+			`Expected migrated reorder: ${path}`
+		);
 	assert.deepEqual(
 		transportViolations,
 		[],

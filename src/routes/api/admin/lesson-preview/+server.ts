@@ -1,4 +1,4 @@
-import { previewAdminLesson } from '$features/admin/presentation/server/admin-actions';
+import { previewCourseAdminLesson } from '$features/course/presentation/server/course-admin-actions';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = previewAdminLesson;
+export const POST: RequestHandler = previewCourseAdminLesson;

@@ -1,3 +1,4 @@
+import { requestJson } from '$lib/http/request-json';
 import {
 	InvalidCredentialsError,
 	InvalidRefreshTokenError,
@@ -138,5 +139,12 @@ export class AuthSource {
 		} catch {
 			return false;
 		}
+	}
+	private adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+		return requestJson<T>(this.fetcher, `/api/v1/admin${path}`, options);
+	}
+
+	async checkAdminAccess(): Promise<void> {
+		await this.adminRequest('/me');
 	}
 }

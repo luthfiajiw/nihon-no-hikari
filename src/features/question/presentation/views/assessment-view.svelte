@@ -190,7 +190,7 @@
 </script>
 
 <svelte:head>
-	<title>{questionSet?.title || 'Assessment'} - Nihon no Hikari</title>
+	<title>{questionSet?.title || 'Assessment'} - Gakkobit</title>
 </svelte:head>
 
 <main

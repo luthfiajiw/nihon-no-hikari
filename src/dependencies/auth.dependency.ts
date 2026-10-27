@@ -1,3 +1,4 @@
+import { CheckAuthAdminAccessUseCase } from '$features/auth/domain/usecases/auth-admin-access.usecase';
 import { requestFetch } from '#request-fetch';
 import { AuthRepositoryImpl } from '$features/auth/data/repositories/auth.repository.impl';
 import { AuthSource } from '$features/auth/data/sources/auth.source';
@@ -10,3 +11,5 @@ const repository = new AuthRepositoryImpl(new AuthSource(requestFetch));
 export const signInUseCase = new SignInUseCase(repository);
 export const refreshTokenUseCase = new RefreshTokenUseCase(repository);
 export const signOutUseCase = new SignOutUseCase(repository);
+
+export const checkAuthAdminAccessUseCase = new CheckAuthAdminAccessUseCase(repository);

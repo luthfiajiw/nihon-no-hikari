@@ -1,6 +1,6 @@
-import { loadAdminCourseDetail } from '$features/admin/presentation/server/admin-loaders';
-import { reorderAdminContent } from '$features/admin/presentation/server/admin-actions';
+import { loadCourseAdminDetail } from '$features/course/presentation/server/course-admin-loaders';
+import { reorderCourseAdminContent } from '$features/course/presentation/server/course-admin-actions';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = loadAdminCourseDetail;
-export const actions: Actions = { reorder: reorderAdminContent };
+export const load: PageServerLoad = loadCourseAdminDetail;
+export const actions: Actions = { reorder: reorderCourseAdminContent };
