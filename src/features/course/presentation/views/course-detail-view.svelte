@@ -80,7 +80,7 @@
 	{#if errorMessage || !course}
 		<Card.Root>
 			<Card.Content class="py-10 text-center">
-				<p class="font-semibold text-slate-900 dark:text-slate-100">Detail kursus tidak tersedia</p>
+				<p class="font-semibold text-taupe-900 dark:text-taupe-100">Detail kursus tidak tersedia</p>
 				<p class="mt-1 text-sm text-red-600 dark:text-red-400">
 					{errorMessage ?? 'Data kursus tidak ditemukan.'}
 				</p>

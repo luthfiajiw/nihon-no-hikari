@@ -80,7 +80,7 @@
 			</Command.Root>
 		</Popover.Content>
 	</Popover.Root>
-	<p id={`${id}-description`} class="text-sm text-slate-500">
+	<p id={`${id}-description`} class="text-sm text-taupe-500">
 		Prasyarat yang dipilih harus diselesaikan sebelum materi ini dibuka. Pilih “Tanpa prasyarat”
 		jika tidak diperlukan.
 	</p>

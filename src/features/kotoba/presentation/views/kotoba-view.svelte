@@ -66,7 +66,7 @@
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-center xl:shrink-0">
 				<div class="relative min-w-0 sm:flex-1 xl:w-64">
 					<SearchIcon
-						class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+						class="-trantaupe-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground"
 						aria-hidden="true"
 					/>
 					<Input

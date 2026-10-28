@@ -53,7 +53,7 @@
 				aria-valuenow={progressPercentage}
 			>
 				<div
-					class="h-full rounded-full bg-sky-600 transition-[width] duration-300"
+					class="h-full rounded-full bg-taupe-500 transition-[width] duration-300"
 					style:width={`${progressPercentage}%`}
 				></div>
 			</div>
@@ -116,7 +116,7 @@
 		</div>
 
 		<div
-			class="mt-4 flex items-start gap-3 rounded-xl bg-sky-50 p-4 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
+			class="mt-4 flex items-start gap-3 rounded-xl bg-taupe-50 p-4 text-taupe-700 dark:bg-taupe-950 dark:text-taupe-300"
 		>
 			<InfoIcon class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 			<div>

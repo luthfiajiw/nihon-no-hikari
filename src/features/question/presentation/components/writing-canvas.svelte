@@ -19,7 +19,7 @@
 	let current = $state<StrokePoint[]>([]);
 	let pointerId = $state<number | null>(null);
 	let feedback = $state('');
-	const writingColor = '#0284c7';
+	const writingColor = 'oklch(54.7% 0.021 43.1)';
 	let complete = $derived(showGuide && value.length === guide.strokes.length);
 
 	function pointFromEvent(event: PointerEvent): StrokePoint {
@@ -105,7 +105,7 @@
 </script>
 
 <div class="mt-6">
-	<div class="mx-auto w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white">
+	<div class="mx-auto w-full max-w-xl overflow-hidden rounded-2xl border border-taupe-200 bg-white">
 		<svg
 			viewBox={`0 0 ${guide.view_box} ${guide.view_box}`}
 			class="block aspect-square w-full touch-none select-none"
@@ -212,7 +212,7 @@
 		</svg>
 	</div>
 	<div class="mt-4 flex items-center justify-between gap-3">
-		<p class="text-sm text-slate-600" role="status">
+		<p class="text-sm text-taupe-600" role="status">
 			{feedback ||
 				(showGuide
 					? 'Ikuti urutan dan arah goresan dari angka yang ditunjukkan.'
@@ -227,7 +227,7 @@
 			<RotateCcwIcon class="size-4" /> Ulangi
 		</Button>
 	</div>
-	<p class="mt-2 text-xs text-slate-500">
+	<p class="mt-2 text-xs text-taupe-500">
 		Data stroke: <a
 			class="underline"
 			href="https://kanjivg.tagaini.net/"

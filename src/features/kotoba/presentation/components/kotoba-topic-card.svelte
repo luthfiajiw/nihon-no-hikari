@@ -13,7 +13,7 @@
 		Populer:
 			'border-pink-200 bg-pink-50 text-pink-600 dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-300',
 		Pemula:
-			'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300'
+			'border-taupe-200 bg-taupe-50 text-taupe-700 dark:border-taupe-900 dark:bg-taupe-950/40 dark:text-taupe-300'
 	};
 </script>
 
@@ -21,7 +21,7 @@
 	<Card.Content>
 		<div class="mb-3.5 flex items-center justify-between gap-2">
 			<span
-				class="rounded-lg bg-sky-600 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-xs shadow-sky-600/30"
+				class="rounded-lg bg-taupe-500 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-xs shadow-taupe-500/30"
 			>
 				{topic.level}
 			</span>

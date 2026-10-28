@@ -167,7 +167,7 @@
 			<div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center 2xl:shrink-0">
 				<div class="relative min-w-0 sm:max-w-sm sm:flex-1 2xl:w-56">
 					<SearchIcon
-						class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+						class="-trantaupe-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-muted-foreground"
 						aria-hidden="true"
 					/>
 					<Input

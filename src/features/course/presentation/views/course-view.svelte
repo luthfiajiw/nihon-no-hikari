@@ -25,7 +25,7 @@
 
 		<div class="lg:col-span-8">
 			<div class="flex flex-col space-y-4">
-				<h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Daftar Kursus</h2>
+				<h2 class="text-xl font-bold text-taupe-800 dark:text-taupe-100">Daftar Kursus</h2>
 				{#if errorMessage}
 					<div
 						class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"

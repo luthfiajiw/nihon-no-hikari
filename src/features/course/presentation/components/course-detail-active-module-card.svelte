@@ -27,7 +27,7 @@
 			<div class="space-y-4">
 				<Badge
 					variant="secondary"
-					class="border-none bg-sky-100 font-semibold text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+					class="border-none bg-taupe-100 font-semibold text-taupe-700 dark:bg-taupe-950/60 dark:text-taupe-300"
 				>
 					{activeModule.status === 'in_progress' ? 'Lanjutkan' : 'Berikutnya'}
 				</Badge>
@@ -62,7 +62,7 @@
 				</Button>
 			</div>
 		{:else}
-			<p class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+			<p class="py-8 text-center text-sm text-taupe-500 dark:text-taupe-400">
 				Belum ada modul yang dapat dipelajari.
 			</p>
 		{/if}

@@ -10,13 +10,13 @@
 	} from '$lib/components/ui/field/index.js';
 	import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
 	import { LockIcon, MailIcon } from 'lucide-svelte';
-	import logo from '$lib/assets/images/gakkobit-logo.png';
 
 	import { createForm } from '@tanstack/svelte-form';
 	import { DomainError } from '../domain/entities/auth.entity';
 	import { capitalizeFirst } from '$lib/utils';
 	import { signInUseCase } from '$dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
+	import logo from '$lib/assets/images/gakkobit-logo.png';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -46,15 +46,19 @@
 	}));
 </script>
 
-<Card.Root class="w-full max-w-lg">
-	<Card.Header class="flex flex-col items-center">
-		<img src={logo} alt="Logo" class="mb-4 h-9" />
-		<Card.Title class="text-xl">Selamat Datang</Card.Title>
-		<Card.Description class="text-center">
-			Masuk ke akun Gakkobit kamu untuk melanjutkan perjalanan belajar bahasa Jepang.
+<Card.Root
+	class="flex w-full flex-col items-center justify-between gap-8 rounded-none border-0 px-6 pt-28 pb-10 shadow-2xl backdrop-blur-sm sm:px-12 md:m-10 md:rounded-3xl lg:w-[460px] lg:shrink-0 lg:px-10 lg:py-12 xl:w-[550px] xl:px-14"
+>
+	<Card.Header class="w-full max-w-sm gap-3 px-0 text-center">
+		<img src={logo} alt="Logo Gakkobit" class="mx-auto size-11 object-contain sm:size-12" />
+		<Card.Title class="text-center text-3xl font-semibold tracking-tight">
+			Selamat Datang
+		</Card.Title>
+		<Card.Description class="text-center text-sm leading-6">
+			Masuk ke akun Gakkobit kamu untuk melanjutkan perjalananmu belajar bahasa Jepang.
 		</Card.Description>
 	</Card.Header>
-	<Card.Content>
+	<Card.Content class="flex h-full w-full max-w-sm flex-col justify-center px-0 pb-24">
 		{#if serverError}
 			<div
 				class="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
@@ -78,7 +82,7 @@
 				form.handleSubmit();
 			}}
 		>
-			<FieldGroup class="gap-4">
+			<FieldGroup class="gap-5">
 				<form.Field
 					name="email"
 					validators={{
@@ -92,7 +96,7 @@
 					{#snippet children(field)}
 						<Field>
 							<FieldLabel for="email">Email</FieldLabel>
-							<InputGroup>
+							<InputGroup class="bg-background">
 								<InputGroupAddon>
 									<MailIcon class="size-4" />
 								</InputGroupAddon>
@@ -128,7 +132,7 @@
 					{#snippet children(field)}
 						<Field>
 							<FieldLabel for="password">Password</FieldLabel>
-							<InputGroup>
+							<InputGroup class="bg-background">
 								<InputGroupAddon>
 									<LockIcon class="size-4" />
 								</InputGroupAddon>

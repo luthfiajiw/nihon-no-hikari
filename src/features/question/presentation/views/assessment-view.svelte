@@ -246,7 +246,7 @@
 				shouldScaleBackground={false}
 			>
 				<Drawer.Trigger
-					class="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 mx-auto flex h-14 max-w-md items-center justify-between rounded-full bg-sky-600 px-5 text-sm font-bold text-white shadow-lg shadow-sky-900/20 xl:hidden"
+					class="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 mx-auto flex h-14 max-w-md items-center justify-between rounded-full bg-taupe-500 px-5 text-sm font-bold text-white shadow-lg shadow-taupe-900/20 xl:hidden"
 				>
 					<span class="flex items-center gap-2"><ListIcon class="size-5" /> Nomor soal</span>
 					<span>Soal {activeIndex + 1} / {questions.length}</span>
@@ -261,7 +261,7 @@
 						</Drawer.Description>
 					</Drawer.Header>
 					<Drawer.Close
-						class="absolute top-2 right-3 z-10 flex size-8 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100"
+						class="absolute top-2 right-3 z-10 flex size-8 items-center justify-center rounded-full text-taupe-600 hover:bg-taupe-100"
 						aria-label="Tutup daftar soal"
 					>
 						<XIcon class="size-5" />

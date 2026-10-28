@@ -281,7 +281,7 @@
 		<p
 			class="admin-notice {saveError
 				? 'border-red-200 bg-red-50 text-red-700'
-				: 'border-sky-100 bg-sky-50 text-sky-700'}"
+				: 'border-taupe-100 bg-taupe-50 text-taupe-700'}"
 			role="status"
 		>
 			{message}
@@ -416,14 +416,14 @@
 									onkeydown={(event) => {
 										if (event.key === ' ' || event.key === 'Enter') event.preventDefault();
 									}}
-									class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-sky-600 aria-disabled:cursor-default aria-disabled:opacity-50"
+									class="flex size-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-taupe-500 aria-disabled:cursor-default aria-disabled:opacity-50"
 								>
 									<GripVertical class="size-4" />
 								</span>
 								<button
 									type="button"
 									onclick={() => goto(resolve(`/admin/content/lesson/${lesson.id}` as Pathname))}
-									class="flex min-w-0 flex-1 items-center gap-3 py-3 text-left text-sm transition-colors hover:text-sky-600"
+									class="flex min-w-0 flex-1 items-center gap-3 py-3 text-left text-sm transition-colors hover:text-taupe-500"
 								>
 									<span
 										class="flex h-6 min-w-7 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground"
@@ -461,8 +461,8 @@
 	.course-sortable-zone > :global([data-is-dnd-shadow-item-hint='true']) {
 		visibility: visible !important;
 		border-radius: 12px;
-		background: #eff6ff;
-		outline: 2px dashed #93c5fd;
+		background: var(--color-taupe-50);
+		outline: 2px dashed var(--color-taupe-300);
 		outline-offset: -2px;
 	}
 	.course-sortable-zone > :global([data-is-dnd-shadow-item-hint='true']) > :global(*) {
@@ -471,8 +471,8 @@
 	:global(#dnd-action-dragged-el) {
 		background: white;
 		border-radius: 12px;
-		box-shadow: 0 18px 40px -12px rgb(15 23 42 / 25%);
-		outline: 1px solid #bfdbfe;
+		box-shadow: 0 18px 40px -12px color-mix(in oklch, var(--color-taupe-900) 25%, transparent);
+		outline: 1px solid var(--color-taupe-200);
 		cursor: grabbing;
 	}
 </style>

@@ -12,7 +12,7 @@
 				default:
 					'border-[color-mix(in_oklch,var(--color-primary),black_25%)] bg-primary text-primary-foreground [--button-shadow:color-mix(in_oklch,var(--color-primary),black_35%)] hover:bg-[color-mix(in_oklch,var(--color-primary),var(--color-primary-foreground)_10%)] aria-expanded:bg-primary/90',
 				outline:
-					'border-slate-400 bg-background text-foreground [--button-shadow:var(--color-slate-400)] hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-slate-500 dark:[--button-shadow:var(--color-slate-600)]',
+					'border-taupe-400 bg-background text-foreground [--button-shadow:var(--color-taupe-400)] hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-taupe-500 dark:[--button-shadow:var(--color-taupe-600)]',
 				secondary:
 					'border-border bg-secondary text-secondary-foreground [--button-shadow:color-mix(in_oklch,var(--color-secondary),var(--color-foreground)_25%)] hover:bg-[color-mix(in_oklch,var(--color-secondary),var(--color-foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
 				ghost:
@@ -37,7 +37,7 @@
 			{
 				variant: ['default', 'secondary', 'destructive', 'outline'],
 				class:
-					'bg-clip-border shadow-[2px_4px_0_var(--button-shadow),inset_0_2px_0_rgb(255_255_255/0.35)] active:translate-y-1 active:shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] data-[flat]:shadow-none data-[flat]:active:translate-y-0'
+					'bg-clip-border shadow-[2px_4px_0_var(--button-shadow),inset_0_2px_0_rgb(255_255_255/0.35)] active:trantaupe-y-1 active:shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] data-[flat]:shadow-none data-[flat]:active:trantaupe-y-0'
 			}
 		],
 		defaultVariants: {

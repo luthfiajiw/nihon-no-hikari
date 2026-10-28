@@ -12,7 +12,7 @@
 
 <div class="admin-stack">
 	<h2 class="text-xl font-semibold">Pratinjau {guide.character} · {guide.romaji}</h2>
-	<p class="text-sm text-slate-600">
+	<p class="text-sm text-taupe-600">
 		{guide.strokes.length} goresan. Nomor menunjukkan urutan dan panah menunjukkan arah awal.
 	</p>
 	<svg

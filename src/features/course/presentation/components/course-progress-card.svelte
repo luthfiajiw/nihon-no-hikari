@@ -14,8 +14,8 @@
 <Card.Root class={`h-full w-full justify-between ${className}`}>
 	<Card.Header>
 		<Card.Title class="flex items-center gap-3">
-			<div class="rounded-full bg-sky-100 p-2">
-				<TrendingUpIcon class="size-4 text-sky-600" />
+			<div class="rounded-full bg-taupe-100 p-2">
+				<TrendingUpIcon class="size-4 text-taupe-500" />
 			</div>
 			Progress Belajarmu
 		</Card.Title>
@@ -32,7 +32,7 @@
 		<div class="group flex justify-end pt-4 pb-1">
 			<Button type="button">
 				Lanjut Belajar <ArrowRightIcon
-					class="size-4 transition-transform group-hover:translate-x-1"
+					class="group-hover:trantaupe-x-1 size-4 transition-transform"
 				/>
 			</Button>
 		</div>

@@ -45,7 +45,7 @@
 					onclick={() => (status = tab.value)}
 					aria-pressed={status === tab.value}
 					class="rounded-lg px-3 py-2 text-sm font-medium transition-colors {status === tab.value
-						? 'bg-sky-50 text-sky-700'
+						? 'bg-taupe-50 text-taupe-700'
 						: 'text-muted-foreground hover:bg-muted'}"
 				>
 					{tab.label}
@@ -86,7 +86,7 @@
 					<h2 class="mt-2 text-xl font-bold tracking-tight text-foreground">
 						<button
 							type="button"
-							class="text-left hover:text-sky-600"
+							class="text-left hover:text-taupe-500"
 							onclick={() => goto(resolve(`/admin/courses/${course.id}` as Pathname))}
 						>
 							{course.title}

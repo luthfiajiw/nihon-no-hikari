@@ -22,32 +22,32 @@
 				>
 					{course.level.code}
 				</Badge>
-				<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+				<h1 class="text-2xl font-bold tracking-tight text-taupe-900 dark:text-taupe-50">
 					{course.title}
 				</h1>
 			</div>
 
-			<p class="text-sm leading-relaxed text-slate-600 sm:text-base dark:text-slate-400">
+			<p class="text-sm leading-relaxed text-taupe-600 sm:text-base dark:text-taupe-400">
 				{course.description}
 			</p>
 
 			<div class="flex flex-wrap items-center gap-3 pt-2">
 				<div
-					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-taupe-700 dark:bg-taupe-800/60 dark:text-taupe-300"
 				>
-					<BookOpenIcon class="size-4 text-sky-500" />
+					<BookOpenIcon class="size-4 text-taupe-500" />
 					<span>{course.total_lessons} Materi</span>
 				</div>
 				<div
-					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-taupe-700 dark:bg-taupe-800/60 dark:text-taupe-300"
 				>
-					<ClockIcon class="size-4 text-sky-500" />
+					<ClockIcon class="size-4 text-taupe-500" />
 					<span>{formatDuration(course.total_minutes)}</span>
 				</div>
 				<div
-					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+					class="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-taupe-700 dark:bg-taupe-800/60 dark:text-taupe-300"
 				>
-					<UserIcon class="size-4 text-sky-500" />
+					<UserIcon class="size-4 text-taupe-500" />
 					<span>{course.level.name}</span>
 				</div>
 			</div>

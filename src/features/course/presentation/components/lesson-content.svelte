@@ -280,12 +280,12 @@
 
 				{#if moduleExams.length > 0}
 					<section
-						class="my-6 space-y-3 rounded-2xl border border-sky-200 bg-sky-50 p-5"
+						class="my-6 space-y-3 rounded-2xl border border-taupe-200 bg-taupe-50 p-5"
 						aria-label="Ujian akhir module"
 					>
-						<h2 class="text-lg font-bold text-slate-900">Ujian akhir module</h2>
+						<h2 class="text-lg font-bold text-taupe-900">Ujian akhir module</h2>
 						{#if !canStartModuleExam}
-							<p class="text-sm text-slate-600">
+							<p class="text-sm text-taupe-600">
 								Selesaikan seluruh lesson dalam module ini untuk membuka ujian.
 							</p>
 						{/if}
@@ -295,7 +295,7 @@
 							>
 								<div>
 									<p class="font-semibold">{exam.title}</p>
-									<p class="text-sm text-slate-500">
+									<p class="text-sm text-taupe-500">
 										{exam.skill === 'writing' ? 'Writing' : 'Reading'} · {exam.question_count} soal ·
 										{exam.is_passed ? 'Lulus' : 'Belum lulus'}
 									</p>

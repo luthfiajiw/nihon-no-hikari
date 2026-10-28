@@ -56,9 +56,9 @@
 					HighlightStyle.define([
 						...defaultHighlightStyle.specs,
 						{ tag: tags.tagName, color: '#0f766e' },
-						{ tag: tags.attributeName, color: '#1d4ed8' },
+						{ tag: tags.attributeName, color: 'var(--color-taupe-500)' },
 						{ tag: tags.attributeValue, color: '#b91c1c' },
-						{ tag: tags.comment, color: '#64748b', fontStyle: 'italic' }
+						{ tag: tags.comment, color: 'var(--color-taupe-500)', fontStyle: 'italic' }
 					])
 				),
 				indentUnit.of('  '),
@@ -74,7 +74,7 @@
 					if (update.docChanged) value.content = update.state.doc.toString();
 				}),
 				EditorView.theme({
-					'&': { height: '100%', color: '#0f172a', backgroundColor: '#fff' },
+					'&': { height: '100%', color: 'var(--color-taupe-900)', backgroundColor: '#fff' },
 					'&.cm-focused': { outline: 'none' },
 					'.cm-scroller': {
 						fontFamily: 'var(--font-mono, monospace)',
@@ -86,9 +86,9 @@
 					'.cm-content': { padding: '16px 0' },
 					'.cm-line': { padding: '0 16px' },
 					'.cm-gutters': {
-						backgroundColor: '#f8fafc',
-						color: '#64748b',
-						borderColor: '#e2e8f0'
+						backgroundColor: 'var(--color-taupe-50)',
+						color: 'var(--color-taupe-500)',
+						borderColor: 'var(--color-taupe-200)'
 					}
 				})
 			]
@@ -140,7 +140,7 @@
 			try {
 				const content = await previewCourseLessonContent(source);
 				if (cancelled) return;
-				previewHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.65 system-ui,sans-serif;color:#172033;padding:24px;max-width:900px;margin:auto}img{max-width:100%}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:8px}</style></head><body>${content.content}${content.tips ? `<blockquote>💡 ${content.tips.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</blockquote>` : ''}</body></html>`;
+				previewHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.65 system-ui,sans-serif;color:#292524;padding:24px;max-width:900px;margin:auto}img{max-width:100%}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:8px}</style></head><body>${content.content}${content.tips ? `<blockquote>💡 ${content.tips.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</blockquote>` : ''}</body></html>`;
 			} catch (err) {
 				if (!cancelled) previewError = err instanceof Error ? err.message : 'Preview gagal.';
 			} finally {

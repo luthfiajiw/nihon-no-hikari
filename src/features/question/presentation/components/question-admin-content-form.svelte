@@ -104,7 +104,7 @@
 	{#if form?.message}
 		<p
 			role="status"
-			class="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-200"
+			class="rounded-lg border border-taupe-200 bg-taupe-50 p-4 text-sm text-taupe-800 dark:border-taupe-800 dark:bg-taupe-950 dark:text-taupe-200"
 		>
 			{form.message}
 		</p>

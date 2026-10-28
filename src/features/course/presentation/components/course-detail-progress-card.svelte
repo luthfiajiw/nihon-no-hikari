@@ -23,7 +23,7 @@
 <Card.Root class={`flex w-full flex-col justify-between ${className}`}>
 	<Card.Header>
 		<Card.Title class="flex items-center gap-3 font-semibold">
-			<TrendingUpIcon class="size-4 text-sky-600" />
+			<TrendingUpIcon class="size-4 text-taupe-500" />
 			Progress Kursus
 		</Card.Title>
 	</Card.Header>
@@ -37,7 +37,7 @@
 				aria-valuemax={100}
 				aria-valuenow={progressPercentage}
 			>
-				<svg class="size-full -rotate-90 text-sky-600" viewBox="0 0 128 128" aria-hidden="true">
+				<svg class="size-full -rotate-90 text-taupe-500" viewBox="0 0 128 128" aria-hidden="true">
 					<circle
 						cx="64"
 						cy="64"
@@ -58,15 +58,15 @@
 						stroke-dasharray={`${progressPercentage} 100`}
 					/>
 				</svg>
-				<span class="absolute text-lg font-extrabold text-slate-900 dark:text-slate-100">
+				<span class="absolute text-lg font-extrabold text-taupe-900 dark:text-taupe-100">
 					{progressPercentage}%
 				</span>
 			</div>
 			<div class="min-w-0 flex-1 basis-24 space-y-1">
-				<p class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+				<p class="text-sm font-semibold text-taupe-800 dark:text-taupe-200">
 					{completedCount} / {totalModules} Modul
 				</p>
-				<p class="text-sm text-slate-400 dark:text-slate-500">
+				<p class="text-sm text-taupe-400 dark:text-taupe-500">
 					Level {course.level.code} - {course.title}
 				</p>
 			</div>

@@ -59,9 +59,9 @@
 					<span class="text-xs text-muted-foreground/70">{mod.completedCount}</span>
 				</div>
 				{#if isExpanded}
-					<ChevronDownIcon class="size-4 shrink-0 text-slate-400" />
+					<ChevronDownIcon class="size-4 shrink-0 text-taupe-400" />
 				{:else}
-					<ChevronRightIcon class="size-4 shrink-0 text-slate-400" />
+					<ChevronRightIcon class="size-4 shrink-0 text-taupe-400" />
 				{/if}
 			</button>
 
@@ -77,7 +77,7 @@
 							class="flex w-full items-start gap-2.5 border-none bg-transparent py-2.5 text-left transition-colors {isLocked
 								? 'cursor-not-allowed opacity-50'
 								: 'cursor-pointer hover:bg-accent'} {isActive
-								? 'border-l-[3px] border-sky-600 bg-gradient-to-r from-sky-100/70 to-sky-50/40 pr-4 pl-[17px] dark:border-sky-400 dark:from-sky-950/40 dark:to-sky-950/10'
+								? 'border-l-[3px] border-taupe-500 bg-gradient-to-r from-taupe-100/70 to-taupe-50/40 pr-4 pl-[17px] dark:border-taupe-400 dark:from-taupe-950/40 dark:to-taupe-950/10'
 								: 'px-4'}"
 							onclick={() => !isLocked && onLessonSelect?.(lesson.id)}
 						>
@@ -85,16 +85,16 @@
 								{#if lesson.status === 'completed'}
 									<CheckCircle2Icon class="size-4 text-emerald-500" />
 								{:else if lesson.status === 'in_progress'}
-									<CircleIcon class="size-4 text-sky-500" />
+									<CircleIcon class="size-4 text-taupe-500" />
 								{:else}
-									<CircleIcon class="size-4 text-slate-300 dark:text-slate-600" />
+									<CircleIcon class="size-4 text-taupe-300 dark:text-taupe-600" />
 								{/if}
 							</span>
 
 							<div class="flex min-w-0 flex-col gap-0.5">
 								<span
 									class="text-sm leading-snug {isActive
-										? 'font-semibold text-sky-700 dark:text-sky-400'
+										? 'font-semibold text-taupe-700 dark:text-taupe-400'
 										: 'font-normal text-foreground'}"
 								>
 									{lesson.title}
@@ -103,7 +103,7 @@
 									{lesson.order}
 									{#if lesson.isFree}
 										<span
-											class="rounded bg-sky-100 px-1.5 py-0.5 text-xs font-semibold text-sky-700 dark:bg-sky-950/60 dark:text-sky-400"
+											class="rounded bg-taupe-100 px-1.5 py-0.5 text-xs font-semibold text-taupe-700 dark:bg-taupe-950/60 dark:text-taupe-400"
 										>
 											Gratis
 										</span>

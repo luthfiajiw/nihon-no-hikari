@@ -84,13 +84,13 @@
 			<button
 				type="button"
 				onclick={() => goto(resolve(`/admin/content/question_set/${set.id}` as Pathname))}
-				class="group admin-row flex w-full items-center gap-4 border-b border-border text-left transition-colors last:border-0 hover:bg-sky-50/40 dark:hover:bg-sky-950/40"
+				class="group admin-row flex w-full items-center gap-4 border-b border-border text-left transition-colors last:border-0 hover:bg-taupe-50/40 dark:hover:bg-taupe-950/40"
 			>
 				<div
 					class="flex size-11 shrink-0 items-center justify-center rounded-xl {set.skill ===
 					'writing'
 						? 'bg-rose-50 text-rose-500'
-						: 'bg-sky-50 text-sky-500'}"
+						: 'bg-taupe-50 text-taupe-500'}"
 				>
 					{#if set.skill === 'writing'}
 						<PenLine class="size-5" />
@@ -99,7 +99,7 @@
 					{/if}
 				</div>
 				<div class="min-w-0 flex-1">
-					<h2 class="truncate text-sm font-semibold text-foreground group-hover:text-sky-600">
+					<h2 class="truncate text-sm font-semibold text-foreground group-hover:text-taupe-500">
 						{set.title}
 					</h2>
 					<p class="mt-1 text-xs text-muted-foreground">
@@ -112,7 +112,7 @@
 					</p>
 				</div>
 				<StatusBadge item={set} />
-				<ArrowUpRight class="size-4 shrink-0 text-muted-foreground/70 group-hover:text-sky-600" />
+				<ArrowUpRight class="size-4 shrink-0 text-muted-foreground/70 group-hover:text-taupe-500" />
 			</button>
 		{:else}
 			<div class="admin-empty">

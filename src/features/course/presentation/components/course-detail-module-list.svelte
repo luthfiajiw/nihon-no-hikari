@@ -29,7 +29,7 @@
 
 	<Card.Content class="@container flex flex-1 flex-col gap-2.5">
 		{#if modules.length === 0}
-			<p class="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+			<p class="p-8 text-center text-sm text-taupe-500 dark:text-taupe-400">
 				Belum ada modul pada kursus ini.
 			</p>
 		{:else}
@@ -40,28 +40,28 @@
 					disabled={courseModule.status === 'locked'}
 					aria-current={isActive ? 'step' : undefined}
 					class={cn(
-						'grid w-full grid-cols-[2rem_minmax(0,1fr)_1.25rem] items-center gap-x-3 gap-y-2 rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed @2xl:grid-cols-[2rem_minmax(0,1fr)_auto_1.25rem] @2xl:gap-x-6 @2xl:px-6',
+						'grid w-full grid-cols-[2rem_minmax(0,1fr)_1.25rem] items-center gap-x-3 gap-y-2 rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-taupe-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed @2xl:grid-cols-[2rem_minmax(0,1fr)_auto_1.25rem] @2xl:gap-x-6 @2xl:px-6',
 						isActive
-							? 'border-sky-500 bg-sky-50/80 shadow-sm shadow-sky-500/15 dark:border-sky-500 dark:bg-sky-950/30'
-							: 'border-slate-200/70 bg-slate-50/40 enabled:hover:border-slate-300 enabled:hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40 dark:enabled:hover:border-slate-700 dark:enabled:hover:bg-slate-800/50'
+							? 'border-taupe-500 bg-taupe-50/80 shadow-sm shadow-taupe-500/15 dark:border-taupe-500 dark:bg-taupe-950/30'
+							: 'border-taupe-200/70 bg-taupe-50/40 enabled:hover:border-taupe-300 enabled:hover:bg-taupe-50 dark:border-taupe-800 dark:bg-taupe-900/40 dark:enabled:hover:border-taupe-700 dark:enabled:hover:bg-taupe-800/50'
 					)}
 				>
 					<span
 						class={cn(
 							'flex size-8 items-center justify-center rounded-full text-base font-bold',
 							isActive
-								? 'bg-sky-600 text-white shadow-xs'
-								: 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+								? 'bg-taupe-500 text-white shadow-xs'
+								: 'bg-taupe-200/80 text-taupe-700 dark:bg-taupe-800 dark:text-taupe-300'
 						)}
 					>
 						{index + 1}
 					</span>
 					<div class="min-w-0 space-y-0.5">
-						<h3 class="text-base leading-5 font-bold text-slate-950 dark:text-slate-100">
+						<h3 class="text-base leading-5 font-bold text-taupe-950 dark:text-taupe-100">
 							{courseModule.title}
 						</h3>
 						<p
-							class="line-clamp-2 text-sm leading-5 text-slate-500 @2xl:line-clamp-1 dark:text-slate-400"
+							class="line-clamp-2 text-sm leading-5 text-taupe-500 @2xl:line-clamp-1 dark:text-taupe-400"
 						>
 							{courseModule.description}
 						</p>
@@ -75,9 +75,9 @@
 							class={cn('h-8 gap-2 px-3 font-medium [&>svg]:size-3.5!', {
 								'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400':
 									courseModule.status === 'completed',
-								'border-sky-300 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-400':
+								'border-taupe-300 bg-taupe-50 text-taupe-500 dark:border-taupe-800 dark:bg-taupe-950/50 dark:text-taupe-400':
 									courseModule.status === 'in_progress',
-								'border-slate-200/70 text-slate-500 dark:border-slate-700 dark:text-slate-400':
+								'border-taupe-200/70 text-taupe-500 dark:border-taupe-700 dark:text-taupe-400':
 									courseModule.status === 'locked' || courseModule.status === 'unlocked'
 							})}
 						>
@@ -93,7 +93,7 @@
 							{getModuleStatusLabel(courseModule.status)}
 						</Badge>
 						<span
-							class="flex items-center gap-2 text-sm whitespace-nowrap text-slate-500 dark:text-slate-400"
+							class="flex items-center gap-2 text-sm whitespace-nowrap text-taupe-500 dark:text-taupe-400"
 						>
 							<ClockIcon class="size-4 shrink-0" aria-hidden="true" />
 							{formatDuration(courseModule.estimated_minutes)}
@@ -102,7 +102,7 @@
 					<ChevronRightIcon
 						class={cn(
 							'col-start-3 row-start-1 size-5 @2xl:col-start-4',
-							isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'
+							isActive ? 'text-taupe-500 dark:text-taupe-400' : 'text-taupe-500 dark:text-taupe-400'
 						)}
 						aria-hidden="true"
 					/>

@@ -11,7 +11,7 @@
 </script>
 
 <Card.Root
-	class={`w-full justify-between bg-cover bg-center bg-no-repeat text-slate-900 ${className}`}
+	class={`w-full justify-between bg-cover bg-center bg-no-repeat text-taupe-900 ${className}`}
 	style={`background-image: url('${bannerBg}')`}
 >
 	<!-- Left Section (Text Details) -->
@@ -26,7 +26,7 @@
 		</h1>
 
 		<!-- Subtitle -->
-		<p class="max-w-xl text-sm leading-relaxed text-slate-600">
+		<p class="max-w-xl text-sm leading-relaxed text-taupe-600">
 			Setiap level memiliki materi yang disusun secara bertahap, mulai dari dasar hingga mahir.
 			Pilih level yang sesuai dengan kemampuanmu saat ini.
 		</p>

@@ -287,7 +287,7 @@
 	<div class="p-6">
 		<Card.Root>
 			<Card.Content class="py-10 text-center">
-				<p class="font-semibold text-slate-900 dark:text-slate-100">Materi kursus tidak tersedia</p>
+				<p class="font-semibold text-taupe-900 dark:text-taupe-100">Materi kursus tidak tersedia</p>
 				<p class="mt-1 text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
 				<Button class="mt-5" type="button" onclick={() => goto(resolve('/courses'))}>
 					Kembali ke daftar kursus
@@ -299,7 +299,7 @@
 	<div class="p-6">
 		<Card.Root>
 			<Card.Content class="py-10 text-center">
-				<p class="font-semibold text-slate-900 dark:text-slate-100">Belum ada materi</p>
+				<p class="font-semibold text-taupe-900 dark:text-taupe-100">Belum ada materi</p>
 				<p class="mt-1 text-sm text-muted-foreground">
 					Modul dan materi untuk kursus ini belum tersedia.
 				</p>
@@ -315,7 +315,7 @@
 				<div class="flex h-full items-center justify-center p-6">
 					<Card.Root class="w-full max-w-lg">
 						<Card.Content class="py-10 text-center">
-							<p class="font-semibold text-slate-900 dark:text-slate-100">
+							<p class="font-semibold text-taupe-900 dark:text-taupe-100">
 								Materi tidak dapat dimuat
 							</p>
 							<p class="mt-1 text-sm text-red-600 dark:text-red-400">{lessonDetailError}</p>

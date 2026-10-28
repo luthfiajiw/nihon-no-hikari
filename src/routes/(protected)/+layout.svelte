@@ -263,12 +263,12 @@
 			>
 				{#if isAdminRoute && navigating.to}
 					<div class="mx-auto max-w-7xl space-y-6 p-6 md:p-8" role="status" aria-live="polite">
-						<p class="flex items-center gap-2 text-sm text-slate-500">
+						<p class="flex items-center gap-2 text-sm text-taupe-500">
 							<LoaderCircle class="size-4 animate-spin motion-reduce:animate-none" /> Membuka halaman…
 						</p>
-						<div class="h-12 w-72 rounded-xl bg-slate-200/70"></div>
+						<div class="h-12 w-72 rounded-xl bg-taupe-200/70"></div>
 						{#each [1, 2, 3] as row (row)}
-							<div class="h-32 rounded-2xl border border-slate-200 bg-white"></div>
+							<div class="h-32 rounded-2xl border border-taupe-200 bg-white"></div>
 						{/each}
 					</div>
 				{/if}

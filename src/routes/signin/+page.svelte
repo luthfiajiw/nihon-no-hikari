@@ -8,9 +8,15 @@
 	<meta name="description" content="Masuk ke akun Anda." />
 </svelte:head>
 
-<div
-	class="flex min-h-svh w-full items-center justify-center bg-cover bg-center px-4 py-8 sm:px-6"
+<main
+	class="relative flex min-h-svh w-full justify-end bg-cover bg-left"
 	style="background-image: url('{bgImg}')"
 >
+	<div
+		class="absolute top-10 left-10 text-5xl font-bold text-taupe-600"
+		style="writing-mode: vertical-rl;"
+	>
+		千里の道も一歩から
+	</div>
 	<SignInView />
-</div>
+</main>

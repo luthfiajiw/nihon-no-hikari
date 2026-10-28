@@ -5,7 +5,7 @@
 </script>
 
 <Card.Root
-	class="w-full justify-between bg-cover bg-center bg-no-repeat text-slate-900"
+	class="w-full justify-between bg-cover bg-center bg-no-repeat text-taupe-900"
 	style={`background-image: url('${bannerBg}'); background-position: center 70%;`}
 >
 	<Card.Content class="flex flex-col items-start gap-4">

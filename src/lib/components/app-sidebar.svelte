@@ -100,7 +100,7 @@
 			!active && 'bg-transparent',
 			!active &&
 				!compact &&
-				'rounded-xl text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800',
+				'rounded-xl text-sm font-medium text-taupe-600 transition-colors hover:bg-taupe-100/80 hover:text-taupe-900 dark:text-taupe-300 dark:hover:bg-taupe-800',
 			active && buttonVariants({ variant: 'default' }),
 			'justify-start group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!',
 			compact ? 'h-8 px-1.5 py-1.5' : 'h-10 px-2.5',
@@ -134,11 +134,11 @@
 	>
 		<img src={logo} alt="NihongoPro Logo" class="size-6 shrink-0 object-contain" />
 		<div class="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
-			<h1 class="text-lg leading-tight font-bold text-slate-900 dark:text-slate-100">
+			<h1 class="text-lg leading-tight font-bold text-taupe-900 dark:text-taupe-100">
 				学 校 ビット
 			</h1>
 			{#if mode === 'admin'}
-				<p class="text-[10px] font-semibold tracking-[0.16em] text-slate-500">PANEL ADMIN</p>
+				<p class="text-[10px] font-semibold tracking-[0.16em] text-taupe-500">PANEL ADMIN</p>
 			{/if}
 		</div>
 	</Sidebar.Header>
@@ -181,7 +181,7 @@
 										<item.icon
 											class={cn(
 												'mr-1 size-4 shrink-0 transition-colors group-data-[collapsible=icon]:mr-0',
-												!active && 'text-slate-600 dark:text-slate-400'
+												!active && 'text-taupe-600 dark:text-taupe-400'
 											)}
 										/>
 									{/if}
@@ -216,11 +216,11 @@
 		{/if}
 
 		{#if mode === 'admin'}
-			<div class="mt-5 border-t border-slate-100 pt-5">
+			<div class="mt-5 border-t border-taupe-100 pt-5">
 				<button
 					type="button"
 					onclick={() => goto(resolve('/'))}
-					class="flex w-full items-center gap-2 rounded-xl border border-sky-200 px-3 py-3 text-sm font-medium text-sky-600 group-data-[collapsible=icon]:justify-center hover:bg-sky-50"
+					class="flex w-full items-center gap-2 rounded-xl border border-taupe-200 px-3 py-3 text-sm font-medium text-taupe-500 group-data-[collapsible=icon]:justify-center hover:bg-taupe-50"
 				>
 					<ArrowUpRight class="size-4 shrink-0" />
 					<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
@@ -228,7 +228,7 @@
 			</div>
 		{:else}
 			<div class="pt-2">
-				<div class="my-3 border-t border-slate-100 dark:border-slate-800"></div>
+				<div class="my-3 border-t border-taupe-100 dark:border-taupe-800"></div>
 				<Sidebar.Group class="p-0">
 					<Sidebar.Menu class="space-y-2">
 						{#each secondaryNav as item (item.name)}
@@ -249,7 +249,7 @@
 											<item.icon
 												class={cn(
 													'mr-1 size-5 shrink-0 transition-colors group-data-[collapsible=icon]:mr-0',
-													!active && 'text-slate-600 dark:text-slate-400'
+													!active && 'text-taupe-600 dark:text-taupe-400'
 												)}
 											/>
 											<span class="group-data-[collapsible=icon]:hidden">{item.name}</span>

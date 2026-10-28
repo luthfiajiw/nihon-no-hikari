@@ -41,7 +41,7 @@
 		>
 			{result.is_passed ? 'Lulus' : 'Belum lulus'}
 		</Badge>
-		<p class="mt-3 text-sm font-bold tracking-widest text-sky-600 uppercase">
+		<p class="mt-3 text-sm font-bold tracking-widest text-taupe-500 uppercase">
 			Hasil {assessmentLabel}
 		</p>
 		<h2 class="mt-1 text-4xl font-extrabold text-card-foreground">Nilai {result.score}</h2>

@@ -14,7 +14,7 @@
 			label: 'Kursus',
 			href: '/admin/courses',
 			icon: BookOpen,
-			color: 'bg-sky-50 text-sky-600'
+			color: 'bg-taupe-50 text-taupe-500'
 		},
 		{
 			key: 'modules',
@@ -66,7 +66,7 @@
 					<span class="flex size-11 items-center justify-center rounded-xl {card.color}">
 						<card.icon class="size-5" />
 					</span>
-					<ArrowUpRight class="size-4 text-muted-foreground/50 group-hover:text-sky-500" />
+					<ArrowUpRight class="size-4 text-muted-foreground/50 group-hover:text-taupe-500" />
 				</div>
 				<p class="mt-4 text-3xl font-bold tracking-tight">{data.catalog[card.key]?.length ?? 0}</p>
 				<p class="mt-1 text-sm text-muted-foreground">{card.label}</p>
@@ -75,7 +75,9 @@
 	</div>
 	<Card.Root class="flex-row flex-wrap items-center justify-between px-(--card-spacing)">
 		<div>
-			<p class="text-xs font-semibold tracking-wider text-sky-600 uppercase">Kelola pembelajaran</p>
+			<p class="text-xs font-semibold tracking-wider text-taupe-500 uppercase">
+				Kelola pembelajaran
+			</p>
 			<h2 class="mt-2 text-xl font-bold text-foreground">
 				Materi yang tertata, belajar lebih terarah.
 			</h2>

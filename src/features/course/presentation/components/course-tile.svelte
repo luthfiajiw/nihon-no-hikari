@@ -40,7 +40,7 @@
 		<div class="mb-3.5 flex items-center justify-between gap-2">
 			<!-- Level Badge (N5) -->
 			<span
-				class="flex items-center justify-center rounded-lg bg-sky-600 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-xs shadow-sky-600/30"
+				class="flex items-center justify-center rounded-lg bg-taupe-500 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-xs shadow-taupe-500/30"
 			>
 				{level.code}
 			</span>
@@ -49,7 +49,7 @@
 			{#if level.name}
 				<Badge
 					variant="outline"
-					class="border-sky-200 bg-sky-50/50 text-sky-700 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-300"
+					class="border-taupe-200 bg-taupe-50/50 text-taupe-700 dark:border-taupe-900/50 dark:bg-taupe-950/30 dark:text-taupe-300"
 				>
 					{level.name}
 				</Badge>
@@ -58,7 +58,7 @@
 
 		<!-- Optional Cover Image -->
 		{#if coverImage}
-			<div class="mb-4 aspect-video overflow-hidden rounded-xl bg-slate-100">
+			<div class="mb-4 aspect-video overflow-hidden rounded-xl bg-taupe-100">
 				<img
 					src={coverImage}
 					alt={title}
@@ -105,10 +105,10 @@
 		>
 			{#if isEnrolled}
 				Terdaftar
-				<ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-1" />
+				<ArrowRightIcon class="group-hover:trantaupe-x-1 size-4 transition-transform" />
 			{:else}
 				Lihat Detail
-				<ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-1" />
+				<ArrowRightIcon class="group-hover:trantaupe-x-1 size-4 transition-transform" />
 			{/if}
 		</Button>
 	</Card.Footer>

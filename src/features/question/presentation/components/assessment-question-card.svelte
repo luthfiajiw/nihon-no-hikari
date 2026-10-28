@@ -63,7 +63,7 @@
 <Card.Root class="min-h-0">
 	<Card.Content>
 		<div class="flex items-center gap-3">
-			<Badge class="bg-sky-50 text-sky-700">{skillLabels[question.skill]}</Badge>
+			<Badge class="bg-taupe-50 text-taupe-700">{skillLabels[question.skill]}</Badge>
 			<span class="text-sm text-muted-foreground">Soal {questionNumber} dari {totalQuestions}</span>
 		</div>
 
@@ -116,7 +116,7 @@
 						<span
 							class={cn(
 								'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-								selected ? 'border-primary bg-primary' : 'border-slate-300 bg-card'
+								selected ? 'border-primary bg-primary' : 'border-taupe-300 bg-card'
 							)}
 						>
 							{#if selected}
