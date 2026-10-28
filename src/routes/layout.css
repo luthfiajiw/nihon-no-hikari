@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '../features/course/presentation/components/course-lesson-content.css';
 @source '../features';
 @custom-variant dark (&:where(.dark, .dark *));
 

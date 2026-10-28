@@ -5,7 +5,7 @@
 	import { KotobaError } from '$features/kotoba/domain/entities/kotoba-api.entity';
 	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
 	import { resolve } from '$app/paths';
-	import { BookOpen, EyeOff, Languages, Pencil, Plus, Search, Trash2 } from 'lucide-svelte';
+	import { BookOpen, EyeOff, Pencil, Plus, Search, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
@@ -17,6 +17,7 @@
 	import Cover from '$features/kotoba/presentation/components/kotoba-admin-cover.svelte';
 	import { getKotobaAdminState } from '$features/kotoba/presentation/contexts/kotoba-admin-context.svelte';
 	import type { KotobaAdminTopic } from '$features/kotoba/presentation/models/kotoba-admin.model';
+	import kanjiIcon from '$lib/assets/icons/kanji.svg';
 
 	const kotoba = getKotobaAdminState();
 	let { topics: allTopics }: { topics: KotobaAdminTopic[] } = $props();
@@ -202,10 +203,14 @@
 			</Card.Root>
 		{:else}
 			<Card.Root class="admin-empty items-center">
-				<Languages class="size-10 text-muted-foreground/50" />
-				<h2 class="font-semibold">
+				<span
+					aria-hidden="true"
+					class="mr-1 size-10 shrink-0 bg-primary mask-contain mask-center mask-no-repeat group-data-[collapsible=icon]:mr-0"
+					style:mask-image={`url(${JSON.stringify(kanjiIcon)})`}
+				></span>
+				<p class="font-semibold">
 					{allTopics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
-				</h2>
+				</p>
 				<p class="text-sm text-muted-foreground">
 					{allTopics.length
 						? 'Coba kata kunci atau filter lainnya.'

@@ -23,7 +23,8 @@
 		Settings,
 		CircleQuestionMark,
 		Users,
-		ArrowUpRight
+		ArrowUpRight,
+		ArrowDownLeft
 	} from 'lucide-svelte';
 
 	let {
@@ -193,37 +194,27 @@
 				{/each}
 			</Sidebar.Menu>
 		</Sidebar.Group>
-		{#if isAdmin && mode !== 'admin'}
-			<Sidebar.Group class="p-0 pt-2">
-				<Sidebar.Menu>
-					<Sidebar.MenuItem>
-						<Sidebar.MenuButton
-							isActive={isItemActive('/admin')}
-							tooltipContent="Panel Admin"
-							aria-label="Panel Admin"
-							class={menuButtonClass(isItemActive('/admin'), true)}
-						>
-							{#snippet child({ props })}
-								<button type="button" {...props} onclick={() => goto(resolve('/admin'))}>
-									<Users class="mr-1 size-4 group-data-[collapsible=icon]:mr-0" />
-									<span class="group-data-[collapsible=icon]:hidden">Panel Admin</span>
-								</button>
-							{/snippet}
-						</Sidebar.MenuButton>
-					</Sidebar.MenuItem>
-				</Sidebar.Menu>
-			</Sidebar.Group>
-		{/if}
 
-		{#if mode === 'admin'}
+		{#if isAdmin}
 			<div class="mt-5 border-t border-taupe-100 pt-5">
 				<button
 					type="button"
-					onclick={() => goto(resolve('/'))}
+					onclick={() => {
+						if (mode === 'admin') {
+							goto(resolve('/'));
+						} else {
+							goto(resolve('/admin'));
+						}
+					}}
 					class="flex w-full items-center gap-2 rounded-xl border border-taupe-200 px-3 py-3 text-sm font-medium text-taupe-500 group-data-[collapsible=icon]:justify-center hover:bg-taupe-50"
 				>
-					<ArrowUpRight class="size-4 shrink-0" />
-					<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
+					{#if mode !== 'admin'}
+						<ArrowDownLeft class="size-4 shrink-0" />
+						<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
+					{:else}
+						<ArrowUpRight class="size-4 shrink-0" />
+						<span class="group-data-[collapsible=icon]:hidden">Kembali ke dashboard admin</span>
+					{/if}
 				</button>
 			</div>
 		{:else}

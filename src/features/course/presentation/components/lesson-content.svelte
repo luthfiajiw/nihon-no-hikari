@@ -190,7 +190,7 @@
 
 <div class="h-full min-w-0 flex-1 overflow-hidden">
 	<ScrollArea.Root class="h-full" orientation="vertical">
-		<article class="mx-auto max-w-5xl px-6 pt-6 pb-16">
+		<article class="mx-auto max-w-7xl px-6 pt-6 pb-16">
 			<h1 class="mb-7 text-2xl leading-tight font-extrabold tracking-tight text-foreground">
 				{title}
 			</h1>

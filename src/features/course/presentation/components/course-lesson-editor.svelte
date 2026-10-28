@@ -19,6 +19,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { previewCourseLessonContent } from '$dependencies/course-preview.dependency';
 	import type { CourseAdminLessonContent } from '$features/course/domain/entities/course-admin.entity';
+	import courseLessonContentCss from './course-lesson-content.css?inline';
 
 	let { value = $bindable({ content: '', tips: '' }) }: { value: CourseAdminLessonContent } =
 		$props();
@@ -140,7 +141,7 @@
 			try {
 				const content = await previewCourseLessonContent(source);
 				if (cancelled) return;
-				previewHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.65 system-ui,sans-serif;color:#292524;padding:24px;max-width:900px;margin:auto}img{max-width:100%}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:8px}</style></head><body>${content.content}${content.tips ? `<blockquote>💡 ${content.tips.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</blockquote>` : ''}</body></html>`;
+				previewHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{box-sizing:border-box;width:100%;max-width:1024px;margin:0 auto;padding:24px}${courseLessonContentCss}</style></head><body><main class="course-lesson-html">${content.content}${content.tips ? `<blockquote>💡 ${content.tips.replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</blockquote>` : ''}</main></body></html>`;
 			} catch (err) {
 				if (!cancelled) previewError = err instanceof Error ? err.message : 'Preview gagal.';
 			} finally {

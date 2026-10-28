@@ -32,7 +32,7 @@
 </script>
 
 <div class="lesson-reader">
-	<div bind:this={root} class="lesson-reader-content">
+	<div bind:this={root} class="lesson-reader-content course-lesson-html">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html content}
 	</div>

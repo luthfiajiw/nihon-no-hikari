@@ -2,7 +2,6 @@
 	position: relative;
 	isolation: isolate;
 	box-sizing: border-box;
-	padding-inline-start: 36px;
 }
 .lesson-reader-overlay {
 	position: absolute;

@@ -1,0 +1,79 @@
+.course-lesson-html {
+	color: #292524;
+	font: 16px/1.65 system-ui, sans-serif;
+}
+
+.course-lesson-html h1,
+.course-lesson-html h2,
+.course-lesson-html h3,
+.course-lesson-html h4,
+.course-lesson-html h5,
+.course-lesson-html h6 {
+	font-weight: 700;
+}
+
+.course-lesson-html h1 {
+	margin-block: 0.67em;
+	font-size: 2em;
+}
+
+.course-lesson-html h2 {
+	margin-block: 0.83em;
+	font-size: 1.5em;
+}
+
+.course-lesson-html h3 {
+	margin-block: 1em;
+	font-size: 1.17em;
+}
+
+.course-lesson-html h4 {
+	margin-block: 1.33em;
+	font-size: 1em;
+}
+
+.course-lesson-html h5 {
+	margin-block: 1.67em;
+	font-size: 0.83em;
+}
+
+.course-lesson-html h6 {
+	margin-block: 2.33em;
+	font-size: 0.67em;
+}
+
+.course-lesson-html p {
+	margin-block: 1em;
+}
+
+.course-lesson-html ul,
+.course-lesson-html ol {
+	margin-block: 1em;
+	padding-inline-start: 40px;
+}
+
+.course-lesson-html ul {
+	list-style: disc;
+}
+
+.course-lesson-html ol {
+	list-style: decimal;
+}
+
+.course-lesson-html li {
+	display: list-item;
+}
+
+.course-lesson-html img {
+	max-width: 100%;
+}
+
+.course-lesson-html table {
+	border-collapse: collapse;
+}
+
+.course-lesson-html td,
+.course-lesson-html th {
+	border: 1px solid #ccc;
+	padding: 8px;
+}

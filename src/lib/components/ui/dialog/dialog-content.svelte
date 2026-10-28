@@ -23,7 +23,7 @@
 		bind:ref
 		data-slot="dialog-content"
 		class={cn(
-			'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 -trantaupe-x-1/2 -trantaupe-y-1/2 fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg gap-4 rounded-xl border bg-background p-6 shadow-lg duration-50',
+			'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 -translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg gap-4 rounded-xl border bg-background p-6 shadow-lg duration-50',
 			className
 		)}
 		{...restProps}
