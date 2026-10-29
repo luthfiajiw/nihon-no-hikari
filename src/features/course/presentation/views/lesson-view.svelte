@@ -349,7 +349,7 @@
 		</Card.Root>
 	</div>
 {:else}
-	<div class="flex h-full w-full overflow-hidden bg-background">
+	<div class="flex h-full w-full overflow-hidden">
 		<div class="h-full min-w-0 flex-1 overflow-hidden">
 			{#if isLessonLoading}
 				<LessonContentSkeleton />

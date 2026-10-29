@@ -48,10 +48,10 @@
 </script>
 
 <div class="flex items-start">
-	<div class={`pt-3.5 ${isOpen ? 'pr-1' : 'pr-6'}`}>
+	<div class={`absolute top-14 ${isOpen ? 'right-77' : 'right-5'}`}>
 		<button
 			type="button"
-			class="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+			class="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
 			onclick={onToggle}
 			title="Buka sidebar"
 		>

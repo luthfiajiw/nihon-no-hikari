@@ -200,17 +200,17 @@
 						Romaji
 						<Input name="romaji" bind:value={item.romaji} required maxlength={8} placeholder="a" />
 					</label>
+					<label class="space-y-2 text-sm font-medium">
+						Versi sumber
+						<Input
+							name="source_version"
+							bind:value={item.source_version}
+							required
+							placeholder="Contoh: r20260714"
+						/>
+					</label>
 				</div>
-				<label class="space-y-2 text-sm font-medium">
-					Versi sumber
-					<Input
-						name="source_version"
-						bind:value={item.source_version}
-						required
-						placeholder="Contoh: r20260714"
-					/>
-				</label>
-				<div class="space-y-2 text-sm">
+				<div class="space-y-1 text-sm">
 					<label for="template-svg" class="font-medium">
 						SVG KanjiVG {isNew || identityChanged ? '(wajib)' : '(pengganti, opsional)'}
 					</label>
@@ -233,7 +233,7 @@
 				</div>
 			</fieldset>
 			{#if previewError}<p role="alert" class="text-sm text-red-700">{previewError}</p>{/if}
-			<div class="flex flex-wrap gap-2">
+			<div class="flex flex-wrap justify-end gap-2">
 				<Button
 					type="button"
 					variant="outline"
@@ -247,12 +247,9 @@
 					{#if saving}<LoaderCircle class="size-4 animate-spin" />{:else}<Save
 							class="size-4"
 						/>{/if}
-					{saving ? 'Menyimpan...' : 'Simpan Template'}
+					{saving ? 'Menyimpan...' : 'Simpan'}
 				</Button>
 			</div>
-			<p class="text-xs text-muted-foreground">
-				Template langsung tersedia untuk dipilih pada soal writing setelah disimpan.
-			</p>
 		</form>
 		<Card.Root role="region" aria-label="Pratinjau template kana" class="gap-0 px-(--card-spacing)">
 			{#if guide}

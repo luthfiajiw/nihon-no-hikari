@@ -112,135 +112,151 @@
 	<form
 		method="POST"
 		action="?/save"
+		id="question-set-form"
 		use:enhance={submitContent('save')}
 		data-slot="card"
 		data-size="default"
-		class={Card.cardVariants({ class: 'admin-page block px-(--card-spacing)' })}
 	>
-		<Input type="hidden" name="payload" value={payload()} />
-		<div class="admin-fields">
-			<label class="block text-sm font-medium">
-				Judul set
-				<Input bind:value={item.title} required maxlength={160} class="mt-2 h-10" />
-			</label>
-			<label class="block text-sm font-medium">
-				Jenis
-				<ManagementSelect
-					bind:value={() => item.kind, changeKind}
-					options={kindOptions}
-					class="mt-2"
-				/>
-			</label>
-			{#if item.kind === 'practice'}
+		<div class={Card.cardVariants({ class: 'admin-page block px-(--card-spacing)' })}>
+			<Input type="hidden" name="payload" value={payload()} />
+			<div class="admin-fields">
 				<label class="block text-sm font-medium">
-					Lesson
+					Judul set
+					<Input bind:value={item.title} required maxlength={160} class="mt-2 h-10" />
+				</label>
+				<label class="block text-sm font-medium">
+					Jenis
 					<ManagementSelect
-						bind:value={() => item.lesson_id ?? '', (value) => (item.lesson_id = value || null)}
-						options={lessonOptions}
+						bind:value={() => item.kind, changeKind}
+						options={kindOptions}
 						class="mt-2"
 					/>
 				</label>
-			{:else}
+				{#if item.kind === 'practice'}
+					<label class="block text-sm font-medium">
+						Lesson
+						<ManagementSelect
+							bind:value={() => item.lesson_id ?? '', (value) => (item.lesson_id = value || null)}
+							options={lessonOptions}
+							class="mt-2"
+						/>
+					</label>
+				{:else}
+					<label class="block text-sm font-medium">
+						Module
+						<ManagementSelect bind:value={item.module_id} options={moduleOptions} class="mt-2" />
+					</label>
+				{/if}
 				<label class="block text-sm font-medium">
-					Module
-					<ManagementSelect bind:value={item.module_id} options={moduleOptions} class="mt-2" />
+					Skill
+					<ManagementSelect
+						bind:value={() => item.skill, changeSkill}
+						options={skillOptions}
+						class="mt-2"
+					/>
 				</label>
-			{/if}
-			<label class="block text-sm font-medium">
-				Skill
-				<ManagementSelect
-					bind:value={() => item.skill, changeSkill}
-					options={skillOptions}
-					class="mt-2"
-				/>
-			</label>
-			<label class="block text-sm font-medium">
-				Nilai lulus (0–100)
-				<Input bind:value={item.passing_score} type="number" min="0" max="100" class="mt-2 h-10" />
-			</label>
-			<label class="block text-sm font-medium">
-				Urutan
-				<Input bind:value={item.order_index} type="number" min="0" class="mt-2 h-10" />
-			</label>
-			<label class="block text-sm font-medium">
-				Jumlah soal dipilih (kosong = semua)
-				<Input
-					type="number"
-					min="1"
-					value={item.total_questions ?? ''}
-					oninput={(e) =>
-						(item.total_questions =
-							e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
-					class="mt-2 h-10"
-				/>
-			</label>
-			<label class="block text-sm font-medium">
-				Batas detik (kosong/0 = tanpa batas)
-				<Input
-					type="number"
-					min="0"
-					value={item.time_limit_seconds ?? ''}
-					oninput={(e) =>
-						(item.time_limit_seconds =
-							e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
-					class="mt-2 h-10"
-				/>
-			</label>
-			<label class="block text-sm font-medium">
-				Maksimum attempt (kosong = bebas)
-				<Input
-					type="number"
-					min="1"
-					value={item.max_attempts ?? ''}
-					oninput={(e) =>
-						(item.max_attempts =
-							e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
-					class="mt-2 h-10"
-				/>
-			</label>
-			<label class="block text-sm font-medium">
-				Jeda menit
-				<Input bind:value={item.cooldown_minutes} type="number" min="0" class="mt-2 h-10" />
-			</label>
-			<label class="flex items-center gap-2 text-sm">
-				<Checkbox bind:checked={item.shuffle_questions} />
-				Acak soal
-			</label>
+				<label class="block text-sm font-medium">
+					Nilai lulus (0–100)
+					<Input
+						bind:value={item.passing_score}
+						type="number"
+						min="0"
+						max="100"
+						class="mt-2 h-10"
+					/>
+				</label>
+				<label class="block text-sm font-medium">
+					Urutan
+					<Input bind:value={item.order_index} type="number" min="0" class="mt-2 h-10" />
+				</label>
+				<label class="block text-sm font-medium">
+					Jumlah soal dipilih (kosong = semua)
+					<Input
+						type="number"
+						min="1"
+						value={item.total_questions ?? ''}
+						oninput={(e) =>
+							(item.total_questions =
+								e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
+						class="mt-2 h-10"
+					/>
+				</label>
+				<label class="block text-sm font-medium">
+					Batas detik (kosong/0 = tanpa batas)
+					<Input
+						type="number"
+						min="0"
+						value={item.time_limit_seconds ?? ''}
+						oninput={(e) =>
+							(item.time_limit_seconds =
+								e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
+						class="mt-2 h-10"
+					/>
+				</label>
+				<label class="block text-sm font-medium">
+					Maksimum attempt (kosong = bebas)
+					<Input
+						type="number"
+						min="1"
+						value={item.max_attempts ?? ''}
+						oninput={(e) =>
+							(item.max_attempts =
+								e.currentTarget.value === '' ? null : Number(e.currentTarget.value))}
+						class="mt-2 h-10"
+					/>
+				</label>
+				<label class="block text-sm font-medium">
+					Jeda menit
+					<Input bind:value={item.cooldown_minutes} type="number" min="0" class="mt-2 h-10" />
+				</label>
+				<label class="flex items-center gap-2 text-sm">
+					<Checkbox bind:checked={item.shuffle_questions} />
+					Acak soal
+				</label>
+			</div>
 		</div>
 		<QuestionSetQuestionsEditor bind:questions={item.questions} skill={item.skill} {templates} />
-		<Button type="submit" disabled={pendingAction !== null} isLoading={pendingAction === 'save'}>
+	</form>
+	<div class="flex justify-between">
+		<Button
+			type="submit"
+			form="question-set-form"
+			disabled={pendingAction !== null}
+			isLoading={pendingAction === 'save'}
+		>
 			Simpan Draft
 		</Button>
-	</form>
-	{#if !isNew}
+
 		<div class="flex flex-wrap gap-3">
-			{#if archived}
-				<form method="POST" action="?/restore">
-					<Button type="submit" variant="outline">Pulihkan</Button>
-				</form>
-			{:else}
-				<form method="POST" action="?/publish" use:enhance={submitContent('publish')}>
-					<Button
-						type="submit"
-						variant="outline"
-						disabled={pendingAction !== null}
-						isLoading={pendingAction === 'publish'}
-					>
-						{hasDraft ? 'Terbitkan Perubahan' : 'Terbitkan'}
-					</Button>
-				</form>
-			{/if}
 			<Button type="button" variant="destructive" onclick={() => (confirmDelete = !confirmDelete)}>
 				Hapus
 			</Button>
-			{#if confirmDelete}
-				<form method="POST" action="?/remove">
-					<p class="mb-2 text-sm text-red-700">
-						Konten dengan riwayat siswa akan diarsipkan. Lanjutkan?
-					</p>
-					<Button type="submit" variant="destructive">Ya, hapus atau arsipkan</Button>
-				</form>
+			{#if !isNew}
+				{#if archived}
+					<form method="POST" action="?/restore">
+						<Button type="submit" variant="outline">Pulihkan</Button>
+					</form>
+				{:else}
+					<form method="POST" action="?/publish" use:enhance={submitContent('publish')}>
+						<Button
+							type="submit"
+							variant="outline"
+							disabled={pendingAction !== null}
+							isLoading={pendingAction === 'publish'}
+						>
+							{hasDraft ? 'Terbitkan Perubahan' : 'Terbitkan'}
+						</Button>
+					</form>
+				{/if}
+				{#if confirmDelete}
+					<form method="POST" action="?/remove">
+						<p class="mb-2 text-sm text-red-700">
+							Konten dengan riwayat siswa akan diarsipkan. Lanjutkan?
+						</p>
+						<Button type="submit" variant="destructive">Ya, hapus atau arsipkan</Button>
+					</form>
+				{/if}
 			{/if}
 		</div>
-	{/if}
+	</div>
 </div>

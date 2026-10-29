@@ -6,6 +6,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import type { QuestionAdminFormQuestion } from '$features/question/presentation/models/question-admin-content-form.model';
 	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
+	import { Button } from '$lib/components/ui/button';
 	let {
 		questions = $bindable([]),
 		skill,
@@ -43,13 +44,8 @@
 	}
 </script>
 
-<div class="admin-stack border-t pt-4">
-	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">Soal ({questions.length})</h2>
-		<button type="button" onclick={addQuestion} class="rounded-lg border px-3 py-2 text-sm">
-			Tambah Soal
-		</button>
-	</div>
+<div class="admin-stack pt-6 pb-6">
+	<h2 class="text-xl font-semibold">Soal ({questions.length})</h2>
 	{#each questions as question, i (question)}
 		<Card.Root size="sm" class="gap-4 px-(--card-spacing)">
 			<div class="flex justify-between">
@@ -156,4 +152,5 @@
 			{/if}
 		</Card.Root>
 	{/each}
+	<Button variant="outline" class="w-full" onclick={addQuestion}>Tambah Soal</Button>
 </div>
