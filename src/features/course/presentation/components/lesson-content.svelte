@@ -29,12 +29,10 @@
 		questionSets?: QuestionSet[];
 		moduleExams?: QuestionSet[];
 		canStartModuleExam?: boolean;
-		isLessonCompleted?: boolean;
 		previousLessonTitle?: string;
 		nextLessonTitle?: string;
 		onPreviousLesson?: () => void;
 		onNextLesson?: () => void;
-		onCompleteLesson?: () => void;
 		onQuestionSetSelect?: (questionSet: QuestionSet) => void | Promise<void>;
 		startingQuestionSetId?: string | null;
 		questionSetError?: string | null;
@@ -53,12 +51,10 @@
 		questionSets = [],
 		moduleExams = [],
 		canStartModuleExam = false,
-		isLessonCompleted = false,
 		previousLessonTitle,
 		nextLessonTitle,
 		onPreviousLesson,
 		onNextLesson,
-		onCompleteLesson,
 		onQuestionSetSelect,
 		startingQuestionSetId = null,
 		questionSetError = null,
@@ -343,11 +339,11 @@
 						{/if}
 					</div>
 				{/if}
-				{#if !nextLessonTitle && questionSets.length === 0 && !isLessonCompleted && onCompleteLesson}
+				<!-- {#if !nextLessonTitle && questionSets.length === 0 && !isLessonCompleted && onCompleteLesson}
 					<Button type="button" onclick={onCompleteLesson} disabled={isNextLessonLoading}>
 						Tandai Lesson Selesai
 					</Button>
-				{/if}
+				{/if} -->
 			</div>
 		</article>
 	</ScrollArea.Root>
