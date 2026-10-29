@@ -16,7 +16,7 @@
 	import { capitalizeFirst } from '$lib/utils';
 	import { signInUseCase } from '$dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
-	import logo from '$lib/assets/images/gakkobit-logo.png';
+	// import logo from '$lib/assets/images/gakkobit-full-logo.png';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -50,8 +50,8 @@
 	class="flex w-full flex-col items-center justify-between gap-8 rounded-none border-0 px-6 pt-28 pb-10 shadow-2xl backdrop-blur-sm sm:px-12 md:m-10 md:rounded-3xl lg:w-[460px] lg:shrink-0 lg:px-10 lg:py-12 xl:w-[550px] xl:px-14"
 >
 	<Card.Header class="w-full max-w-sm gap-3 px-0 text-center">
-		<img src={logo} alt="Logo Gakkobit" class="mx-auto size-11 object-contain sm:size-12" />
-		<Card.Title class="text-center text-3xl font-semibold tracking-tight">
+		<!-- <img src={logo} alt="Logo Gakkobit" class="mx-auto h-12 object-contain" /> -->
+		<Card.Title class="text-center text-3xl font-semibold tracking-tight text-taupe-600">
 			Selamat Datang
 		</Card.Title>
 		<Card.Description class="text-center text-sm leading-6">

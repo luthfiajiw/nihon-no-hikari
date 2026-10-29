@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SignInView from '$features/auth/presentation/sign-in-view.svelte';
 	import bgImg from '$lib/assets/images/signin-bg.png';
+	import logo from '$lib/assets/images/gakkobit-full-logo.png';
 </script>
 
 <svelte:head>
@@ -16,7 +17,7 @@
 		class="absolute top-10 left-10 text-5xl font-bold text-taupe-600"
 		style="writing-mode: vertical-rl;"
 	>
-		千里の道も一歩から
+		<img src={logo} alt="Logo Gakkobit" class="mx-auto h-13 object-contain" />
 	</div>
 	<SignInView />
 </main>

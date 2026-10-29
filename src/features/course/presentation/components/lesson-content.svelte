@@ -195,7 +195,7 @@
 				{title}
 			</h1>
 
-			<div class="space-y-4 text-sm leading-relaxed text-foreground sm:text-base" use:lessonAudio>
+			<div class="space-y-6 text-sm leading-relaxed text-foreground sm:text-base" use:lessonAudio>
 				<LessonReader {lessonId} content={sanitizedContent} />
 
 				{#if parsedContent.tips}

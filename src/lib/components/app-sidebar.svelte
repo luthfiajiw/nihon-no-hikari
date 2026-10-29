@@ -9,7 +9,7 @@
 	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 	import { cn } from '$lib/utils.js';
 	import logo from '$lib/assets/images/gakkobit-logo.png';
-	import bgSidebar from '$lib/assets/images/bg-sidebar.png';
+	import logoFull from '$lib/assets/images/gakkobit-full-logo.png';
 	import kanjiIcon from '$lib/assets/icons/kanji.svg';
 	import {
 		House,
@@ -131,16 +131,15 @@
 
 <Sidebar.Root bind:ref {collapsible} class={cn('', className)} {...restProps}>
 	<Sidebar.Header
-		class="flex flex-row items-center gap-3 bg-sidebar p-5.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
+		class="flex flex-row items-center gap-3 bg-sidebar p-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-3"
 	>
-		<img src={logo} alt="NihongoPro Logo" class="size-6 shrink-0 object-contain" />
+		<img
+			src={logo}
+			alt="NihongoPro Logo"
+			class="hidden size-6 object-cover group-data-[collapsible=icon]:block"
+		/>
 		<div class="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
-			<h1 class="text-lg leading-tight font-bold text-taupe-900 dark:text-taupe-100">
-				学 校 ビット
-			</h1>
-			{#if mode === 'admin'}
-				<p class="text-[10px] font-semibold tracking-[0.16em] text-taupe-500">PANEL ADMIN</p>
-			{/if}
+			<img src={logoFull} alt="NihongoPro Logo" class="h-9 object-cover" />
 		</div>
 	</Sidebar.Header>
 
@@ -253,10 +252,5 @@
 				</Sidebar.Group>
 			</div>
 		{/if}
-
-		<!-- Background image pushed to bottom of scrollable area -->
-		<div class="pointer-events-none -mx-3 mt-auto select-none group-data-[collapsible=icon]:hidden">
-			<img src={bgSidebar} alt="" class="w-full object-contain object-bottom" />
-		</div>
 	</Sidebar.Content>
 </Sidebar.Root>
