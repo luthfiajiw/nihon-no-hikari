@@ -156,7 +156,7 @@
 					/>
 				</label>
 				<label class="block text-sm font-medium">
-					Nilai lulus (0–100)
+					KKM (0–100)
 					<Input
 						bind:value={item.passing_score}
 						type="number"

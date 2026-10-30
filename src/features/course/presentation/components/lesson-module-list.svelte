@@ -74,11 +74,11 @@
 						<button
 							type="button"
 							disabled={isLocked}
-							class="flex w-full items-start gap-2.5 border-none bg-transparent py-2.5 text-left transition-colors {isLocked
+							class="flex w-full items-start gap-2.5 bg-transparent py-2.5 text-left transition-colors {isLocked
 								? 'cursor-not-allowed opacity-50'
 								: 'cursor-pointer hover:bg-accent'} {isActive
-								? 'border-l-[3px] border-taupe-500 bg-gradient-to-r from-taupe-100/70 to-taupe-50/40 pr-4 pl-[17px] dark:border-taupe-400 dark:from-taupe-950/40 dark:to-taupe-950/10'
-								: 'px-4'}"
+								? 'border-l-[3px] border-solid border-y-transparent border-r-transparent border-l-taupe-500 bg-accent! pr-4 pl-[17px] dark:bg-taupe-900/40'
+								: 'border-none px-4'}"
 							onclick={() => !isLocked && onLessonSelect?.(lesson.id)}
 						>
 							<span class="mt-0.5 flex shrink-0 items-center justify-center">

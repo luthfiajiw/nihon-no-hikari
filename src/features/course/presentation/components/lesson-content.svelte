@@ -194,20 +194,6 @@
 			<div class="space-y-6 text-sm leading-relaxed text-foreground sm:text-base" use:lessonAudio>
 				<LessonReader {lessonId} content={sanitizedContent} />
 
-				{#if parsedContent.tips}
-					<blockquote
-						class="my-6 rounded-2xl border border-amber-300 bg-amber-50/80 px-5 py-4 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"
-					>
-						<p class="m-0 flex items-start gap-2">
-							<span aria-hidden="true" class="shrink-0">💡</span>
-							<span>
-								<strong class="font-bold">Tips:</strong>
-								{parsedContent.tips}
-							</span>
-						</p>
-					</blockquote>
-				{/if}
-
 				{#if questionSets.length > 0}
 					{#if questionSetError}
 						<p class="text-sm text-red-600 dark:text-red-400" role="alert">
@@ -215,7 +201,7 @@
 						</p>
 					{/if}
 					<section class="my-6 space-y-3" aria-labelledby="question-set-heading">
-						<div class="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+						<div class="divide-y divide-border overflow-hidden rounded-2xl border border-taupe-950">
 							{#each questionSets as questionSet (questionSet.id)}
 								<div
 									class="flex flex-col gap-3 bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
@@ -256,7 +242,7 @@
 										{/if}
 										<span class="flex items-center gap-1.5">
 											<TargetIcon class="size-3.5" aria-hidden="true" />
-											Nilai Lulus {questionSet.passing_score}
+											KKM {questionSet.passing_score}
 										</span>
 										<Button
 											size="sm"
@@ -272,6 +258,20 @@
 							{/each}
 						</div>
 					</section>
+				{/if}
+
+				{#if parsedContent.tips}
+					<blockquote
+						class="my-6 rounded-2xl border border-amber-300 bg-amber-50/80 p-4 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"
+					>
+						<p class="m-0 flex items-start gap-2">
+							<span aria-hidden="true" class="shrink-0">💡</span>
+							<span>
+								<strong class="font-bold">Tips:</strong>
+								{parsedContent.tips}
+							</span>
+						</p>
+					</blockquote>
 				{/if}
 
 				{#if moduleExams.length > 0}

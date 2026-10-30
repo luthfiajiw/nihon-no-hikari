@@ -45,7 +45,7 @@
 		<span class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 sm:px-3">
 			<TargetIcon class="size-4 text-taupe-500" />
 			<span>
-				<span class="mr-1 hidden sm:inline">Nilai Lulus</span>
+				<span class="mr-1 hidden sm:inline">KKM</span>
 				{passingScore}
 			</span>
 		</span>

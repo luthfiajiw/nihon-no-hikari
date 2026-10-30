@@ -57,9 +57,7 @@
 				</p>
 			</div>
 			<div class="rounded-xl bg-muted p-4">
-				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-					Nilai lulus
-				</p>
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">KKM</p>
 				<p class="mt-1 text-lg font-extrabold text-card-foreground">{result.passing_score}</p>
 			</div>
 			<div class="rounded-xl bg-muted p-4">

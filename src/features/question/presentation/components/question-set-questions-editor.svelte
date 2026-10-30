@@ -7,6 +7,7 @@
 	import type { QuestionAdminFormQuestion } from '$features/question/presentation/models/question-admin-content-form.model';
 	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
 	import { Button } from '$lib/components/ui/button';
+	import { Trash2 } from 'lucide-svelte';
 	let {
 		questions = $bindable([]),
 		skill,
@@ -48,11 +49,11 @@
 	<h2 class="text-xl font-semibold">Soal ({questions.length})</h2>
 	{#each questions as question, i (question)}
 		<Card.Root size="sm" class="gap-4 px-(--card-spacing)">
-			<div class="flex justify-between">
-				<h3 class="font-semibold">Soal {i + 1}</h3>
-				<button type="button" class="text-sm text-red-700" onclick={() => questions.splice(i, 1)}>
-					Hapus Soal
-				</button>
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg font-semibold underline">Soal {i + 1}</h2>
+				<Button variant="ghost" size="icon" type="button" onclick={() => questions.splice(i, 1)}>
+					<Trash2 class="size-4 text-destructive" />
+				</Button>
 			</div>
 			<label class="block text-sm">
 				Instruksi
@@ -118,10 +119,10 @@
 					>
 						{#each question.options as option, j (option)}
 							<div
-								class="grid gap-2 rounded-lg border bg-background p-2 sm:grid-cols-[auto_1fr_auto]"
+								class="flex items-center gap-2 rounded-lg border bg-background p-2 sm:grid-cols-[auto_1fr_auto]"
 							>
 								<RadioGroup.Item value={String(j)} aria-label={`Jawaban benar pilihan ${j + 1}`} />
-								<div class="space-y-2">
+								<div class="w-full space-y-2">
 									<Input bind:value={option.label} class="h-10" placeholder={`Pilihan ${j + 1}`} />
 									<Input
 										type="url"
@@ -131,13 +132,14 @@
 										placeholder="URL media pilihan (opsional)"
 									/>
 								</div>
-								<button
+								<Button
+									variant="ghost"
+									size="icon"
 									type="button"
-									class="text-sm text-red-700"
 									onclick={() => question.options.splice(j, 1)}
 								>
-									Hapus
-								</button>
+									<Trash2 class="size-4 text-destructive" />
+								</Button>
 							</div>
 						{/each}
 					</RadioGroup.Root>

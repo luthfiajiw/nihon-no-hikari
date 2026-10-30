@@ -209,10 +209,10 @@
 				>
 					{#if mode !== 'admin'}
 						<ArrowDownLeft class="size-4 shrink-0" />
-						<span class="group-data-[collapsible=icon]:hidden">Lihat tampilan siswa</span>
+						<span class="group-data-[collapsible=icon]:hidden">Dashboard Admin</span>
 					{:else}
 						<ArrowUpRight class="size-4 shrink-0" />
-						<span class="group-data-[collapsible=icon]:hidden">Kembali ke dashboard admin</span>
+						<span class="group-data-[collapsible=icon]:hidden">Dashboard Siswa</span>
 					{/if}
 				</button>
 			</div>

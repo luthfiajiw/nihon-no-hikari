@@ -22,7 +22,7 @@
 <Card.Root
 	class="w-full justify-between bg-transparent"
 	style={topic.coverUrl
-		? `background-image: url(${JSON.stringify(topic.coverUrl)}); background-size: cover; background-position: center; background-repeat: no-repeat;`
+		? `background-image: url(${JSON.stringify(topic.coverUrl)}); background-size: cover; background-position: right; background-repeat: no-repeat;`
 		: undefined}
 >
 	<Card.Content class="flex flex-col justify-between gap-6 sm:min-h-40 sm:flex-row sm:items-end">
