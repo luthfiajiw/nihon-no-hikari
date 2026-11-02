@@ -2,17 +2,24 @@ import { describe, it, expect, vi } from 'vitest';
 import { KotobaPlayer } from './kotoba-player';
 import type { KotobaVocabulary } from '../data/kotoba-topic-detail';
 
-function fakeAudio() {
+function fakeAudio(options?: { rejectNotAllowed?: boolean }) {
 	return {
 		src: '',
 		onended: null as (() => void) | null,
 		onerror: null as (() => void) | null,
-		play: vi.fn(async () => {}),
+		play: vi.fn(async () => {
+			if (options?.rejectNotAllowed) {
+				const error = new Error('The play() request was interrupted by a call to pause().');
+				error.name = 'NotAllowedError';
+				throw error;
+			}
+		}),
 		pause: vi.fn(),
 		removeAttribute: vi.fn(),
 		load: vi.fn()
 	};
 }
+
 const word = (id: string): KotobaVocabulary => ({
 	id,
 	kanji: '学校',
@@ -24,6 +31,7 @@ const word = (id: string): KotobaVocabulary => ({
 	example: { japanese: '', indonesian: '' },
 	audioUrl: `https://storage.test/${id}?token=new`
 });
+
 describe('Kotoba recorded playback', () => {
 	it('plays signed MP3 URLs in order without requiring browser speech', async () => {
 		const audios: ReturnType<typeof fakeAudio>[] = [];
@@ -49,6 +57,7 @@ describe('Kotoba recorded playback', () => {
 		await playing;
 		expect(changed).toHaveBeenLastCalledWith({ playingId: null, playingAll: false, message: '' });
 	});
+
 	it('stops playback and prevents a cancelled queue from starting another word', async () => {
 		const audio = fakeAudio();
 		const resolve = vi.fn(async (id: string) => word(id));
@@ -64,5 +73,55 @@ describe('Kotoba recorded playback', () => {
 		await playing;
 		expect(resolve).toHaveBeenCalledTimes(1);
 		expect(audio.pause).toHaveBeenCalled();
+	});
+
+	it('playSequence calls onStep, waits delay, and advances to completion', async () => {
+		const audios: ReturnType<typeof fakeAudio>[] = [];
+		const steps: string[] = [];
+		const resolve = vi.fn(async (id: string) => word(id));
+		const changed = vi.fn();
+		const player = new KotobaPlayer(
+			changed,
+			resolve,
+			() => {
+				const audio = fakeAudio();
+				audios.push(audio);
+				return audio as unknown as HTMLAudioElement;
+			},
+			() => undefined
+		);
+
+		const seqPromise = player.playSequence(['w1', 'w2'], {
+			delayMs: 20,
+			onStep: (id) => steps.push(id)
+		});
+
+		await vi.waitFor(() => expect(audios).toHaveLength(1));
+		expect(steps).toEqual(['w1']);
+		audios[0].onended!();
+
+		await vi.waitFor(() => expect(audios).toHaveLength(2));
+		expect(steps).toEqual(['w1', 'w2']);
+		audios[1].onended!();
+
+		const result = await seqPromise;
+		expect(result).toBe('completed');
+		expect(changed).toHaveBeenLastCalledWith({ playingId: null, playingAll: false, message: '' });
+	});
+
+	it('playSequence returns blocked without error message when audio.play fails with NotAllowedError', async () => {
+		const audio = fakeAudio({ rejectNotAllowed: true });
+		const resolve = vi.fn(async (id: string) => word(id));
+		const changed = vi.fn();
+		const player = new KotobaPlayer(
+			changed,
+			resolve,
+			() => audio as unknown as HTMLAudioElement,
+			() => undefined
+		);
+
+		const result = await player.playSequence(['w1'], { delayMs: 10 });
+		expect(result).toBe('blocked');
+		expect(changed).toHaveBeenLastCalledWith({ playingId: null, playingAll: false, message: '' });
 	});
 });

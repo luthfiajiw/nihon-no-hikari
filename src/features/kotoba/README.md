@@ -14,8 +14,9 @@ Conflicts retain the form until the user explicitly reloads. Deletion waits for
 the API before refreshing the list. Counts come from API summaries.
 
 Private media uses 15-minute signed URLs. Editor URL refreshes preserve unsaved
-text, file selections, word order, and the original version. The student catalog
-and detail loaders also use the API; the banner uses its cover and playback prefers
+text, file selections, word order, and the original version. The student catalog and detail loaders also use the API; the banner uses its cover and
+the "Putar Semua" action navigates to the dedicated single-vocabulary playlist player route
+at `/kotoba/[id]/play` (preserving active filter and sort queries). Playback prefers
 uploaded MP3s, falling back to Japanese browser speech only for words without audio.
 Queues renew expiring URLs before resolving each word, and stop on filter changes,
 navigation, or playback errors. Object URLs remain owned by preview components.

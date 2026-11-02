@@ -291,10 +291,14 @@ export async function testKotoba({ page, origin, navigate, screenshotDir, fixtur
 			response.headers()['content-type'] === 'audio/mpeg'
 	);
 	await page.getByRole('button', { name: 'Putar Semua', exact: true }).click();
+	await page.waitForURL(new RegExp(`/kotoba/${topicId}/play`));
 	assert.equal((await audioResponse).status(), 200);
-	await page.getByRole('button', { name: 'Putar Semua', exact: true }).waitFor();
+	await page.getByText('KOSAKATA 01 / 02').waitFor();
 	assert(fixture.audioDownloads > 0, 'Uploaded MP3 is requested during playback');
 	assert(fixture.downloads > 0, 'Student cover/audio must use private signed URLs');
+	await page.getByRole('button', { name: 'Kembali ke detail topik', exact: true }).click();
+	await page.waitForURL(new RegExp(`/kotoba/${topicId}$`));
+	await page.getByRole('button', { name: 'Putar Semua', exact: true }).waitFor();
 	await page.goto(`${origin}/admin/kotoba`, { waitUntil: 'networkidle' });
 	await page.setViewportSize({ width: 390, height: 844 });
 	assert(

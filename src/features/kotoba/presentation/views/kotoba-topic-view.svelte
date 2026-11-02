@@ -1,8 +1,17 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import type { Pathname } from '$app/types';
 	import { kotobaRepository } from '$dependencies/kotoba.dependency';
 	import { mediaNeedsRefresh, topicDetail } from '../models/kotoba-api.model';
 	import { KotobaPlayer } from '../kotoba-player';
+	import {
+		buildKotobaPlaySearch,
+		filterKotobaVocabulary,
+		kotobaSortOptions,
+		type KotobaSortOption
+	} from '../models/kotoba-vocabulary.model';
 	import {
 		ArrowDownWideNarrowIcon,
 		ArrowLeftIcon,
@@ -26,21 +35,16 @@
 	let topic = $state(untrack(() => initial));
 	let activeType = $state<KotobaType | 'Semua'>('Semua');
 	let search = $state('');
-	let sort = $state('default');
+	let sort = $state<KotobaSortOption>('default');
 	let speechAvailable = $state(false);
 	let playingId = $state<string | null>(null);
-	let playingAll = $state(false);
 	let speechMessage = $state('');
 	let audioAvailable = $state(false);
 	let player: KotobaPlayer | undefined;
 	let disposed = false;
 	let refreshing: Promise<void> | null = null;
 
-	const sortOptions = [
-		{ value: 'default', label: 'Default' },
-		{ value: 'romaji', label: 'Romaji A–Z' },
-		{ value: 'translation', label: 'Arti A–Z' }
-	];
+	const sortOptions = kotobaSortOptions;
 	const sortLabel = $derived(sortOptions.find((option) => option.value === sort)?.label);
 	const typeFilters = $derived([
 		{ type: 'Semua' as const, label: 'Semua', count: topic.vocabulary.length },
@@ -53,36 +57,31 @@
 			// Hide empty types, but keep the active one so the user can see what is selected.
 			.filter((filter) => filter.count > 0 || filter.type === activeType)
 	]);
-	const filteredVocabulary = $derived.by(() => {
-		const query = search.trim().toLocaleLowerCase('id');
-		return topic.vocabulary
-			.filter((word) => activeType === 'Semua' || word.type === activeType)
-			.filter((word) =>
-				[
-					word.kanji,
-					word.hiragana,
-					word.romaji,
-					word.translation,
-					word.example.japanese,
-					word.example.indonesian
-				].some((value) => value.toLocaleLowerCase('id').includes(query))
-			)
-			.sort((a, b) => {
-				if (sort === 'romaji') return a.romaji.localeCompare(b.romaji, 'id');
-				if (sort === 'translation') return a.translation.localeCompare(b.translation, 'id');
-				return 0;
-			});
-	});
+	const filteredVocabulary = $derived(
+		filterKotobaVocabulary(topic.vocabulary, {
+			type: activeType,
+			search,
+			sort
+		})
+	);
 
 	function stopPlayback(): void {
 		player?.stop();
 	}
 
-	function playVocabulary(words: KotobaVocabulary[], all = false): void {
-		void player?.play(
-			words.map((word) => word.id),
-			all
-		);
+	function playVocabulary(words: KotobaVocabulary[]): void {
+		void player?.play(words.map((word) => word.id));
+	}
+
+	function handlePlayAll(): void {
+		if (!topic.id || filteredVocabulary.length === 0) return;
+		stopPlayback();
+		const query = buildKotobaPlaySearch({
+			type: activeType,
+			search,
+			sort
+		});
+		void goto(resolve(`/kotoba/${topic.id}/play${query}` as Pathname));
 	}
 	async function refreshMedia() {
 		if (!topic.id || !mediaNeedsRefresh(topic.mediaExpiresAt)) return;
@@ -109,7 +108,6 @@
 		player = new KotobaPlayer(
 			(state) => {
 				playingId = state.playingId;
-				playingAll = state.playingAll;
 				speechMessage = state.message;
 			},
 			async (id) => {
@@ -145,10 +143,8 @@
 
 	<KotobaTopicHeroBanner
 		{topic}
-		{playingAll}
-		playbackDisabled={!filteredVocabulary.some(canPlay)}
-		onTogglePlayback={() =>
-			playingAll ? stopPlayback() : playVocabulary(filteredVocabulary, true)}
+		playDisabled={!topic.id || filteredVocabulary.length === 0}
+		onPlayAll={handlePlayAll}
 	/>
 
 	<section aria-label="Daftar kosakata" class="flex min-w-0 flex-col gap-5">

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PlayIcon, SquareIcon } from 'lucide-svelte';
+	import { PlayIcon } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
@@ -8,14 +8,12 @@
 
 	let {
 		topic,
-		playingAll,
-		playbackDisabled,
-		onTogglePlayback
+		playDisabled,
+		onPlayAll
 	}: {
 		topic: KotobaTopicDetail;
-		playingAll: boolean;
-		playbackDisabled: boolean;
-		onTogglePlayback: () => void;
+		playDisabled: boolean;
+		onPlayAll: () => void;
 	} = $props();
 </script>
 
@@ -43,19 +41,9 @@
 				{topic.vocabulary.length} Kotoba
 			</Badge>
 		</div>
-		<Button
-			class="self-start sm:self-end"
-			disabled={playbackDisabled}
-			aria-pressed={playingAll}
-			onclick={onTogglePlayback}
-		>
-			{#if playingAll}
-				<SquareIcon class="size-4 fill-current" aria-hidden="true" />
-				Hentikan
-			{:else}
-				<PlayIcon class="size-4 fill-current" aria-hidden="true" />
-				Putar Semua
-			{/if}
+		<Button class="self-start sm:self-end" disabled={playDisabled} onclick={onPlayAll}>
+			<PlayIcon data-icon="inline-start" class="fill-current" aria-hidden="true" />
+			Putar Semua
 		</Button>
 	</Card.Content>
 </Card.Root>
