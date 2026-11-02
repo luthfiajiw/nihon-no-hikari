@@ -1,5 +1,8 @@
 import type { KotobaTopic } from '$features/kotoba/data/kotoba-topics';
-import type { KotobaVocabulary } from '$features/kotoba/data/kotoba-topic-detail';
+import {
+	defaultKotobaType,
+	type KotobaVocabulary
+} from '$features/kotoba/data/kotoba-topic-detail';
 
 export interface KotobaAdminMedia {
 	mediaId?: string;
@@ -36,7 +39,7 @@ export function emptyKotobaAdminVocabulary(id: string): KotobaAdminVocabulary {
 		romaji: '',
 		translation: '',
 		example: { japanese: '', indonesian: '' },
-		type: 'Kata Benda',
+		type: defaultKotobaType,
 		audio: null
 	};
 }

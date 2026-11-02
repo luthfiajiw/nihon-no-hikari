@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { kotobaTypes } from '$features/kotoba/data/kotoba-topic-detail';
+	import { kotobaTypeLabels, kotobaTypes } from '$features/kotoba/data/kotoba-topic-detail';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import MediaInput from '$features/kotoba/presentation/components/kotoba-admin-media-input.svelte';
 	import {
@@ -186,7 +186,7 @@
 			<ManagementSelect
 				id={`${uid}-type`}
 				bind:value={word.type}
-				options={kotobaTypes.map((value) => ({ value, label: value }))}
+				options={kotobaTypes.map((value) => ({ value, label: kotobaTypeLabels[value] }))}
 			/>
 		</div>
 		<div class="grid min-w-0 gap-4 sm:grid-cols-2">

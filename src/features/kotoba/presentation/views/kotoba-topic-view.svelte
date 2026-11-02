@@ -14,6 +14,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import {
 		kotobaTypes,
+		kotobaTypeLabels,
 		type KotobaTopicDetail,
 		type KotobaType,
 		type KotobaVocabulary
@@ -42,11 +43,15 @@
 	];
 	const sortLabel = $derived(sortOptions.find((option) => option.value === sort)?.label);
 	const typeFilters = $derived([
-		{ type: 'Semua' as const, count: topic.vocabulary.length },
-		...kotobaTypes.map((type) => ({
-			type,
-			count: topic.vocabulary.filter((word) => word.type === type).length
-		}))
+		{ type: 'Semua' as const, label: 'Semua', count: topic.vocabulary.length },
+		...kotobaTypes
+			.map((type) => ({
+				type,
+				label: kotobaTypeLabels[type],
+				count: topic.vocabulary.filter((word) => word.type === type).length
+			}))
+			// Hide empty types, but keep the active one so the user can see what is selected.
+			.filter((filter) => filter.count > 0 || filter.type === activeType)
 	]);
 	const filteredVocabulary = $derived.by(() => {
 		const query = search.trim().toLocaleLowerCase('id');
@@ -160,7 +165,7 @@
 							activeType = filter.type;
 						}}
 					>
-						{filter.type} ({filter.count})
+						{filter.label} ({filter.count})
 					</Button>
 				{/each}
 			</div>

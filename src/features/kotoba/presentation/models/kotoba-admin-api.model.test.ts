@@ -42,7 +42,7 @@ export const record: KotobaTopicRecord = {
 			romaji: 'gakkou',
 			translation: 'sekolah',
 			example: { japanese: '学校へ行きます。', indonesian: 'Pergi ke sekolah.' },
-			type: 'Kata Benda',
+			type: 'noun',
 			order_index: 1,
 			audio_media_id: null,
 			audio_url: null

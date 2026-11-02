@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { resourceIdSchema } from '$lib/server/validation';
+import { defaultKotobaType, kotobaTypes } from '../../data/kotoba-topic-detail';
 
 const required = z.string().trim().min(1, 'Kolom wajib diisi.');
 const word = z
@@ -11,7 +12,7 @@ const word = z
 		translation: required,
 		furigana: z.array(z.strictObject({ text: required, reading: z.string().optional() })),
 		example: z.strictObject({ japanese: required, indonesian: required }),
-		type: z.enum(['Kata Benda', 'Kata Kerja', 'Kata Sifat', 'Lainnya']),
+		type: z.enum(kotobaTypes).default(defaultKotobaType),
 		audio_media_id: resourceIdSchema.nullable().optional()
 	})
 	.superRefine((value, ctx) => {

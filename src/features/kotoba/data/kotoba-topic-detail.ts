@@ -1,7 +1,30 @@
 import type { KotobaLevel } from './kotoba-topics';
 
-export const kotobaTypes = ['Kata Benda', 'Kata Kerja', 'Kata Sifat', 'Lainnya'] as const;
+// Values mirror the backend `kotoba_vocabulary_type` enum; labels are shown in the UI.
+export const kotobaTypes = [
+	'verb',
+	'adjective',
+	'adverb',
+	'question_word',
+	'noun',
+	'family_member',
+	'counter',
+	'day_date_month',
+	'other'
+] as const;
 export type KotobaType = (typeof kotobaTypes)[number];
+export const defaultKotobaType: KotobaType = 'other';
+export const kotobaTypeLabels: Record<KotobaType, string> = {
+	verb: 'Kata Kerja',
+	adjective: 'Kata Sifat',
+	adverb: 'Kata Keterangan',
+	question_word: 'Kata Tanya',
+	noun: 'Kata Benda',
+	family_member: 'Anggota Keluarga',
+	counter: 'Cara Menghitung',
+	day_date_month: 'Hari, Tanggal & Bulan',
+	other: 'Lainnya'
+};
 
 export interface KotobaVocabulary {
 	audioUrl?: string | null;
@@ -49,7 +72,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'わたしは毎日学校へ行きます。',
 				indonesian: 'Saya pergi ke sekolah setiap hari.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'kyoushitsu',
@@ -62,7 +85,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'ここはわたしたちの教室です。',
 				indonesian: 'Ini adalah ruang kelas kami.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'sensei',
@@ -75,7 +98,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '先生はとてもやさしいです。',
 				indonesian: 'Guru itu sangat baik.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'gakusei',
@@ -88,7 +111,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'わたしは日本語を勉強している学生です。',
 				indonesian: 'Saya adalah siswa yang sedang belajar bahasa Jepang.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'hon',
@@ -101,7 +124,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'この本はおもしろいです。',
 				indonesian: 'Buku ini menarik.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'enpitsu',
@@ -114,7 +137,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '鉛筆で名前を書きます。',
 				indonesian: 'Saya menulis nama dengan pensil.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'tsukue',
@@ -127,7 +150,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'これはわたしの机です。',
 				indonesian: 'Ini adalah meja saya.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'kaban',
@@ -140,7 +163,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '鞄の中に本があります。',
 				indonesian: 'Ada buku di dalam tas.'
 			},
-			type: 'Kata Benda'
+			type: 'noun'
 		},
 		{
 			id: 'yomu',
@@ -153,7 +176,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '図書館で本を読みます。',
 				indonesian: 'Saya membaca buku di perpustakaan.'
 			},
-			type: 'Kata Kerja'
+			type: 'verb'
 		},
 		{
 			id: 'kaku',
@@ -166,7 +189,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: 'ノートに漢字を書きます。',
 				indonesian: 'Saya menulis kanji di buku catatan.'
 			},
-			type: 'Kata Kerja'
+			type: 'verb'
 		},
 		{
 			id: 'atarashii',
@@ -179,7 +202,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '新しい教科書を買いました。',
 				indonesian: 'Saya sudah membeli buku pelajaran baru.'
 			},
-			type: 'Kata Sifat'
+			type: 'adjective'
 		},
 		{
 			id: 'mainichi',
@@ -192,7 +215,7 @@ export const exampleKotobaTopicDetail: KotobaTopicDetail = {
 				japanese: '毎日日本語を勉強します。',
 				indonesian: 'Saya belajar bahasa Jepang setiap hari.'
 			},
-			type: 'Lainnya'
+			type: 'other'
 		}
 	]
 };

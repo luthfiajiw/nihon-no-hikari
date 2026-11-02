@@ -14,7 +14,7 @@ export function createKotobaFixture(mutations) {
 		romaji: 'gakkou',
 		translation: 'sekolah',
 		example: { japanese: '学校へ行きます。', indonesian: 'Saya pergi ke sekolah.' },
-		type: 'Kata Benda',
+		type: 'noun',
 		order_index: 1,
 		audio_media_id: null
 	};

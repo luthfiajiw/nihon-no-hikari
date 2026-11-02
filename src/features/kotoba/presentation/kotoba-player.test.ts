@@ -20,7 +20,7 @@ const word = (id: string): KotobaVocabulary => ({
 	furigana: [],
 	romaji: 'gakkou',
 	translation: 'sekolah',
-	type: 'Kata Benda',
+	type: 'noun',
 	example: { japanese: '', indonesian: '' },
 	audioUrl: `https://storage.test/${id}?token=new`
 });
