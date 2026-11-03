@@ -16,6 +16,25 @@ export const signInRequestSchema = z.object({
 	password: signInPasswordSchema
 });
 
+const registerDisplayNameSchema = z
+	.string({ error: 'Nama tampilan wajib diisi.' })
+	.trim()
+	.min(1, 'Nama tampilan wajib diisi.');
+
+export const registerRequestSchema = z
+	.object({
+		display_name: registerDisplayNameSchema,
+		email: signInEmailSchema,
+		password: signInPasswordSchema,
+		confirm_password: z
+			.string({ error: 'Konfirmasi password wajib diisi.' })
+			.min(1, 'Konfirmasi password wajib diisi.')
+	})
+	.refine((data) => data.password === data.confirm_password, {
+		message: 'Konfirmasi password tidak cocok dengan password.',
+		path: ['confirm_password']
+	});
+
 export const refreshTokenRequestSchema = z.object({
 	grant_type: z.literal('refresh', { error: 'Grant type tidak valid.' }),
 	token: z.string({ error: 'Refresh token wajib diisi.' }).min(1, 'Refresh token wajib diisi.')

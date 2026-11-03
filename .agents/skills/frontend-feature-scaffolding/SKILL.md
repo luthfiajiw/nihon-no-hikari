@@ -18,7 +18,7 @@ Standard operating procedure for scaffolding and implementing feature modules in
 
 2. **Domain Boundaries & Cross-Domain Communication**:
    - Never create cross-domain write dispatchers.
-   - When Domain A requires read data from Domain B, consume a read-only port/reader via *dependency composition* (e.g., `QuestionCourseCatalogReader`). Domain `question` must never directly import domain `course`.
+   - When Domain A requires read data from Domain B, consume a read-only port/reader via _dependency composition_ (e.g., `QuestionCourseCatalogReader`). Domain `question` must never directly import domain `course`.
 
 3. **SSR Session Safety with `#request-fetch`**:
    - Server repositories and data sources **MUST** use `#request-fetch`.
@@ -58,18 +58,19 @@ src/features/<feature>/
 
 All new files within a feature **MUST** start with their owning domain in `kebab-case`:
 
-| Category | File Naming Pattern | Examples |
-| :--- | :--- | :--- |
-| **Domain Entity** | `<feature>[-admin].entity.ts` | `kotoba-api.entity.ts`<br>`course-admin.entity.ts` |
-| **Repository Interface** | `<feature>[-admin].repository.ts` | `kotoba.repository.ts`<br>`course-admin.repository.ts` |
-| **Repository Impl** | `<feature>[-admin].repository.impl.ts` | `kotoba.repository.impl.ts`<br>`course.repository.impl.ts` |
-| **Use Cases** | `[action]-<feature>[-admin].usecase.ts` | `get-course-detail.usecase.ts`<br>`manage-course-admin-content.usecase.ts` |
-| **Server Loaders** | `<feature>[-admin]-loaders.ts` | `kotoba-admin-loaders.ts`<br>`course-admin-loaders.ts` |
-| **Server Actions** | `<feature>[-admin]-actions.ts` | `course-admin-actions.ts` |
-| **Presentation Views**| `<feature>[-admin]-view.svelte` | `kotoba-admin-view.svelte`<br>`course-detail-view.svelte` |
-| **Unit & View Tests** | `*.test.ts` / `*.svelte.test.ts` | `kotoba.repository.test.ts`<br>`lesson-reader.svelte.test.ts` |
+| Category                 | File Naming Pattern                     | Examples                                                                   |
+| :----------------------- | :-------------------------------------- | :------------------------------------------------------------------------- |
+| **Domain Entity**        | `<feature>[-admin].entity.ts`           | `kotoba-api.entity.ts`<br>`course-admin.entity.ts`                         |
+| **Repository Interface** | `<feature>[-admin].repository.ts`       | `kotoba.repository.ts`<br>`course-admin.repository.ts`                     |
+| **Repository Impl**      | `<feature>[-admin].repository.impl.ts`  | `kotoba.repository.impl.ts`<br>`course.repository.impl.ts`                 |
+| **Use Cases**            | `[action]-<feature>[-admin].usecase.ts` | `get-course-detail.usecase.ts`<br>`manage-course-admin-content.usecase.ts` |
+| **Server Loaders**       | `<feature>[-admin]-loaders.ts`          | `kotoba-admin-loaders.ts`<br>`course-admin-loaders.ts`                     |
+| **Server Actions**       | `<feature>[-admin]-actions.ts`          | `course-admin-actions.ts`                                                  |
+| **Presentation Views**   | `<feature>[-admin]-view.svelte`         | `kotoba-admin-view.svelte`<br>`course-detail-view.svelte`                  |
+| **Unit & View Tests**    | `*.test.ts` / `*.svelte.test.ts`        | `kotoba.repository.test.ts`<br>`lesson-reader.svelte.test.ts`              |
 
 **Casing Guidelines:**
+
 - **PascalCase** for Classes and Types (`CourseAdminEditorData`, `GetCourseDetailUseCase`).
 - **camelCase** for functions and object instances (`loadCourseAdminEditor`, `courseRepository`).
 
@@ -108,6 +109,7 @@ export class BookmarkError extends Error {
 ### Step 2: Repository Interface & Use Cases (`domain/`)
 
 **Repository Contract (`domain/repositories/bookmark.repository.ts`):**
+
 ```typescript
 import type { BookmarkInput, BookmarkRecord } from '../entities/bookmark.entity';
 
@@ -119,6 +121,7 @@ export interface BookmarkRepository {
 ```
 
 **Use Case (`domain/usecases/get-bookmarks.usecase.ts`):**
+
 ```typescript
 import type { BookmarkRepository } from '../repositories/bookmark.repository';
 import type { BookmarkRecord } from '../entities/bookmark.entity';
@@ -139,7 +142,11 @@ export class GetBookmarksUseCase {
 Inject `fetcher: typeof fetch` for compatibility with `#request-fetch`:
 
 ```typescript
-import { BookmarkError, type BookmarkInput, type BookmarkRecord } from '../../domain/entities/bookmark.entity';
+import {
+	BookmarkError,
+	type BookmarkInput,
+	type BookmarkRecord
+} from '../../domain/entities/bookmark.entity';
 import type { BookmarkRepository } from '../../domain/repositories/bookmark.repository';
 
 export class BookmarkRepositoryImpl implements BookmarkRepository {
@@ -268,6 +275,7 @@ export async function loadBookmarks(event: RequestEvent) {
 SvelteKit route files act as thin delegates:
 
 **`src/routes/(protected)/bookmarks/+page.server.ts`**:
+
 ```typescript
 import { loadBookmarks } from '$features/bookmark/presentation/server/bookmark-loaders';
 import type { PageServerLoad } from './$types';
@@ -276,6 +284,7 @@ export const load: PageServerLoad = loadBookmarks;
 ```
 
 **`src/routes/(protected)/bookmarks/+page.svelte`**:
+
 ```svelte
 <script lang="ts">
 	import BookmarkView from '$features/bookmark/presentation/views/bookmark-view.svelte';
@@ -297,12 +306,15 @@ export const load: PageServerLoad = loadBookmarks;
 
 2. **Mandatory Verification Suite**:
    Run the following verification commands:
+
    ```bash
    npm run check
    npm run test:unit -- --run
    npm run build
    ```
+
    For admin navigation and API proxy test suites:
+
    ```bash
    npm run test:admin
    npm run test:api-proxy

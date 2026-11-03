@@ -3,6 +3,8 @@ import type { AuthAdminRepository } from '../../domain/repositories/auth-admin.r
 import type { AuthRepository } from '../../domain/repositories/auth.repository';
 import {
 	type RefreshTokenRequest,
+	type RegisterRequest,
+	type RegisterResponse,
 	type SignInRequest,
 	type SignInResponse,
 	type SignOutRequest,
@@ -12,6 +14,10 @@ import { AuthSource } from '../sources/auth.source';
 
 export class AuthRepositoryImpl implements AuthRepository, AuthAdminRepository {
 	constructor(private readonly apiService: AuthSource) {}
+
+	register(payload: RegisterRequest): Promise<RegisterResponse> {
+		return this.apiService.register(payload);
+	}
 
 	async signIn(credentials: SignInRequest): Promise<SignInResponse> {
 		const data = await this.apiService.signIn(credentials);

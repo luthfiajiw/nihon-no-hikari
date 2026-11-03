@@ -2,10 +2,10 @@
 	import { goto } from '$app/navigation';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import type { ComponentProps } from 'svelte';
+	import { untrack, type ComponentProps } from 'svelte';
 	import { resolve } from '$app/paths';
 	import type { Pathname } from '$app/types';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 	import { cn } from '$lib/utils.js';
 	import logo from '$lib/assets/images/gakkobit-logo.png';
@@ -93,7 +93,24 @@
 			icon: CircleQuestionMark
 		}
 	];
+	const sidebar = Sidebar.useSidebar();
 	const isAdmin = $derived((page.data.user as AuthUser | undefined)?.role === 'Admin');
+	let previousRouteKey: string | null = null;
+
+	$effect(() => {
+		const targetUrl = navigating.to?.url ?? page.url;
+		const targetRouteKey = `${targetUrl.pathname}${targetUrl.search}`;
+
+		if (previousRouteKey !== null && targetRouteKey !== previousRouteKey) {
+			untrack(() => {
+				if (sidebar.isMobile) {
+					sidebar.setOpenMobile(false);
+				}
+			});
+		}
+
+		previousRouteKey = targetRouteKey;
+	});
 
 	function menuButtonClass(active: boolean, compact = false): string {
 		return cn(

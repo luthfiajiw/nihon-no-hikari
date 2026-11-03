@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { InvalidCredentialsError, SignInNetworkError } from '../../domain/entities/auth.entity';
+import { DomainError, InvalidCredentialsError, SignInNetworkError } from '../../domain/entities/auth.entity';
 import { AuthSource } from './auth.source';
 
 describe('AuthSource', () => {
@@ -101,5 +101,59 @@ describe('AuthSource', () => {
 
 		await expect(result).rejects.toBeInstanceOf(SignInNetworkError);
 		await expect(result).rejects.toThrow(errorMessage);
+	});
+
+	describe('register', () => {
+		const registerPayload = {
+			display_name: 'Test User',
+			email: 'test@example.com',
+			password: 'password123',
+			confirm_password: 'password123'
+		};
+
+		it('calls /api/v1/auth/register and returns response DTO on success', async () => {
+			const responseData = {
+				success: true,
+				message: 'akun baru berhasil dibuat'
+			};
+			const mockFetch = vi.fn().mockResolvedValue(
+				new Response(JSON.stringify(responseData), {
+					status: 201,
+					headers: { 'Content-Type': 'application/json' }
+				})
+			);
+			const service = new AuthSource(mockFetch);
+
+			const result = await service.register(registerPayload);
+
+			expect(mockFetch).toHaveBeenCalledWith('/api/v1/auth/register', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(registerPayload)
+			});
+			expect(result).toEqual(responseData);
+		});
+
+		it('throws DomainError with server message when registration fails', async () => {
+			const mockFetch = vi.fn().mockResolvedValue(
+				new Response(JSON.stringify({ success: false, error: 'email sudah terdaftar' }), {
+					status: 400,
+					headers: { 'Content-Type': 'application/json' }
+				})
+			);
+			const service = new AuthSource(mockFetch);
+
+			await expect(service.register(registerPayload)).rejects.toThrow('email sudah terdaftar');
+		});
+
+		it('throws SignInNetworkError on network failure', async () => {
+			const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+			const service = new AuthSource(mockFetch);
+
+			await expect(service.register(registerPayload)).rejects.toBeInstanceOf(SignInNetworkError);
+		});
 	});
 });

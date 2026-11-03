@@ -16,6 +16,10 @@
 	import AssessmentSubmitDialog from '../components/assessment-submit-dialog.svelte';
 	import { getAssessmentContext } from '../contexts/assessment-context';
 	import { submitQuestionSetAttemptUseCase } from '$dependencies/question.dependency';
+	import {
+		isMultipleChoiceAnswerLocked,
+		isQuestionAnswered
+	} from '../models/question-multiple-choice-feedback.model';
 
 	interface Props {
 		questionSetId: string;
@@ -47,17 +51,13 @@
 		[...(attempt?.questions ?? [])].sort((a, b) => a.order_index - b.order_index)
 	);
 	const activeQuestion = $derived(questions[activeIndex]);
-	const assessmentLabel = $derived(questionSet?.kind === 'final_exam' ? 'Tes' : 'Latihan');
+	const assessmentLabel = $derived(
+		(questionSet?.kind ?? expectedKind) === 'final_exam' ? 'Tes' : 'Latihan'
+	);
+	const immediateFeedback = $derived((questionSet?.kind ?? expectedKind) === 'practice');
+
 	function isAnswered(question: Question): boolean {
-		const answer = answers[question.id];
-		return question.question_type === 'stroke_writing'
-			? Array.isArray(answer) &&
-					(question.show_writing_guide === false
-						? answer.length > 0
-						: Boolean(
-								question.writing_guide && answer.length === question.writing_guide.strokes.length
-							))
-			: typeof answer === 'string' && Boolean(answer.trim());
+		return isQuestionAnswered(question, answers[question.id]);
 	}
 	const answeredCount = $derived(questions.filter(isAnswered).length);
 	const unansweredCount = $derived(questions.length - answeredCount);
@@ -98,7 +98,10 @@
 	onNavigate(() => abandonPracticeAttempt());
 
 	function setAnswer(value: string): void {
-		if (!isSubmitting && !submitResult && activeQuestion) answers[activeQuestion.id] = value;
+		if (isSubmitting || submitResult || !activeQuestion) return;
+		if (isMultipleChoiceAnswerLocked(activeQuestion, answers[activeQuestion.id], immediateFeedback))
+			return;
+		answers[activeQuestion.id] = value;
 	}
 
 	function setStrokeAnswer(value: StrokeInput): void {
@@ -219,6 +222,7 @@
 							? (answers[activeQuestion.id] as StrokeInput)
 							: []}
 						disabled={isSubmitting}
+						{immediateFeedback}
 						onAnswerChange={setAnswer}
 						onStrokeChange={setStrokeAnswer}
 						onPrevious={() => goToQuestion(activeIndex - 1)}
@@ -233,6 +237,7 @@
 					{answers}
 					{activeIndex}
 					{maxAccessibleIndex}
+					{immediateFeedback}
 					disabled={isSubmitting || Boolean(submitResult)}
 					onQuestionSelect={goToQuestion}
 				/>
@@ -272,6 +277,7 @@
 							{answers}
 							{activeIndex}
 							{maxAccessibleIndex}
+							{immediateFeedback}
 							disabled={isSubmitting}
 							onQuestionSelect={selectQuestionFromDrawer}
 						/>

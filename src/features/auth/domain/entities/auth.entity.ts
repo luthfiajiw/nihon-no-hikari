@@ -36,6 +36,18 @@ export interface SignOutRequest {
 	session_id: string;
 }
 
+export interface RegisterRequest {
+	display_name: string;
+	email: string;
+	password: string;
+	confirm_password: string;
+}
+
+export interface RegisterResponse {
+	success: boolean;
+	message: string;
+}
+
 export interface SignInRequest {
 	email: string;
 	password: string;
@@ -72,6 +84,13 @@ export class SignInNetworkError extends DomainError {
 	constructor(message = 'Gagal terhubung ke server. Silakan coba lagi.') {
 		super(message);
 		this.name = 'SignInNetworkError';
+	}
+}
+
+export class RegisterError extends DomainError {
+	constructor(message = 'Terjadi kesalahan saat pendaftaran akun.') {
+		super(message);
+		this.name = 'RegisterError';
 	}
 }
 

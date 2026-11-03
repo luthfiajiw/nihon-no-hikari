@@ -1,6 +1,8 @@
 .course-lesson-html {
 	color: #292524;
-	font: 16px/1.65 system-ui, sans-serif;
+	font:
+		16px/1.65 system-ui,
+		sans-serif;
 }
 
 .course-lesson-html h1,

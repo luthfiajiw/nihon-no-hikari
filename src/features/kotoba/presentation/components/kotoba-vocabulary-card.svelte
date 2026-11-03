@@ -3,10 +3,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import {
-		kotobaTypeLabels,
-		type KotobaVocabulary
-	} from '../../data/kotoba-topic-detail';
+	import { kotobaTypeLabels, type KotobaVocabulary } from '../../data/kotoba-topic-detail';
 	import { kotobaTypeBadgeClasses } from '../models/kotoba-vocabulary.model';
 	import { cn } from '$lib/utils';
 

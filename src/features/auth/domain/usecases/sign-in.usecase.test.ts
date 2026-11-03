@@ -6,6 +6,7 @@ import { InvalidCredentialsError } from '../entities/auth.entity';
 describe('SignInUseCase', () => {
 	function createMockRepository(signIn = vi.fn()): AuthRepository {
 		return {
+			register: vi.fn(),
 			signIn,
 			refreshToken: vi.fn(),
 			signOut: vi.fn()

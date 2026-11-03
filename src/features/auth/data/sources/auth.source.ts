@@ -1,10 +1,13 @@
 import { requestJson } from '$lib/http/request-json';
 import {
+	DomainError,
 	InvalidCredentialsError,
 	InvalidRefreshTokenError,
 	RefreshTokenError,
 	SignInNetworkError,
 	type RefreshTokenRequest,
+	type RegisterRequest,
+	type RegisterResponse,
 	type SignInRequest,
 	type SignInResponse,
 	type SignOutRequest,
@@ -62,6 +65,32 @@ function extractSession(value: unknown, previous: StoredAuthSession): StoredAuth
 
 export class AuthSource {
 	constructor(private readonly fetcher: typeof fetch) {}
+
+	async register(payload: RegisterRequest): Promise<RegisterResponse> {
+		let response;
+		try {
+			response = await this.fetcher('/api/v1/auth/register', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			});
+		} catch {
+			throw new SignInNetworkError();
+		}
+
+		const json: unknown = await response.json().catch(() => null);
+
+		if (!response.ok) {
+			const message = getErrorMessage(json) ?? 'Terjadi kesalahan saat pendaftaran akun.';
+			throw new DomainError(message);
+		}
+
+		if (!isRecord(json)) throw new SignInNetworkError();
+		return json as unknown as RegisterResponse;
+	}
 
 	async signIn(payload: SignInRequest): Promise<SignInResponse> {
 		let response;

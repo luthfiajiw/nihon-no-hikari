@@ -14,10 +14,10 @@
 	style="background-image: url('{bgImg}')"
 >
 	<div
-		class="absolute top-10 left-10 text-5xl font-bold text-taupe-600"
+		class="absolute top-4 left-6 text-5xl font-bold text-taupe-600"
 		style="writing-mode: vertical-rl;"
 	>
-		<img src={logo} alt="Logo Gakkobit" class="mx-auto h-13 object-contain" />
+		<img src={logo} alt="Logo Gakkobit" class="mx-auto h-12 object-contain" />
 	</div>
 	<SignInView />
 </main>

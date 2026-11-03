@@ -13,6 +13,7 @@ import { userAdminChangeRoleRequestSchema } from '$features/user/domain/schemas/
 import type { z } from 'zod';
 import {
 	refreshTokenRequestSchema,
+	registerRequestSchema,
 	signInRequestSchema,
 	signOutRequestSchema
 } from '$features/auth/domain/schemas/auth-request.schema';
@@ -30,6 +31,8 @@ import {
 function requestSchema(method: string, pathname: string): z.ZodType | undefined {
 	if (method === 'POST') {
 		switch (pathname) {
+			case '/api/v1/auth/register':
+				return registerRequestSchema;
 			case '/api/v1/auth/signin':
 				return signInRequestSchema;
 			case '/api/v1/auth/token':

@@ -44,6 +44,7 @@ export interface Question {
 	prompt_text: string;
 	stimulus_text: string;
 	stimulus_media_url?: string;
+	explanation?: string | null;
 	points: number;
 	order_index: number;
 	options?: QuestionOption[];
@@ -68,6 +69,7 @@ export interface QuestionOption {
 	label: string;
 	media_url?: string;
 	order_index: number;
+	is_correct?: boolean;
 }
 
 export interface QuestionSetDetailResponse {

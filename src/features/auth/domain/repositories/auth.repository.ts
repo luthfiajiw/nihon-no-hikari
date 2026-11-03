@@ -1,5 +1,7 @@
 import type {
 	RefreshTokenRequest,
+	RegisterRequest,
+	RegisterResponse,
 	SignInRequest,
 	SignInResponse,
 	SignOutRequest,
@@ -7,6 +9,7 @@ import type {
 } from '../entities/auth.entity';
 
 export interface AuthRepository {
+	register(payload: RegisterRequest): Promise<RegisterResponse>;
 	signIn(credentials: SignInRequest): Promise<SignInResponse>;
 	refreshToken(
 		payload: RefreshTokenRequest,

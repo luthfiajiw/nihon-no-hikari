@@ -22,6 +22,35 @@ describe('server request validation', () => {
 			validate('PUT', '/api/v1/courses/course/modules/module/progress', { status: 'unlocked' })
 		).toThrow();
 	});
+	it('validates and normalizes register payloads', () => {
+		const validPayload = {
+			display_name: '  User Baru  ',
+			email: '  user@example.com  ',
+			password: 'password123',
+			confirm_password: 'password123'
+		};
+		const result = validate('POST', '/api/v1/auth/register', validPayload);
+		expect(JSON.parse(new TextDecoder().decode(result))).toEqual({
+			display_name: 'User Baru',
+			email: 'user@example.com',
+			password: 'password123',
+			confirm_password: 'password123'
+		});
+
+		expect(() =>
+			validate('POST', '/api/v1/auth/register', {
+				...validPayload,
+				confirm_password: 'differentpassword'
+			})
+		).toThrow();
+
+		expect(() =>
+			validate('POST', '/api/v1/auth/register', {
+				...validPayload,
+				password: '123'
+			})
+		).toThrow();
+	});
 	it.each([
 		null,
 		[],

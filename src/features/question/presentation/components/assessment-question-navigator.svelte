@@ -4,6 +4,11 @@
 	import * as Card from '$lib/components/ui/card';
 	import { cn } from '$lib/utils.js';
 	import { InfoIcon } from 'lucide-svelte';
+	import {
+		hasQuestionOptionAnswerKey,
+		isQuestionAnswered,
+		resolveQuestionNavigatorStatus
+	} from '../models/question-multiple-choice-feedback.model';
 
 	interface Props {
 		questions: Question[];
@@ -11,6 +16,7 @@
 		activeIndex: number;
 		maxAccessibleIndex?: number;
 		disabled?: boolean;
+		immediateFeedback?: boolean;
 		onQuestionSelect: (index: number) => void;
 	}
 
@@ -20,22 +26,20 @@
 		activeIndex,
 		maxAccessibleIndex = questions.length - 1,
 		disabled = false,
+		immediateFeedback = false,
 		onQuestionSelect
 	}: Props = $props();
+
 	function answered(question: Question): boolean {
-		const answer = answers[question.id];
-		return question.question_type === 'stroke_writing'
-			? Array.isArray(answer) &&
-					(question.show_writing_guide === false
-						? answer.length > 0
-						: Boolean(
-								question.writing_guide && answer.length === question.writing_guide.strokes.length
-							))
-			: typeof answer === 'string' && Boolean(answer.trim());
+		return isQuestionAnswered(question, answers[question.id]);
 	}
+
 	let answeredCount = $derived(questions.filter(answered).length);
 	let progressPercentage = $derived(
 		questions.length === 0 ? 0 : Math.round((answeredCount / questions.length) * 100)
+	);
+	let showsCorrectnessLegend = $derived(
+		immediateFeedback && questions.some(hasQuestionOptionAnswerKey)
 	);
 </script>
 
@@ -64,6 +68,11 @@
 
 		<div class="mt-6 grid grid-cols-5 gap-4">
 			{#each questions as question, index (question.id)}
+				{@const status = resolveQuestionNavigatorStatus(
+					question,
+					answers[question.id],
+					immediateFeedback
+				)}
 				{@const isDone = answered(question)}
 				{@const active = activeIndex === index && !disabled}
 				<Button
@@ -72,15 +81,23 @@
 					data-flat
 					onclick={() => onQuestionSelect(index)}
 					disabled={disabled || index > maxAccessibleIndex}
-					aria-label={`Buka soal ${index + 1}${isDone ? ', sudah dijawab' : ', belum dijawab'}`}
+					aria-label={status === 'correct'
+						? `Buka soal ${index + 1}, jawaban benar`
+						: status === 'incorrect'
+							? `Buka soal ${index + 1}, jawaban salah`
+							: isDone
+								? `Buka soal ${index + 1}, sudah dijawab`
+								: `Buka soal ${index + 1}, belum dijawab`}
 					aria-current={active ? 'step' : undefined}
 					class={cn(
 						'aspect-square h-auto w-full rounded-lg border p-0 text-sm font-bold transition-colors',
 						active
 							? 'border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
-							: isDone
+							: status === 'correct' || status === 'answered'
 								? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 dark:hover:bg-emerald-900 dark:hover:text-emerald-200'
-								: 'border-border bg-muted text-card-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary'
+								: status === 'incorrect'
+									? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900 dark:hover:text-red-200'
+									: 'border-border bg-muted text-card-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary'
 					)}
 				>
 					{index + 1}
@@ -98,13 +115,30 @@
 					></span>
 					<p class="text-sm text-card-foreground">Soal aktif</p>
 				</div>
-				<div class="flex items-start gap-3">
-					<span
-						class="mt-0.5 size-5 shrink-0 rounded-md border border-emerald-300 bg-emerald-50 shadow-xs"
-						aria-hidden="true"
-					></span>
-					<p class="text-sm text-card-foreground">Sudah dijawab</p>
-				</div>
+				{#if showsCorrectnessLegend}
+					<div class="flex items-start gap-3">
+						<span
+							class="mt-0.5 size-5 shrink-0 rounded-md border border-emerald-300 bg-emerald-50 shadow-xs dark:border-emerald-700 dark:bg-emerald-950"
+							aria-hidden="true"
+						></span>
+						<p class="text-sm text-card-foreground">Jawaban benar</p>
+					</div>
+					<div class="flex items-start gap-3">
+						<span
+							class="mt-0.5 size-5 shrink-0 rounded-md border border-red-300 bg-red-50 shadow-xs dark:border-red-700 dark:bg-red-950"
+							aria-hidden="true"
+						></span>
+						<p class="text-sm text-card-foreground">Jawaban salah</p>
+					</div>
+				{:else}
+					<div class="flex items-start gap-3">
+						<span
+							class="mt-0.5 size-5 shrink-0 rounded-md border border-emerald-300 bg-emerald-50 shadow-xs dark:border-emerald-700 dark:bg-emerald-950"
+							aria-hidden="true"
+						></span>
+						<p class="text-sm text-card-foreground">Sudah dijawab</p>
+					</div>
+				{/if}
 				<div class="flex items-start gap-3">
 					<span
 						class="mt-0.5 size-5 shrink-0 rounded-md border border-border bg-muted shadow-xs"
@@ -120,10 +154,17 @@
 		>
 			<InfoIcon class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 			<div>
-				<p class="text-sm font-bold">Pastikan semua soal sudah dijawab</p>
-				<p class="mt-1 text-xs leading-relaxed text-muted-foreground">
-					Kamu dapat meninjau kembali jawaban sebelum mengakhiri tes.
-				</p>
+				{#if showsCorrectnessLegend}
+					<p class="text-sm font-bold">Pelajari pembahasan pada setiap soal</p>
+					<p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+						Kamu dapat meninjau kembali pembahasan dan pilihan jawaban sebelum mengakhiri latihan.
+					</p>
+				{:else}
+					<p class="text-sm font-bold">Pastikan semua soal sudah dijawab</p>
+					<p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+						Kamu dapat meninjau kembali jawaban sebelum mengakhiri tes.
+					</p>
+				{/if}
 			</div>
 		</div>
 	</Card.Content>

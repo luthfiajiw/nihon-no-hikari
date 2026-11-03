@@ -16,7 +16,7 @@
 	import { capitalizeFirst } from '$lib/utils';
 	import { signInUseCase } from '$dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
-	// import logo from '$lib/assets/images/gakkobit-full-logo.png';
+	import logo from '$lib/assets/images/gakkobit-full-logo.png';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -47,21 +47,22 @@
 </script>
 
 <Card.Root
-	class="flex w-full flex-col items-center justify-between gap-8 rounded-none border-0 px-6 pt-28 pb-10 shadow-2xl backdrop-blur-sm sm:px-12 md:m-10 md:rounded-3xl lg:w-[460px] lg:shrink-0 lg:px-10 lg:py-12 xl:w-[550px] xl:px-14"
+	class="flex w-full flex-col justify-between gap-8 rounded-none border-0 px-8 pt-28 pb-10 shadow-2xl backdrop-blur-sm md:m-8 md:rounded-3xl lg:w-115 lg:py-12"
 >
-	<Card.Header class="w-full max-w-sm gap-3 px-0 text-center">
+	<Card.Header class="w-full gap-3 px-0 text-center">
 		<!-- <img src={logo} alt="Logo Gakkobit" class="mx-auto h-12 object-contain" /> -->
-		<Card.Title class="text-center text-3xl font-semibold tracking-tight text-taupe-600">
-			Selamat Datang
+		<Card.Title class="w-full! text-center text-3xl font-semibold tracking-tight text-taupe-600">
+			<p class="hidden md:block">Selamat Datang</p>
+			<img src={logo} alt="Logo Gakkobit" class="mx-auto block h-12 object-contain md:hidden" />
 		</Card.Title>
-		<Card.Description class="text-center text-sm leading-6">
+		<Card.Description class="w-full! text-center text-sm leading-6">
 			Masuk ke akun Gakkobit kamu untuk melanjutkan perjalananmu belajar bahasa Jepang.
 		</Card.Description>
 	</Card.Header>
-	<Card.Content class="flex h-full w-full max-w-sm flex-col justify-center px-0 pb-24">
+	<Card.Content class="flex h-full w-full flex-col justify-center px-0">
 		{#if serverError}
 			<div
-				class="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+				class="mb-4 w-full rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive"
 			>
 				{serverError}
 			</div>
@@ -160,7 +161,7 @@
 
 				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 					{#snippet children([canSubmit, isSubmitting])}
-						<Field>
+						<Field class="mt-1 gap-4">
 							<Button
 								type="submit"
 								class="w-full"
@@ -170,7 +171,7 @@
 								Login
 							</Button>
 							<FieldDescription class="text-center">
-								Don't have an account? <a href="##">Sign up</a>
+								Don't have an account? <a href={resolve('/register')} class="underline">Sign up</a>
 							</FieldDescription>
 						</Field>
 					{/snippet}
