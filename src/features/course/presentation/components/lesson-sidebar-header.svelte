@@ -19,7 +19,7 @@
 </script>
 
 <div class="px-4 pt-4 pb-3">
-	<h2 class="mb-3 text-base leading-snug font-bold text-foreground">{courseName}</h2>
+	<h2 class="mb-3 pr-8 text-base leading-snug font-bold text-foreground md:pr-0">{courseName}</h2>
 
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">

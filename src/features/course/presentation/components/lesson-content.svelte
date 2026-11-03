@@ -187,7 +187,9 @@
 <div class="h-full min-w-0 flex-1 overflow-hidden">
 	<ScrollArea.Root class="h-full" orientation="vertical">
 		<article class="mx-auto max-w-7xl px-6 pt-6 pb-16">
-			<h1 class="mb-7 text-2xl leading-tight font-extrabold tracking-tight text-foreground">
+			<h1
+				class="mb-7 pr-10 text-2xl leading-tight font-extrabold tracking-tight text-foreground md:pr-0"
+			>
 				{title}
 			</h1>
 
