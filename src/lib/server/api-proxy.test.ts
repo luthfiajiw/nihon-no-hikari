@@ -89,6 +89,7 @@ describe('API proxy', () => {
 
 	it.each([
 		['POST', '/api/v1/auth/signin', { email: 'invalid', password: 'password' }],
+		['POST', '/api/v1/auth/google', {}],
 		['POST', '/api/v1/auth/token', { grant_type: 'refresh', token: '' }],
 		['POST', '/api/v1/auth/signout', { session_id: '' }],
 		['PUT', '/api/v1/courses/course/modules/module/progress', { status: 'invalid' }],

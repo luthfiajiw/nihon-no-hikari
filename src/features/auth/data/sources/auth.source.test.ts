@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DomainError, InvalidCredentialsError, SignInNetworkError } from '../../domain/entities/auth.entity';
+import {
+	DomainError,
+	InvalidCredentialsError,
+	SignInNetworkError
+} from '../../domain/entities/auth.entity';
 import { AuthSource } from './auth.source';
 
 describe('AuthSource', () => {

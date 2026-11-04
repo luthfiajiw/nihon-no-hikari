@@ -48,7 +48,7 @@ Gunakan origin backend dengan host atau port yang berbeda dari frontend agar `ev
 
 Source menerima fungsi bertipe native `fetch` dan mengakses endpoint lokal `/api/v1/*`. Source, repository, dan usecase diinisiasi langsung di file `.dependency.ts`; pemanggil cukup mengimpor instance usecase lalu menjalankan `.exec()`. Import kondisional `#request-fetch` memakai browser fetch di client dan `getRequestEvent().fetch` di server. Dispatcher server mengambil request aktif saat dipanggil, sehingga singleton tidak menyimpan session atau fetch milik pengguna.
 
-Proxy meneruskan request ke backend. `handleFetch` memasukkan bearer dari cookie session HttpOnly dan menangani refresh serta satu retry 401. Endpoint auth publik dikecualikan dari bearer dan retry. Signin/signout tetap memakai endpoint lokal khusus untuk mengelola cookie; form actions admin tetap dipertahankan.
+Proxy meneruskan request ke backend. `handleFetch` memasukkan bearer dari cookie session HttpOnly dan menangani refresh serta satu retry 401. Endpoint auth publik dikecualikan dari bearer dan retry. Signin/google/signout tetap memakai endpoint lokal khusus untuk mengelola cookie; form actions admin tetap dipertahankan.
 
 Unit test server: `npm run test:unit -- --run --project server`. Smoke test browser: `npm run test:api-proxy` dan `npm run test:admin`; keduanya memakai API fixture tanpa database aplikasi. Setelah build, set `API_PROXY_PREVIEW=1` atau `ADMIN_SMOKE_PREVIEW=1` untuk menguji build produksi. Jika Chromium Playwright belum tersedia, set `API_PROXY_CHANNEL=msedge` dan `ADMIN_SMOKE_CHANNEL=msedge` untuk memakai Edge yang terpasang.
 

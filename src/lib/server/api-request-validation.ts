@@ -12,6 +12,7 @@ import {
 import { userAdminChangeRoleRequestSchema } from '$features/user/domain/schemas/user-admin-request.schema';
 import type { z } from 'zod';
 import {
+	googleSignInRequestSchema,
 	refreshTokenRequestSchema,
 	registerRequestSchema,
 	signInRequestSchema,
@@ -35,6 +36,8 @@ function requestSchema(method: string, pathname: string): z.ZodType | undefined 
 				return registerRequestSchema;
 			case '/api/v1/auth/signin':
 				return signInRequestSchema;
+			case '/api/v1/auth/google':
+				return googleSignInRequestSchema;
 			case '/api/v1/auth/token':
 				return refreshTokenRequestSchema;
 			case '/api/v1/auth/signout':

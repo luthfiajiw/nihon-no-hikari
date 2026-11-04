@@ -211,23 +211,25 @@
 				<AssessmentResultCard result={submitResult} {assessmentLabel} {backHref} />
 			{:else if activeQuestion}
 				{#key activeQuestion.id}
-					<AssessmentQuestionCard
-						question={activeQuestion}
-						questionNumber={activeIndex + 1}
-						totalQuestions={questions.length}
-						answer={typeof answers[activeQuestion.id] === 'string'
-							? (answers[activeQuestion.id] as string)
-							: ''}
-						strokeAnswer={Array.isArray(answers[activeQuestion.id])
-							? (answers[activeQuestion.id] as StrokeInput)
-							: []}
-						disabled={isSubmitting}
-						{immediateFeedback}
-						onAnswerChange={setAnswer}
-						onStrokeChange={setStrokeAnswer}
-						onPrevious={() => goToQuestion(activeIndex - 1)}
-						onNext={goNext}
-					/>
+					<div class="pb-24">
+						<AssessmentQuestionCard
+							question={activeQuestion}
+							questionNumber={activeIndex + 1}
+							totalQuestions={questions.length}
+							answer={typeof answers[activeQuestion.id] === 'string'
+								? (answers[activeQuestion.id] as string)
+								: ''}
+							strokeAnswer={Array.isArray(answers[activeQuestion.id])
+								? (answers[activeQuestion.id] as StrokeInput)
+								: []}
+							disabled={isSubmitting}
+							{immediateFeedback}
+							onAnswerChange={setAnswer}
+							onStrokeChange={setStrokeAnswer}
+							onPrevious={() => goToQuestion(activeIndex - 1)}
+							onNext={goNext}
+						/>
+					</div>
 				{/key}
 			{/if}
 

@@ -17,6 +17,7 @@
 	import { signInUseCase } from '$dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
 	import logo from '$lib/assets/images/gakkobit-full-logo.png';
+	import GoogleSignInButton from './components/google-sign-in-button.svelte';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -76,6 +77,7 @@
 			</div>
 		{/if}
 
+		<GoogleSignInButton onError={(message) => (serverError = message)} />
 		<form
 			onsubmit={(e) => {
 				e.preventDefault();
@@ -171,7 +173,9 @@
 								Login
 							</Button>
 							<FieldDescription class="text-center">
-								Don't have an account? <a href={resolve('/register')} class="underline">Sign up</a>
+								Belum punya akun? <a href={resolve('/register')} class="underline">
+									Daftar di sini
+								</a>
 							</FieldDescription>
 						</Field>
 					{/snippet}

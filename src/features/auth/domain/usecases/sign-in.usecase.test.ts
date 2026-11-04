@@ -8,6 +8,7 @@ describe('SignInUseCase', () => {
 		return {
 			register: vi.fn(),
 			signIn,
+			googleSignIn: vi.fn(),
 			refreshToken: vi.fn(),
 			signOut: vi.fn()
 		};

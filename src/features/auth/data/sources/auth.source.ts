@@ -5,6 +5,7 @@ import {
 	InvalidRefreshTokenError,
 	RefreshTokenError,
 	SignInNetworkError,
+	type GoogleSignInRequest,
 	type RefreshTokenRequest,
 	type RegisterRequest,
 	type RegisterResponse,
@@ -102,6 +103,34 @@ export class AuthSource {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify(payload)
+			});
+		} catch {
+			throw new SignInNetworkError();
+		}
+
+		const json: unknown = await response.json().catch(() => null);
+
+		if (!response.ok) {
+			if (response.status === 401 || response.status === 400) {
+				throw new InvalidCredentialsError(getErrorMessage(json));
+			}
+			throw new SignInNetworkError(getErrorMessage(json));
+		}
+
+		if (!isRecord(json)) throw new SignInNetworkError();
+		return json as unknown as SignInResponse;
+	}
+
+	async googleSignIn(payload: GoogleSignInRequest): Promise<SignInResponse> {
+		let response;
+		try {
+			response = await this.fetcher('/api/auth/google', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ id_token: payload.idToken })
 			});
 		} catch {
 			throw new SignInNetworkError();

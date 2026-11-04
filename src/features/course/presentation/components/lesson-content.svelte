@@ -209,17 +209,19 @@
 									class="flex flex-col gap-3 bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
 								>
 									<div class="min-w-0">
-										<div class="flex flex-wrap items-center gap-2">
-											<h3 class="font-semibold text-card-foreground">{questionSet.title}</h3>
+										<div
+											class="flex items-start justify-between gap-2 sm:items-center sm:justify-start"
+										>
+											<h3 class="min-w-0 font-semibold text-card-foreground">{questionSet.title}</h3>
 											{#if questionSet.is_passed}
 												<Badge
-													class="border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+													class="shrink-0 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
 												>
 													<CheckCircle2Icon aria-hidden="true" />
 													Lulus
 												</Badge>
 											{:else}
-												<Badge variant="outline" class="text-muted-foreground">Belum Lulus</Badge>
+												<Badge variant="outline" class="shrink-0 text-muted-foreground">Belum Lulus</Badge>
 											{/if}
 										</div>
 										{#if questionSet.skill}
@@ -230,28 +232,31 @@
 									</div>
 
 									<div
-										class="flex shrink-0 flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground"
+										class="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground sm:shrink-0 sm:justify-end sm:gap-x-4"
 									>
-										<span class="flex items-center gap-1.5">
-											<CircleHelpIcon class="size-3.5" aria-hidden="true" />
-											{questionSet.question_count} Soal
-										</span>
-										{#if formatTimeLimit(questionSet.time_limit_seconds) !== null}
+										<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
 											<span class="flex items-center gap-1.5">
-												<Clock3Icon class="size-3.5" aria-hidden="true" />
-												{formatTimeLimit(questionSet.time_limit_seconds)}
+												<CircleHelpIcon class="size-3.5" aria-hidden="true" />
+												{questionSet.question_count} Soal
 											</span>
-										{/if}
-										<span class="flex items-center gap-1.5">
-											<TargetIcon class="size-3.5" aria-hidden="true" />
-											KKM {questionSet.passing_score}
-										</span>
+											{#if formatTimeLimit(questionSet.time_limit_seconds) !== null}
+												<span class="flex items-center gap-1.5">
+													<Clock3Icon class="size-3.5" aria-hidden="true" />
+													{formatTimeLimit(questionSet.time_limit_seconds)}
+												</span>
+											{/if}
+											<span class="flex items-center gap-1.5">
+												<TargetIcon class="size-3.5" aria-hidden="true" />
+												KKM {questionSet.passing_score}
+											</span>
+										</div>
 										<Button
 											size="sm"
 											variant={questionSet.is_passed ? 'outline' : 'default'}
 											disabled={startingQuestionSetId !== null}
 											isLoading={startingQuestionSetId === questionSet.id}
 											onclick={() => onQuestionSetSelect?.(questionSet)}
+											class="shrink-0 ml-auto sm:ml-0"
 										>
 											{questionSet.is_passed ? 'Lihat soal' : 'Kerjakan'}
 										</Button>

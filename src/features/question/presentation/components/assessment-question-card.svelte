@@ -182,15 +182,15 @@
 						data-slot="question-explanation"
 						role="status"
 						aria-live="polite"
-						class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-emerald-950 sm:p-5 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-100"
+						class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-2 text-emerald-950 sm:p-5 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-100"
 					>
 						<div class="flex items-start gap-3">
 							<div
-								class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300"
+								class="flex shrink-0 items-center justify-center rounded-full bg-emerald-500/15 p-1.5 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300"
 							>
 								<LightbulbIcon class="size-4" aria-hidden="true" />
 							</div>
-							<div class="min-w-0 flex-1">
+							<div class="mt-1 min-w-0 flex-1">
 								<h3 class="text-sm font-bold tracking-wide uppercase">Penjelasan</h3>
 								<p class="mt-1 text-sm leading-relaxed whitespace-pre-line text-foreground/90">
 									{explanationText}

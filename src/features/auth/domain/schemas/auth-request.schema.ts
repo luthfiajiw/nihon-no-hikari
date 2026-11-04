@@ -46,3 +46,7 @@ export const signOutRequestSchema = z.object({
 		.trim()
 		.min(1, 'Session ID wajib diisi.')
 });
+
+export const googleSignInRequestSchema = z.object({
+	id_token: z.string({ error: 'Token Google wajib diisi.' }).min(1, 'Token Google wajib diisi.')
+});

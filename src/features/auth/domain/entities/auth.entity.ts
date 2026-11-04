@@ -53,6 +53,10 @@ export interface SignInRequest {
 	password: string;
 }
 
+export interface GoogleSignInRequest {
+	idToken: string;
+}
+
 export interface SignInResponse {
 	success: boolean;
 	message: string;

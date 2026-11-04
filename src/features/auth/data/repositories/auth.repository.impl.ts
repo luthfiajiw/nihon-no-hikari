@@ -2,6 +2,7 @@ import type { AuthAdminRepository } from '../../domain/repositories/auth-admin.r
 
 import type { AuthRepository } from '../../domain/repositories/auth.repository';
 import {
+	type GoogleSignInRequest,
 	type RefreshTokenRequest,
 	type RegisterRequest,
 	type RegisterResponse,
@@ -23,6 +24,10 @@ export class AuthRepositoryImpl implements AuthRepository, AuthAdminRepository {
 		const data = await this.apiService.signIn(credentials);
 
 		return data;
+	}
+
+	googleSignIn(payload: GoogleSignInRequest): Promise<SignInResponse> {
+		return this.apiService.googleSignIn(payload);
 	}
 
 	refreshToken(

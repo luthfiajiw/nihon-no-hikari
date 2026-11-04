@@ -1,4 +1,5 @@
 import type {
+	GoogleSignInRequest,
 	RefreshTokenRequest,
 	RegisterRequest,
 	RegisterResponse,
@@ -11,6 +12,7 @@ import type {
 export interface AuthRepository {
 	register(payload: RegisterRequest): Promise<RegisterResponse>;
 	signIn(credentials: SignInRequest): Promise<SignInResponse>;
+	googleSignIn(payload: GoogleSignInRequest): Promise<SignInResponse>;
 	refreshToken(
 		payload: RefreshTokenRequest,
 		currentSession: StoredAuthSession

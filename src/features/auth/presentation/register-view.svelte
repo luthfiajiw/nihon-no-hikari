@@ -16,6 +16,7 @@
 	import { capitalizeFirst } from '$lib/utils';
 	import { registerUseCase } from '$dependencies/auth.dependency';
 	import { resolve } from '$app/paths';
+	import GoogleSignInButton from './components/google-sign-in-button.svelte';
 
 	let serverError = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -81,6 +82,8 @@
 				{successMessage}
 			</div>
 		{/if}
+
+		<GoogleSignInButton onError={(message) => (serverError = message)} />
 
 		<form
 			onsubmit={(e) => {

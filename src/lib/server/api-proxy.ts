@@ -24,7 +24,7 @@ export function isApiRequest(url: URL, base: URL): boolean {
 
 export function isPublicAuthRequest(url: URL, base: URL): boolean {
 	const path = url.pathname.replace(/\/$/, '');
-	return ['register', 'signin', 'token', 'signout'].some(
+	return ['register', 'signin', 'google', 'token', 'signout'].some(
 		(name) => path === `${base.pathname.replace(/\/$/, '')}/v1/auth/${name}`
 	);
 }
