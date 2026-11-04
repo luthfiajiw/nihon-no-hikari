@@ -20,11 +20,10 @@
 		ClipboardCheck,
 		FileText,
 		ChartColumn,
-		Settings,
-		CircleQuestionMark,
 		Users,
 		ArrowUpRight,
-		ArrowDownLeft
+		ArrowDownLeft,
+		Store
 	} from 'lucide-svelte';
 
 	let {
@@ -81,18 +80,6 @@
 		}
 	];
 
-	const secondaryNav = [
-		{
-			name: 'Pengaturan',
-			url: '/pengaturan',
-			icon: Settings
-		},
-		{
-			name: 'Bantuan',
-			url: '/bantuan',
-			icon: CircleQuestionMark
-		}
-	];
 	const sidebar = Sidebar.useSidebar();
 	const isAdmin = $derived((page.data.user as AuthUser | undefined)?.role === 'Admin');
 	let previousRouteKey: string | null = null;
@@ -211,8 +198,19 @@
 			</Sidebar.Menu>
 		</Sidebar.Group>
 
+		<div class="mt-5 border-t border-taupe-100 pt-5">
+			<button
+				type="button"
+				onclick={() => {}}
+				class="flex w-full items-center gap-3 rounded-xl border border-yellow-500 px-3 py-3 text-sm font-medium text-yellow-500 group-data-[collapsible=icon]:justify-center hover:bg-taupe-50"
+			>
+				<Store class="size-4 shrink-0" />
+				<span class="group-data-[collapsible=icon]:hidden">Beli Kursus</span>
+			</button>
+		</div>
+
 		{#if isAdmin}
-			<div class="mt-5 border-t border-taupe-100 pt-5">
+			<div class="border-taupe-100 pt-4">
 				<button
 					type="button"
 					onclick={() => {
@@ -232,41 +230,6 @@
 						<span class="group-data-[collapsible=icon]:hidden">Dashboard Siswa</span>
 					{/if}
 				</button>
-			</div>
-		{:else}
-			<div class="pt-2">
-				<div class="my-3 border-t border-taupe-100 dark:border-taupe-800"></div>
-				<Sidebar.Group class="p-0">
-					<Sidebar.Menu class="space-y-2">
-						{#each secondaryNav as item (item.name)}
-							{@const active = isItemActive(item.url)}
-							<Sidebar.MenuItem>
-								<Sidebar.MenuButton
-									isActive={active}
-									tooltipContent={item.name}
-									aria-label={item.name}
-									class={cn(menuButtonClass(active), '[&_svg]:size-5 [&_svg]:shrink-0')}
-								>
-									{#snippet child({ props })}
-										<button
-											type="button"
-											{...props}
-											onclick={() => goto(resolve(item.url as Pathname))}
-										>
-											<item.icon
-												class={cn(
-													'mr-1 size-5 shrink-0 transition-colors group-data-[collapsible=icon]:mr-0',
-													!active && 'text-taupe-600 dark:text-taupe-400'
-												)}
-											/>
-											<span class="group-data-[collapsible=icon]:hidden">{item.name}</span>
-										</button>
-									{/snippet}
-								</Sidebar.MenuButton>
-							</Sidebar.MenuItem>
-						{/each}
-					</Sidebar.Menu>
-				</Sidebar.Group>
 			</div>
 		{/if}
 	</Sidebar.Content>

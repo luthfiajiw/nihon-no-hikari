@@ -251,7 +251,7 @@
 	</div>
 
 	{#if items.length === 0}
-		<Card.Root class="py-16 text-center">
+		<Card.Root class="py-8 text-center">
 			<Card.Content class="flex flex-col items-center gap-4">
 				<h2 class="text-xl font-bold">Tidak ada kosakata yang dapat diputar</h2>
 				<p class="max-w-md text-sm text-muted-foreground">
@@ -308,7 +308,7 @@
 
 			<!-- Central Vocabulary Stage (Mirrors the Japanese Suki Reference Layout) -->
 			<Card.Content
-				class="my-auto flex flex-col items-center justify-center gap-6 px-4 py-8 text-center sm:px-8 sm:py-12"
+				class="my-auto flex flex-col items-center justify-center gap-6 px-4 text-center sm:px-8"
 			>
 				<!-- Translation Prompt -->
 				<p class="max-w-xl text-lg font-semibold text-primary sm:text-2xl">

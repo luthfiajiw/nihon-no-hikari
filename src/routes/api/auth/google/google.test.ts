@@ -19,7 +19,7 @@ function invoke(upstream: Response | Error) {
 		}),
 		fetch,
 		cookies: {}
-	} as Parameters<typeof POST>[0]);
+	} as unknown as Parameters<typeof POST>[0]);
 	return { fetch, response };
 }
 

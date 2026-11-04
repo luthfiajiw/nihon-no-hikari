@@ -41,7 +41,7 @@
 			data-slot="sidebar"
 			data-mobile="true"
 			class={cn(
-				'w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden',
+				'w-(--sidebar-width) bg-white p-0 text-sidebar-foreground [&>button]:hidden',
 				className
 			)}
 			style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
@@ -70,7 +70,7 @@
 		<div
 			data-slot="sidebar-gap"
 			class={cn(
-				'relative w-(--sidebar-width) bg-transparent transition-[width] duration-50 ease-linear',
+				'relative w-(--sidebar-width) bg-white transition-[width] duration-50 ease-linear',
 				'group-data-[collapsible=offcanvas]:w-0',
 				'group-data-[side=right]:rotate-180',
 				variant === 'floating' || variant === 'inset'
@@ -94,7 +94,7 @@
 			<div
 				data-sidebar="sidebar"
 				data-slot="sidebar-inner"
-				class="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+				class="flex size-full flex-col bg-white group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
 			>
 				{@render children?.()}
 			</div>

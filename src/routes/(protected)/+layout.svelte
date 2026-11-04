@@ -15,7 +15,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { BellIcon, ChevronDownIcon, LoaderCircle } from 'lucide-svelte';
+	import { BellIcon, LoaderCircle } from 'lucide-svelte';
 	import type { LayoutProps } from './$types';
 
 	interface AssessmentPageData {
@@ -204,37 +204,29 @@
 			<header
 				class="flex shrink-0 items-center justify-between gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
 			>
-				<div class="flex min-w-0 flex-1 items-center gap-2 px-4">
+				<div class="flex min-w-0 flex-1 items-center gap-2 px-2 md:px-4">
 					<Sidebar.Trigger />
 					{#if !isAdminRoute}
 						<p class="pl-1 text-base">Ganbare, {firstName}!</p>
 					{/if}
 				</div>
 
-				<div class="flex shrink-0 items-center gap-2 pr-3 sm:pr-6">
+				<div class="flex shrink-0 items-center pr-3 sm:pr-6">
 					<Button variant="ghost" size="icon">
 						<BellIcon />
 					</Button>
-					<Separator orientation="vertical" class="mr-1.5 data-[orientation=vertical]:h-5" />
+					<Separator orientation="vertical" class="mr-3 data-[orientation=vertical]:h-5" />
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<div class="flex cursor-pointer items-center" {...props}>
-									<Avatar.Root>
-										<Avatar.Image
-											src={data.user?.avatar_url ?? 'https://github.com/shadcn.png'}
-											alt={displayName}
-										/>
-										<Avatar.Fallback>{displayName.charAt(0).toUpperCase()}</Avatar.Fallback>
-									</Avatar.Root>
-
-									<div class="hidden flex-col items-start pr-4 pl-3 sm:flex">
-										<p class="text-sm font-medium">{displayName}</p>
-										<p class="text-xs text-muted-foreground">{data.user?.role ?? 'User'}</p>
-									</div>
-
-									<ChevronDownIcon class="size-4" />
-								</div>
+								<Avatar.Root class="cursor-pointer" {...props}>
+									<Avatar.Image
+										src={data.user?.avatar_url ??
+											'https://gcwjewiszjevcgonvhld.supabase.co/storage/v1/object/public/public-avatars/gakkobit-default-ava.jpg'}
+										alt={displayName}
+									/>
+									<Avatar.Fallback>{displayName.charAt(0).toUpperCase()}</Avatar.Fallback>
+								</Avatar.Root>
 							{/snippet}
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content class="w-48" align="end" sideOffset={16}>

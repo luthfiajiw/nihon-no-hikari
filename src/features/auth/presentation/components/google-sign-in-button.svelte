@@ -6,6 +6,8 @@
 	import { capitalizeFirst } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import { DomainError } from '../../domain/entities/auth.entity';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import googleLogo from '$lib/assets/images/google-logo.png';
 
 	// Minimal typing for the Google Identity Services script (loaded at runtime).
 	interface GoogleIdentity {
@@ -16,6 +18,7 @@
 					callback: (response: { credential?: string }) => void;
 				}): void;
 				renderButton(parent: HTMLElement, options: Record<string, unknown>): void;
+				prompt?: () => void;
 			};
 		};
 	}
@@ -26,9 +29,12 @@
 	let { onError }: { onError?: (message: string | null) => void } = $props();
 
 	let container = $state<HTMLElement>();
+	let isLoading = $state(false);
+	let isScriptLoaded = $state(false);
 
 	function loadScript(): Promise<void> {
 		if ((window as unknown as { google?: GoogleIdentity }).google?.accounts) {
+			isScriptLoaded = true;
 			return Promise.resolve();
 		}
 		return new Promise((resolveLoad, reject) => {
@@ -39,7 +45,14 @@
 				script.async = true;
 				document.head.appendChild(script);
 			}
-			script.addEventListener('load', () => resolveLoad(), { once: true });
+			script.addEventListener(
+				'load',
+				() => {
+					isScriptLoaded = true;
+					resolveLoad();
+				},
+				{ once: true }
+			);
 			script.addEventListener('error', () => reject(new Error('gsi')), { once: true });
 		});
 	}
@@ -50,15 +63,28 @@
 			onError?.('Login dengan Google gagal. Silakan coba lagi.');
 			return;
 		}
+		isLoading = true;
 		try {
 			const result = await googleSignInUseCase.exec({ idToken: response.credential });
 			await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/'), { invalidateAll: true });
 		} catch (err) {
+			isLoading = false;
 			onError?.(
 				err instanceof DomainError
 					? capitalizeFirst(err.message)
 					: 'Terjadi kesalahan saat sign in dengan Google.'
 			);
+		}
+	}
+
+	function handleClick() {
+		if (isLoading) return;
+		if (!clientId) {
+			onError?.('Google Client ID tidak terkonfigurasi.');
+			return;
+		}
+		if (!isScriptLoaded) {
+			onError?.('Google Sign-In sedang dimuat atau diblokir.');
 		}
 	}
 
@@ -75,7 +101,7 @@
 						size: 'large',
 						text: 'continue_with',
 						shape: 'rectangular',
-						width: container.clientWidth || 320
+						width: 400
 					});
 				}
 			})
@@ -84,8 +110,35 @@
 </script>
 
 {#if clientId}
-	<div class="mb-4 flex flex-col gap-4">
-		<div bind:this={container} class="flex w-full justify-center"></div>
+	<div class="mb-3 flex w-full flex-col gap-4">
+		<div class="group relative w-full">
+			<Button
+				type="button"
+				variant="secondary"
+				class="w-full gap-2.5 group-hover:bg-[color-mix(in_oklch,var(--color-secondary),var(--color-foreground)_5%)] group-active:translate-y-1 group-active:shadow-[inset_0_1px_0_rgb(255_255_255/0.2)]"
+				{isLoading}
+				disabled={isLoading}
+				onclick={handleClick}
+			>
+				{#if !isLoading}
+					<img
+						src={googleLogo}
+						alt="Google"
+						class="absolute left-4 size-4 shrink-0 object-contain"
+					/>
+				{/if}
+				<span>Lanjutkan dengan Google</span>
+			</Button>
+
+			<div
+				bind:this={container}
+				class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center overflow-hidden rounded-xl [&_iframe]:scale-125 [&>div]:scale-125"
+				style="opacity: 0.0001;"
+				class:pointer-events-none={isLoading}
+				aria-hidden="true"
+			></div>
+		</div>
+
 		<div class="flex items-center gap-3 text-xs text-muted-foreground">
 			<span class="h-px flex-1 bg-border"></span>
 			<span>atau</span>
