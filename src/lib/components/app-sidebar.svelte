@@ -45,7 +45,7 @@
 	const mainNav = [
 		{
 			name: 'Dashboard',
-			url: '/',
+			url: '/dashboard',
 			icon: House
 		},
 		{
@@ -126,8 +126,8 @@
 					/^\/admin\/content\/(course|module|lesson)\//.test(currentPath)
 				);
 		}
-		if (url === '/') {
-			return currentPath === '/';
+		if (url === '/dashboard') {
+			return currentPath === '/dashboard';
 		}
 		return currentPath.startsWith(url);
 	}
@@ -215,7 +215,7 @@
 					type="button"
 					onclick={() => {
 						if (mode === 'admin') {
-							goto(resolve('/'));
+							goto(resolve('/dashboard'));
 						} else {
 							goto(resolve('/admin'));
 						}

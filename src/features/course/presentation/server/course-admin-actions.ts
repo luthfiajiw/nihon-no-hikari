@@ -71,7 +71,7 @@ export async function previewCourseAdminLesson(event: RequestEvent) {
 	} catch (cause) {
 		if (!(cause instanceof HttpError)) throw cause;
 		if (cause.status === 401) redirect(303, resolve('/signin'));
-		if (cause.status === 403) redirect(303, resolve('/'));
+		if (cause.status === 403) redirect(303, resolve('/dashboard'));
 		return json({ error: cause.message }, { status: cause.status });
 	}
 }

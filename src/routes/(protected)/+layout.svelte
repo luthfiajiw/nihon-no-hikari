@@ -15,7 +15,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { BellIcon, LoaderCircle } from 'lucide-svelte';
+	import { BellIcon, LoaderCircle, LogOut, User } from 'lucide-svelte';
 	import type { LayoutProps } from './$types';
 
 	interface AssessmentPageData {
@@ -215,7 +215,7 @@
 					<Button variant="ghost" size="icon">
 						<BellIcon />
 					</Button>
-					<Separator orientation="vertical" class="mr-3 data-[orientation=vertical]:h-5" />
+					<Separator orientation="vertical" class="mr-4 ml-1 data-[orientation=vertical]:h-5" />
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
@@ -231,8 +231,14 @@
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content class="w-48" align="end" sideOffset={16}>
 							<DropdownMenu.Group>
-								<DropdownMenu.Item>Profile</DropdownMenu.Item>
-								<DropdownMenu.Item>Subscription</DropdownMenu.Item>
+								<DropdownMenu.Item>
+									{#snippet child({ props })}
+										<a href="/profile" {...props}>
+											<User />
+											Akun Saya
+										</a>
+									{/snippet}
+								</DropdownMenu.Item>
 							</DropdownMenu.Group>
 							<DropdownMenu.Separator />
 							<DropdownMenu.Item
@@ -242,6 +248,8 @@
 							>
 								{#if isSigningOut}
 									<LoaderCircle class="animate-spin" />
+								{:else}
+									<LogOut />
 								{/if}
 								{signOutError ? 'Gagal keluar. Coba lagi.' : 'Keluar'}
 							</DropdownMenu.Item>

@@ -66,7 +66,7 @@
 		isLoading = true;
 		try {
 			const result = await googleSignInUseCase.exec({ idToken: response.credential });
-			await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/'), { invalidateAll: true });
+			await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/dashboard'), { invalidateAll: true });
 		} catch (err) {
 			isLoading = false;
 			onError?.(

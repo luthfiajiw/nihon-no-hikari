@@ -36,7 +36,7 @@
 					password: value.password
 				});
 
-				await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/'), { invalidateAll: true });
+				await goto(resolve(result.data.role === 'Admin' ? '/admin' : '/dashboard'), { invalidateAll: true });
 			} catch (err) {
 				serverError =
 					err instanceof DomainError

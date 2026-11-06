@@ -7,7 +7,7 @@ vi.mock('$app/paths', () => ({ resolve: (path: string) => path }));
 describe('management page failures', () => {
 	it.each([
 		[401, '/signin'],
-		[403, '/']
+		[403, '/dashboard']
 	] as const)('redirects access failure %s', async (status, location) => {
 		await expect(
 			managementLoad(() => Promise.reject(new HttpError(status, 'Akses ditolak.')))

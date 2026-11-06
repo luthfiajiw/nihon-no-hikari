@@ -7,7 +7,7 @@ export async function managementLoad<T>(operation: () => Promise<T>): Promise<T>
 	} catch (cause) {
 		if (!(cause instanceof HttpError)) throw cause;
 		if (cause.status === 401) redirect(303, resolve('/signin'));
-		if (cause.status === 403) redirect(303, resolve('/'));
+		if (cause.status === 403) redirect(303, resolve('/dashboard'));
 		error(cause.status, cause.message);
 	}
 }

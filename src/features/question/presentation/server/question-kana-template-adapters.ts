@@ -10,7 +10,7 @@ import {
 
 function accessError(cause: HttpError): never {
 	if (cause.status === 401) redirect(303, resolve('/signin'));
-	if (cause.status === 403) redirect(303, resolve('/'));
+	if (cause.status === 403) redirect(303, resolve('/dashboard'));
 	error(cause.status, cause.message);
 }
 
@@ -62,7 +62,7 @@ export async function saveQuestionKanaTemplate(event: RequestEvent) {
 	} catch (cause) {
 		if (!(cause instanceof HttpError)) throw cause;
 		if (cause.status === 401) redirect(303, resolve('/signin'));
-		if (cause.status === 403) redirect(303, resolve('/'));
+		if (cause.status === 403) redirect(303, resolve('/dashboard'));
 		return fail(cause.status, { message: cause.message });
 	}
 	if (event.params.id === 'new')
