@@ -103,12 +103,16 @@
 						: 'border-transparent bg-neutral-100/70 dark:bg-neutral-800/20'}"
 					onclick={() => (selectedUrl = preset.url)}
 				>
-					<Avatar.Root class="size-16 rounded-full border border-neutral-200 dark:border-neutral-700">
+					<Avatar.Root
+						class="size-16 rounded-full border border-neutral-200 dark:border-neutral-700"
+					>
 						<Avatar.Image src={preset.url} alt={preset.name} />
 						<Avatar.Fallback>{preset.name.charAt(0)}</Avatar.Fallback>
 					</Avatar.Root>
 					<div class="min-w-0">
-						<p class="text-xs font-semibold text-neutral-900 dark:text-neutral-100">{preset.name}</p>
+						<p class="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+							{preset.name}
+						</p>
 						<p class="truncate text-[10px] text-neutral-500">{preset.description}</p>
 					</div>
 					{#if isSelected}
