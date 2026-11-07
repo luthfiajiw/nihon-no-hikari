@@ -4,7 +4,9 @@ import type {
 	UserProfileData,
 	UpdateProfilePayload,
 	ChangePasswordPayload,
-	LinkGooglePayload
+	LinkGooglePayload,
+	VerifyLinkGoogleCodePayload,
+	VerifyLinkGoogleCodeResult
 } from '../../domain/entities/user-profile.entity';
 import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 
@@ -50,6 +52,23 @@ export class UserSource {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});
+	}
+
+	async requestLinkGoogleCode(): Promise<void> {
+		await this.userRequest('/link-google/request-code', {
+			method: 'POST'
+		});
+	}
+
+	async verifyLinkGoogleCode(
+		payload: VerifyLinkGoogleCodePayload
+	): Promise<VerifyLinkGoogleCodeResult> {
+		return (
+			await this.userRequest<ApiPayload<VerifyLinkGoogleCodeResult>>('/link-google/verify-code', {
+				method: 'POST',
+				body: JSON.stringify(payload)
+			})
+		).data;
 	}
 
 	async linkGoogle(payload: LinkGooglePayload): Promise<void> {

@@ -114,7 +114,10 @@
 			<Tabs.Content value="security" class="flex flex-col gap-6 focus-visible:outline-none">
 				<ProfilePasswordForm hasPassword={data.profile.has_password} />
 
-				<ProfileConnectedAccountsCard googleLinked={data.profile.google_linked} />
+				<ProfileConnectedAccountsCard
+					googleLinked={data.profile.google_linked}
+					email={data.profile.email}
+				/>
 
 				<ProfileSessionsCard sessions={data.profile.sessions} />
 			</Tabs.Content>

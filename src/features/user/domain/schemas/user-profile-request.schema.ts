@@ -19,3 +19,15 @@ export const changePasswordSchema = z
 		message: 'Konfirmasi kata sandi tidak cocok.',
 		path: ['confirm_password']
 	});
+
+export const verifyCodeSchema = z.object({
+	code: z
+		.string()
+		.trim()
+		.regex(/^\d{6}$/, 'Kode verifikasi harus berupa 6 digit angka.')
+});
+
+export const linkGoogleSchema = z.object({
+	id_token: z.string().trim().min(1, 'Token Google tidak boleh kosong.'),
+	verification_token: z.string().trim().min(1, 'Token verifikasi email tidak boleh kosong.')
+});

@@ -4,11 +4,16 @@ import { HttpError } from '$lib/http/http-error';
 import {
 	updateUserProfileUseCase,
 	changeUserPasswordUseCase,
-	revokeOtherSessionsUseCase
+	revokeOtherSessionsUseCase,
+	requestLinkGoogleCodeUseCase,
+	verifyLinkGoogleCodeUseCase,
+	linkUserGoogleUseCase
 } from '$dependencies/user.dependency';
 import {
 	updateProfileSchema,
-	changePasswordSchema
+	changePasswordSchema,
+	verifyCodeSchema,
+	linkGoogleSchema
 } from '../../domain/schemas/user-profile-request.schema';
 
 export async function updateProfile(event: RequestEvent) {
@@ -104,5 +109,95 @@ export async function revokeSessions(event: RequestEvent) {
 	} catch (cause) {
 		const message = cause instanceof HttpError ? cause.message : 'Gagal mencabut sesi lain.';
 		return fail(cause instanceof HttpError ? cause.status : 500, { error: message });
+	}
+}
+
+export async function requestLinkGoogleCode(event: RequestEvent) {
+	if (!event.locals.user) {
+		return fail(401, { error: 'Silakan masuk terlebih dahulu.' });
+	}
+
+	try {
+		await requestLinkGoogleCodeUseCase.exec();
+		return {
+			success: true,
+			action: 'requestCode',
+			message: 'Kode verifikasi telah dikirim ke email Anda.'
+		};
+	} catch (cause) {
+		const message =
+			cause instanceof HttpError ? cause.message : 'Gagal mengirim kode verifikasi.';
+		return fail(cause instanceof HttpError ? cause.status : 500, {
+			action: 'requestCode',
+			error: message
+		});
+	}
+}
+
+export async function verifyLinkGoogleCode(event: RequestEvent) {
+	if (!event.locals.user) {
+		return fail(401, { error: 'Silakan masuk terlebih dahulu.' });
+	}
+
+	try {
+		const form = await event.request.formData();
+		const code = String(form.get('code') ?? '');
+
+		const validation = verifyCodeSchema.safeParse({ code });
+		if (!validation.success) {
+			const firstError = validation.error.issues[0]?.message ?? 'Kode verifikasi tidak valid.';
+			return fail(400, { action: 'verifyCode', error: firstError });
+		}
+
+		const result = await verifyLinkGoogleCodeUseCase.exec(validation.data);
+		return {
+			success: true,
+			action: 'verifyCode',
+			verification_token: result.verification_token,
+			message: 'Email berhasil diverifikasi.'
+		};
+	} catch (cause) {
+		const message =
+			cause instanceof HttpError ? cause.message : 'Gagal memverifikasi kode.';
+		return fail(cause instanceof HttpError ? cause.status : 400, {
+			action: 'verifyCode',
+			error: message
+		});
+	}
+}
+
+export async function linkGoogle(event: RequestEvent) {
+	if (!event.locals.user) {
+		return fail(401, { error: 'Silakan masuk terlebih dahulu.' });
+	}
+
+	try {
+		const form = await event.request.formData();
+		const idToken = String(form.get('id_token') ?? '');
+		const verificationToken = String(form.get('verification_token') ?? '');
+
+		const validation = linkGoogleSchema.safeParse({
+			id_token: idToken,
+			verification_token: verificationToken
+		});
+
+		if (!validation.success) {
+			const firstError = validation.error.issues[0]?.message ?? 'Data penautan tidak valid.';
+			return fail(400, { action: 'linkGoogle', error: firstError });
+		}
+
+		await linkUserGoogleUseCase.exec(validation.data);
+		return {
+			success: true,
+			action: 'linkGoogle',
+			message: 'Akun Google berhasil ditautkan.'
+		};
+	} catch (cause) {
+		const message =
+			cause instanceof HttpError ? cause.message : 'Gagal menautkan akun Google.';
+		return fail(cause instanceof HttpError ? cause.status : 400, {
+			action: 'linkGoogle',
+			error: message
+		});
 	}
 }

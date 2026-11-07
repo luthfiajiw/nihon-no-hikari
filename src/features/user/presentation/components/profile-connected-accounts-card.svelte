@@ -1,30 +1,35 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { CheckCircle2 } from 'lucide-svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { CheckCircle2, Link2 } from 'lucide-svelte';
 	import googleLogo from '$lib/assets/images/google-logo.png';
+	import ProfileGoogleLinkDialog from './profile-google-link-dialog.svelte';
 
 	interface Props {
 		googleLinked: boolean;
+		email: string;
 	}
 
-	let { googleLinked }: Props = $props();
+	let { googleLinked, email }: Props = $props();
+
+	let linkDialogOpen = $state(false);
 </script>
 
 <Card.Root class="p-6">
 	<Card.Header class="px-0 pt-0">
 		<Card.Title class="text-lg font-bold">Akun Terhubung</Card.Title>
 		<Card.Description>
-			Layanan pihak ketiga yang ditautkan ke akun Nihon No Hikari Anda.
+			Layanan pihak ketiga yang ditautkan ke akun Gakkobit Anda.
 		</Card.Description>
 	</Card.Header>
 
 	<Card.Content class="px-0">
 		<div class="divide-y divide-border">
-			<div class="flex items-center justify-between py-3">
+			<div class="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
 				<div class="flex items-center gap-3">
 					<div
-						class="flex size-10 items-center justify-center rounded-lg border bg-white p-2 dark:border-border dark:bg-card"
+						class="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-white p-2 dark:border-border dark:bg-card"
 					>
 						<img src={googleLogo} alt="Google" class="size-5 object-contain" />
 					</div>
@@ -38,7 +43,7 @@
 					</div>
 				</div>
 
-				<div>
+				<div class="flex items-center gap-2.5 self-end sm:self-auto">
 					{#if googleLinked}
 						<Badge
 							variant="outline"
@@ -49,9 +54,23 @@
 						</Badge>
 					{:else}
 						<Badge variant="secondary">Belum Terhubung</Badge>
+						<Button
+							variant="outline"
+							size="sm"
+							class="h-8 gap-1.5 text-xs font-medium"
+							onclick={() => (linkDialogOpen = true)}
+						>
+							<Link2 class="size-3.5" />
+							Tautkan
+						</Button>
 					{/if}
 				</div>
 			</div>
 		</div>
 	</Card.Content>
 </Card.Root>
+
+<ProfileGoogleLinkDialog
+	bind:open={linkDialogOpen}
+	{email}
+/>

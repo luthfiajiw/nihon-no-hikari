@@ -26,7 +26,7 @@
 <aside class="col-span-12 flex flex-col lg:col-span-4">
 	<Card.Root class="gap-4 p-3">
 		<div class="px-3 pt-2 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-			Menu Akun
+			Menu
 		</div>
 		<Tabs.List class="flex w-full flex-col gap-1.5 bg-transparent p-0">
 			<Tabs.Trigger
@@ -64,7 +64,9 @@
 			</Tabs.Trigger>
 		</Tabs.List>
 
-		<Separator orientation="horizontal" class="h-px w-full" />
+		<div class="px-4">
+			<Separator orientation="horizontal" class="h-px w-full" />
+		</div>
 
 		<!-- Logout Action -->
 		<button

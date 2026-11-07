@@ -31,4 +31,13 @@ export interface ChangePasswordPayload {
 
 export interface LinkGooglePayload {
 	id_token: string;
+	verification_token: string;
+}
+
+export interface VerifyLinkGoogleCodePayload {
+	code: string;
+}
+
+export interface VerifyLinkGoogleCodeResult {
+	verification_token: string;
 }

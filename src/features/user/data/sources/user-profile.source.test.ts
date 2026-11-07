@@ -78,4 +78,43 @@ describe('UserSource profile transport', () => {
 			expect.objectContaining({ method: 'DELETE' })
 		);
 	});
+
+	it('requests Google link verification code via POST /api/v1/user/link-google/request-code', async () => {
+		const { source, fetch } = sourceWith(Response.json({ success: true }));
+		await source.requestLinkGoogleCode();
+
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/user/link-google/request-code',
+			expect.objectContaining({ method: 'POST' })
+		);
+	});
+
+	it('verifies Google link code via POST /api/v1/user/link-google/verify-code', async () => {
+		const { source, fetch } = sourceWith(
+			Response.json({ data: { verification_token: 'vt_123' } })
+		);
+		const result = await source.verifyLinkGoogleCode({ code: '123456' });
+
+		expect(result).toEqual({ verification_token: 'vt_123' });
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/user/link-google/verify-code',
+			expect.objectContaining({
+				method: 'POST',
+				body: JSON.stringify({ code: '123456' })
+			})
+		);
+	});
+
+	it('links Google account via POST /api/v1/user/link-google', async () => {
+		const { source, fetch } = sourceWith(Response.json({ success: true }));
+		await source.linkGoogle({ id_token: 'gid_123', verification_token: 'vt_123' });
+
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/user/link-google',
+			expect.objectContaining({
+				method: 'POST',
+				body: JSON.stringify({ id_token: 'gid_123', verification_token: 'vt_123' })
+			})
+		);
+	});
 });

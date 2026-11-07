@@ -3,6 +3,8 @@ import { GetUserProfileUseCase } from './get-user-profile.usecase';
 import { UpdateUserProfileUseCase } from './update-user-profile.usecase';
 import { ChangeUserPasswordUseCase } from './change-user-password.usecase';
 import { LinkUserGoogleUseCase } from './link-user-google.usecase';
+import { RequestLinkGoogleCodeUseCase } from './request-link-google-code.usecase';
+import { VerifyLinkGoogleCodeUseCase } from './verify-link-google-code.usecase';
 import { RevokeOtherSessionsUseCase } from './revoke-other-sessions.usecase';
 import type { UserProfileData } from '../entities/user-profile.entity';
 import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
@@ -33,6 +35,8 @@ function mockRepo() {
 		getProfile: vi.fn().mockResolvedValue(mockProfile),
 		updateProfile: vi.fn().mockResolvedValue(mockUser),
 		changePassword: vi.fn().mockResolvedValue(undefined),
+		requestLinkGoogleCode: vi.fn().mockResolvedValue(undefined),
+		verifyLinkGoogleCode: vi.fn().mockResolvedValue({ verification_token: 'vt_abc' }),
 		linkGoogle: vi.fn().mockResolvedValue(undefined),
 		revokeOtherSessions: vi.fn().mockResolvedValue(undefined)
 	};
@@ -73,12 +77,32 @@ describe('UserProfile UseCases', () => {
 		expect(repo.changePassword).toHaveBeenCalledWith(payload);
 	});
 
+	it('RequestLinkGoogleCodeUseCase delegates code request to repository', async () => {
+		const repo = mockRepo();
+		const useCase = new RequestLinkGoogleCodeUseCase(repo);
+		await useCase.exec();
+
+		expect(repo.requestLinkGoogleCode).toHaveBeenCalledOnce();
+	});
+
+	it('VerifyLinkGoogleCodeUseCase passes code payload to repository and returns result', async () => {
+		const repo = mockRepo();
+		const useCase = new VerifyLinkGoogleCodeUseCase(repo);
+		const result = await useCase.exec({ code: '123456' });
+
+		expect(repo.verifyLinkGoogleCode).toHaveBeenCalledWith({ code: '123456' });
+		expect(result).toEqual({ verification_token: 'vt_abc' });
+	});
+
 	it('LinkUserGoogleUseCase delegates google token linking to repository', async () => {
 		const repo = mockRepo();
 		const useCase = new LinkUserGoogleUseCase(repo);
-		await useCase.exec({ id_token: 'google-token-xyz' });
+		await useCase.exec({ id_token: 'google-token-xyz', verification_token: 'vt_abc' });
 
-		expect(repo.linkGoogle).toHaveBeenCalledWith({ id_token: 'google-token-xyz' });
+		expect(repo.linkGoogle).toHaveBeenCalledWith({
+			id_token: 'google-token-xyz',
+			verification_token: 'vt_abc'
+		});
 	});
 
 	it('RevokeOtherSessionsUseCase calls revoke on repository', async () => {

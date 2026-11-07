@@ -3,6 +3,8 @@ import { GetUserAdminListUseCase } from '$features/user/domain/usecases/user-adm
 import { GetUserProfileUseCase } from '$features/user/domain/usecases/get-user-profile.usecase';
 import { UpdateUserProfileUseCase } from '$features/user/domain/usecases/update-user-profile.usecase';
 import { ChangeUserPasswordUseCase } from '$features/user/domain/usecases/change-user-password.usecase';
+import { RequestLinkGoogleCodeUseCase } from '$features/user/domain/usecases/request-link-google-code.usecase';
+import { VerifyLinkGoogleCodeUseCase } from '$features/user/domain/usecases/verify-link-google-code.usecase';
 import { LinkUserGoogleUseCase } from '$features/user/domain/usecases/link-user-google.usecase';
 import { RevokeOtherSessionsUseCase } from '$features/user/domain/usecases/revoke-other-sessions.usecase';
 import { requestFetch } from '#request-fetch';
@@ -17,5 +19,7 @@ export const changeUserAdminRoleUseCase = new ChangeUserAdminRoleUseCase(userRep
 export const getUserProfileUseCase = new GetUserProfileUseCase(userRepository);
 export const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);
 export const changeUserPasswordUseCase = new ChangeUserPasswordUseCase(userRepository);
+export const requestLinkGoogleCodeUseCase = new RequestLinkGoogleCodeUseCase(userRepository);
+export const verifyLinkGoogleCodeUseCase = new VerifyLinkGoogleCodeUseCase(userRepository);
 export const linkUserGoogleUseCase = new LinkUserGoogleUseCase(userRepository);
 export const revokeOtherSessionsUseCase = new RevokeOtherSessionsUseCase(userRepository);

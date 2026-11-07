@@ -5,7 +5,9 @@ import type {
 	UserProfileData,
 	UpdateProfilePayload,
 	ChangePasswordPayload,
-	LinkGooglePayload
+	LinkGooglePayload,
+	VerifyLinkGoogleCodePayload,
+	VerifyLinkGoogleCodeResult
 } from '../../domain/entities/user-profile.entity';
 import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 import { UserSource } from '../sources/user.source';
@@ -31,6 +33,16 @@ export class UserRepositoryImpl implements UserAdminRepository, UserProfileRepos
 
 	changePassword(payload: ChangePasswordPayload): Promise<void> {
 		return this.userSource.changePassword(payload);
+	}
+
+	requestLinkGoogleCode(): Promise<void> {
+		return this.userSource.requestLinkGoogleCode();
+	}
+
+	verifyLinkGoogleCode(
+		payload: VerifyLinkGoogleCodePayload
+	): Promise<VerifyLinkGoogleCodeResult> {
+		return this.userSource.verifyLinkGoogleCode(payload);
 	}
 
 	linkGoogle(payload: LinkGooglePayload): Promise<void> {

@@ -4,7 +4,7 @@
 	import * as Field from '$lib/components/ui/field/index.js';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { KeyRound, Lock, LoaderCircle, Check } from 'lucide-svelte';
+	import { Lock, LoaderCircle, Check } from 'lucide-svelte';
 
 	interface Props {
 		hasPassword: boolean;
@@ -17,12 +17,9 @@
 
 <Card.Root class="p-6">
 	<Card.Header class="px-0 pt-0">
-		<div class="flex items-center gap-2">
-			<KeyRound class="size-5 text-primary" />
-			<Card.Title class="text-lg font-bold">
-				{hasPassword ? 'Ubah Kata Sandi' : 'Buat Kata Sandi Akun'}
-			</Card.Title>
-		</div>
+		<Card.Title class="text-lg font-bold">
+			{hasPassword ? 'Ubah Kata Sandi' : 'Buat Kata Sandi Akun'}
+		</Card.Title>
 		<Card.Description>
 			{#if hasPassword}
 				Pastikan akun Anda menggunakan kata sandi yang kuat dan unik minimal 8 karakter.
