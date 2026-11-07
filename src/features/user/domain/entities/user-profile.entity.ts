@@ -34,6 +34,10 @@ export interface LinkGooglePayload {
 	verification_token: string;
 }
 
+export interface UnlinkGooglePayload {
+	current_password: string;
+}
+
 export interface VerifyLinkGoogleCodePayload {
 	code: string;
 }

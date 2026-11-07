@@ -3,6 +3,7 @@ import { GetUserProfileUseCase } from './get-user-profile.usecase';
 import { UpdateUserProfileUseCase } from './update-user-profile.usecase';
 import { ChangeUserPasswordUseCase } from './change-user-password.usecase';
 import { LinkUserGoogleUseCase } from './link-user-google.usecase';
+import { UnlinkUserGoogleUseCase } from './unlink-user-google.usecase';
 import { RequestLinkGoogleCodeUseCase } from './request-link-google-code.usecase';
 import { VerifyLinkGoogleCodeUseCase } from './verify-link-google-code.usecase';
 import { RevokeOtherSessionsUseCase } from './revoke-other-sessions.usecase';
@@ -38,6 +39,7 @@ function mockRepo() {
 		requestLinkGoogleCode: vi.fn().mockResolvedValue(undefined),
 		verifyLinkGoogleCode: vi.fn().mockResolvedValue({ verification_token: 'vt_abc' }),
 		linkGoogle: vi.fn().mockResolvedValue(undefined),
+		unlinkGoogle: vi.fn().mockResolvedValue(undefined),
 		revokeOtherSessions: vi.fn().mockResolvedValue(undefined)
 	};
 }
@@ -102,6 +104,16 @@ describe('UserProfile UseCases', () => {
 		expect(repo.linkGoogle).toHaveBeenCalledWith({
 			id_token: 'google-token-xyz',
 			verification_token: 'vt_abc'
+		});
+	});
+
+	it('UnlinkUserGoogleUseCase delegates google unlinking to repository', async () => {
+		const repo = mockRepo();
+		const useCase = new UnlinkUserGoogleUseCase(repo);
+		await useCase.exec({ current_password: 'pass123' });
+
+		expect(repo.unlinkGoogle).toHaveBeenCalledWith({
+			current_password: 'pass123'
 		});
 	});
 

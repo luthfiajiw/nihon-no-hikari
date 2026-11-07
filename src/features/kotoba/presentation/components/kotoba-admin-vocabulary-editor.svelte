@@ -118,8 +118,8 @@
 	<!-- Keep media mounted while collapsed, so playback and selected files stay stable. -->
 	<div id={`${uid}-body`} hidden={!open} class="space-y-4 p-4">
 		<div class="grid min-w-0 gap-4 sm:grid-cols-2">
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-kanji`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-kanji`} class="block text-sm font-medium">
 					Kata Jepang (Kanji / Kana) <span class="text-destructive">*</span>
 				</label>
 				<Input
@@ -134,8 +134,8 @@
 				/>
 				{@render fieldError('kanji')}
 			</div>
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-hiragana`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-hiragana`} class="block text-sm font-medium">
 					Hiragana / Kana <span class="text-destructive">*</span>
 				</label>
 				<Input
@@ -150,8 +150,8 @@
 				/>
 				{@render fieldError('hiragana')}
 			</div>
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-romaji`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-romaji`} class="block text-sm font-medium">
 					Romaji <span class="text-destructive">*</span>
 				</label>
 				<Input
@@ -164,8 +164,8 @@
 				/>
 				{@render fieldError('romaji')}
 			</div>
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-translation`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-translation`} class="block text-sm font-medium">
 					Arti Indonesia <span class="text-destructive">*</span>
 				</label>
 				<Input
@@ -179,8 +179,8 @@
 				{@render fieldError('translation')}
 			</div>
 		</div>
-		<div class="space-y-2">
-			<label for={`${uid}-type`} class="text-sm font-medium">
+		<div class="flex flex-col gap-2">
+			<label for={`${uid}-type`} class="block text-sm font-medium">
 				Kelas Kata <span class="text-destructive">*</span>
 			</label>
 			<ManagementSelect
@@ -190,8 +190,8 @@
 			/>
 		</div>
 		<div class="grid min-w-0 gap-4 sm:grid-cols-2">
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-japanese`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-japanese`} class="block text-sm font-medium">
 					Contoh Kalimat Jepang <span class="text-destructive">*</span>
 				</label>
 				<Textarea
@@ -205,8 +205,8 @@
 				/>
 				{@render fieldError('japanese')}
 			</div>
-			<div class="min-w-0 space-y-2">
-				<label for={`${uid}-indonesian`} class="text-sm font-medium">
+			<div class="min-w-0 flex flex-col gap-2">
+				<label for={`${uid}-indonesian`} class="block text-sm font-medium">
 					Terjemahan Indonesia <span class="text-destructive">*</span>
 				</label>
 				<Textarea
@@ -266,14 +266,14 @@
 					</p>
 					{#each word.furigana as part, index (index)}
 						<div class="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2">
-							<div class="min-w-0 space-y-2">
-								<label for={`${uid}-segment-${index}`} class="text-xs font-medium">
+							<div class="min-w-0 flex flex-col gap-2">
+								<label for={`${uid}-segment-${index}`} class="block text-xs font-medium">
 									Teks {index + 1}
 								</label>
 								<Input id={`${uid}-segment-${index}`} bind:value={part.text} lang="ja" />
 							</div>
-							<div class="min-w-0 space-y-2">
-								<label for={`${uid}-reading-${index}`} class="text-xs font-medium">
+							<div class="min-w-0 flex flex-col gap-2">
+								<label for={`${uid}-reading-${index}`} class="block text-xs font-medium">
 									Bacaan {index + 1}
 								</label>
 								<Input

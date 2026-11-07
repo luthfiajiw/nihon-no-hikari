@@ -6,7 +6,8 @@ import {
 	revokeSessions,
 	requestLinkGoogleCode,
 	verifyLinkGoogleCode,
-	linkGoogle
+	linkGoogle,
+	unlinkGoogle
 } from '$features/user/presentation/server/user-profile-actions';
 
 export const load: PageServerLoad = async (event) => {
@@ -19,5 +20,6 @@ export const actions: Actions = {
 	revokeSessions,
 	requestLinkGoogleCode,
 	verifyLinkGoogleCode,
-	linkGoogle
+	linkGoogle,
+	unlinkGoogle
 };

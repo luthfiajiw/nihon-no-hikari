@@ -54,7 +54,7 @@
 				<!-- Input: Nama Tampilan -->
 				<Field.Field>
 					<div class="flex items-center justify-between">
-						<Field.FieldLabel for="display_name" class="text-xs font-bold tracking-wider uppercase">
+						<Field.FieldLabel for="display_name" class="text-sm font-medium">
 							Nama Tampilan <span class="text-destructive">*</span>
 						</Field.FieldLabel>
 						<span class="text-[11px] text-muted-foreground">Maks. 120 Karakter</span>
@@ -82,10 +82,7 @@
 				<!-- Input: Alamat Email (Managed / Read-only) -->
 				<Field.Field>
 					<div class="flex items-center justify-between">
-						<Field.FieldLabel
-							for="account_email"
-							class="text-xs font-bold tracking-wider uppercase"
-						>
+						<Field.FieldLabel for="account_email" class="text-sm font-medium">
 							Alamat Email
 						</Field.FieldLabel>
 						<Badge
@@ -103,7 +100,7 @@
 							readonly
 							disabled
 							value={profile.email}
-							class="cursor-not-allowed text-muted-foreground select-all"
+							class="cursor-not-allowed text-foreground select-all"
 						/>
 						<InputGroup.Addon align="inline-end" title="Identitas login terverifikasi">
 							<Lock class="size-4 text-muted-foreground" />

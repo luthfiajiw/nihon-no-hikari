@@ -117,4 +117,17 @@ describe('UserSource profile transport', () => {
 			})
 		);
 	});
+
+	it('unlinks Google account via POST /api/v1/user/unlink-google', async () => {
+		const { source, fetch } = sourceWith(Response.json({ success: true }));
+		await source.unlinkGoogle({ current_password: 'mypassword123' });
+
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/user/unlink-google',
+			expect.objectContaining({
+				method: 'POST',
+				body: JSON.stringify({ current_password: 'mypassword123' })
+			})
+		);
+	});
 });

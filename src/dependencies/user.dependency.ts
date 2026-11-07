@@ -6,6 +6,7 @@ import { ChangeUserPasswordUseCase } from '$features/user/domain/usecases/change
 import { RequestLinkGoogleCodeUseCase } from '$features/user/domain/usecases/request-link-google-code.usecase';
 import { VerifyLinkGoogleCodeUseCase } from '$features/user/domain/usecases/verify-link-google-code.usecase';
 import { LinkUserGoogleUseCase } from '$features/user/domain/usecases/link-user-google.usecase';
+import { UnlinkUserGoogleUseCase } from '$features/user/domain/usecases/unlink-user-google.usecase';
 import { RevokeOtherSessionsUseCase } from '$features/user/domain/usecases/revoke-other-sessions.usecase';
 import { requestFetch } from '#request-fetch';
 import { UserSource } from '$features/user/data/sources/user.source';
@@ -22,4 +23,5 @@ export const changeUserPasswordUseCase = new ChangeUserPasswordUseCase(userRepos
 export const requestLinkGoogleCodeUseCase = new RequestLinkGoogleCodeUseCase(userRepository);
 export const verifyLinkGoogleCodeUseCase = new VerifyLinkGoogleCodeUseCase(userRepository);
 export const linkUserGoogleUseCase = new LinkUserGoogleUseCase(userRepository);
+export const unlinkUserGoogleUseCase = new UnlinkUserGoogleUseCase(userRepository);
 export const revokeOtherSessionsUseCase = new RevokeOtherSessionsUseCase(userRepository);

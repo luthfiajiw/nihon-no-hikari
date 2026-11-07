@@ -3,6 +3,7 @@ import type {
 	UpdateProfilePayload,
 	ChangePasswordPayload,
 	LinkGooglePayload,
+	UnlinkGooglePayload,
 	VerifyLinkGoogleCodePayload,
 	VerifyLinkGoogleCodeResult
 } from '../entities/user-profile.entity';
@@ -15,5 +16,6 @@ export interface UserProfileRepository {
 	requestLinkGoogleCode(): Promise<void>;
 	verifyLinkGoogleCode(payload: VerifyLinkGoogleCodePayload): Promise<VerifyLinkGoogleCodeResult>;
 	linkGoogle(payload: LinkGooglePayload): Promise<void>;
+	unlinkGoogle(payload: UnlinkGooglePayload): Promise<void>;
 	revokeOtherSessions(): Promise<void>;
 }

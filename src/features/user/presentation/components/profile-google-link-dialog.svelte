@@ -6,7 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
-	import { KeyRound, AlertCircleIcon, LoaderCircle, CheckCircle2 } from 'lucide-svelte';
+	import { AlertCircleIcon, LoaderCircle, CheckCircle2 } from 'lucide-svelte';
 	import googleLogo from '$lib/assets/images/google-logo.png';
 	import { onDestroy } from 'svelte';
 
@@ -237,7 +237,6 @@
 				{#if step === 'request'}
 					Tautkan Akun Google
 				{:else if step === 'verify'}
-					<KeyRound class="size-5 text-primary" />
 					Verifikasi Kode Email
 				{:else}
 					<img src={googleLogo} alt="Google" class="size-5 object-contain" />
@@ -298,13 +297,7 @@
 						>
 							{#snippet children({ cells })}
 								<InputOTP.Group>
-									{#each cells.slice(0, 3) as cell, i (i)}
-										<InputOTP.Slot {cell} class="size-11 text-base font-bold" />
-									{/each}
-								</InputOTP.Group>
-								<InputOTP.Separator />
-								<InputOTP.Group>
-									{#each cells.slice(3, 6) as cell, i (i + 3)}
+									{#each cells.slice(0, 6) as cell, i (i)}
 										<InputOTP.Slot {cell} class="size-11 text-base font-bold" />
 									{/each}
 								</InputOTP.Group>
@@ -336,9 +329,6 @@
 					disabled={isLoading || code.trim().length !== 6}
 					onclick={handleVerifyCode}
 				>
-					{#if isLoading}
-						<LoaderCircle class="size-4 animate-spin" />
-					{/if}
 					Verifikasi Kode
 				</Button>
 			</Dialog.Footer>

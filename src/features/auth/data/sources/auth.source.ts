@@ -111,7 +111,12 @@ export class AuthSource {
 		const json: unknown = await response.json().catch(() => null);
 
 		if (!response.ok) {
-			if (response.status === 401 || response.status === 400) {
+			if (
+				response.status === 401 ||
+				response.status === 400 ||
+				response.status === 403 ||
+				response.status === 409
+			) {
 				throw new InvalidCredentialsError(getErrorMessage(json));
 			}
 			throw new SignInNetworkError(getErrorMessage(json));
@@ -139,7 +144,12 @@ export class AuthSource {
 		const json: unknown = await response.json().catch(() => null);
 
 		if (!response.ok) {
-			if (response.status === 401 || response.status === 400) {
+			if (
+				response.status === 401 ||
+				response.status === 400 ||
+				response.status === 403 ||
+				response.status === 409
+			) {
 				throw new InvalidCredentialsError(getErrorMessage(json));
 			}
 			throw new SignInNetworkError(getErrorMessage(json));

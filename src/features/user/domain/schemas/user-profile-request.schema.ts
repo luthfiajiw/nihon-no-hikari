@@ -31,3 +31,7 @@ export const linkGoogleSchema = z.object({
 	id_token: z.string().trim().min(1, 'Token Google tidak boleh kosong.'),
 	verification_token: z.string().trim().min(1, 'Token verifikasi email tidak boleh kosong.')
 });
+
+export const unlinkGoogleSchema = z.object({
+	current_password: z.string().min(1, 'Kata sandi saat ini harus diisi.')
+});

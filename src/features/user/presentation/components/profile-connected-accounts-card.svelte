@@ -2,18 +2,21 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { CheckCircle2, Link2 } from 'lucide-svelte';
+	import { CheckCircle2, Link2, Unlink } from 'lucide-svelte';
 	import googleLogo from '$lib/assets/images/google-logo.png';
 	import ProfileGoogleLinkDialog from './profile-google-link-dialog.svelte';
+	import ProfileGoogleUnlinkDialog from './profile-google-unlink-dialog.svelte';
 
 	interface Props {
 		googleLinked: boolean;
+		hasPassword: boolean;
 		email: string;
 	}
 
-	let { googleLinked, email }: Props = $props();
+	let { googleLinked, hasPassword, email }: Props = $props();
 
 	let linkDialogOpen = $state(false);
+	let unlinkDialogOpen = $state(false);
 </script>
 
 <Card.Root class="p-6">
@@ -40,6 +43,11 @@
 								? 'Akun Google Anda terhubung dan dapat digunakan untuk masuk.'
 								: 'Tautkan akun Google untuk mempermudah proses masuk.'}
 						</p>
+						{#if googleLinked && !hasPassword}
+							<p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+								Buat kata sandi akun terlebih dahulu pada formulir di atas sebelum memutuskan tautan Google.
+							</p>
+						{/if}
 					</div>
 				</div>
 
@@ -52,6 +60,17 @@
 							<CheckCircle2 class="size-3.5" />
 							Terhubung
 						</Badge>
+						<Button
+							variant="outline"
+							size="sm"
+							class="h-8 gap-1.5 text-xs font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground disabled:opacity-50"
+							disabled={!hasPassword}
+							title={!hasPassword ? 'Buat kata sandi akun terlebih dahulu untuk memutuskan tautan' : 'Putuskan tautan akun Google'}
+							onclick={() => (unlinkDialogOpen = true)}
+						>
+							<Unlink class="size-3.5" />
+							Putuskan
+						</Button>
 					{:else}
 						<Badge variant="secondary">Belum Terhubung</Badge>
 						<Button
@@ -73,4 +92,8 @@
 <ProfileGoogleLinkDialog
 	bind:open={linkDialogOpen}
 	{email}
+/>
+
+<ProfileGoogleUnlinkDialog
+	bind:open={unlinkDialogOpen}
 />

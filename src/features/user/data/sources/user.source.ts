@@ -5,6 +5,7 @@ import type {
 	UpdateProfilePayload,
 	ChangePasswordPayload,
 	LinkGooglePayload,
+	UnlinkGooglePayload,
 	VerifyLinkGoogleCodePayload,
 	VerifyLinkGoogleCodeResult
 } from '../../domain/entities/user-profile.entity';
@@ -73,6 +74,13 @@ export class UserSource {
 
 	async linkGoogle(payload: LinkGooglePayload): Promise<void> {
 		await this.userRequest('/link-google', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+	}
+
+	async unlinkGoogle(payload: UnlinkGooglePayload): Promise<void> {
+		await this.userRequest('/unlink-google', {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});

@@ -7,13 +7,15 @@ import {
 	revokeOtherSessionsUseCase,
 	requestLinkGoogleCodeUseCase,
 	verifyLinkGoogleCodeUseCase,
-	linkUserGoogleUseCase
+	linkUserGoogleUseCase,
+	unlinkUserGoogleUseCase
 } from '$dependencies/user.dependency';
 import {
 	updateProfileSchema,
 	changePasswordSchema,
 	verifyCodeSchema,
-	linkGoogleSchema
+	linkGoogleSchema,
+	unlinkGoogleSchema
 } from '../../domain/schemas/user-profile-request.schema';
 
 export async function updateProfile(event: RequestEvent) {
@@ -197,6 +199,41 @@ export async function linkGoogle(event: RequestEvent) {
 			cause instanceof HttpError ? cause.message : 'Gagal menautkan akun Google.';
 		return fail(cause instanceof HttpError ? cause.status : 400, {
 			action: 'linkGoogle',
+			error: message
+		});
+	}
+}
+
+export async function unlinkGoogle(event: RequestEvent) {
+	if (!event.locals.user) {
+		return fail(401, { error: 'Silakan masuk terlebih dahulu.' });
+	}
+
+	try {
+		const form = await event.request.formData();
+		const currentPassword = String(form.get('current_password') ?? '');
+
+		const validation = unlinkGoogleSchema.safeParse({
+			current_password: currentPassword
+		});
+
+		if (!validation.success) {
+			const firstError =
+				validation.error.issues[0]?.message ?? 'Kata sandi saat ini harus diisi.';
+			return fail(400, { action: 'unlinkGoogle', error: firstError });
+		}
+
+		await unlinkUserGoogleUseCase.exec(validation.data);
+		return {
+			success: true,
+			action: 'unlinkGoogle',
+			message: 'Tautan akun Google berhasil diputuskan.'
+		};
+	} catch (cause) {
+		const message =
+			cause instanceof HttpError ? cause.message : 'Gagal memutuskan tautan akun Google.';
+		return fail(cause instanceof HttpError ? cause.status : 400, {
+			action: 'unlinkGoogle',
 			error: message
 		});
 	}

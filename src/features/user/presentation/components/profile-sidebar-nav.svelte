@@ -24,7 +24,7 @@
 </script>
 
 <aside class="col-span-12 flex flex-col lg:col-span-4">
-	<Card.Root class="gap-4 p-3">
+	<Card.Root class="gap-3 p-3">
 		<div class="px-3 pt-2 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
 			Menu
 		</div>

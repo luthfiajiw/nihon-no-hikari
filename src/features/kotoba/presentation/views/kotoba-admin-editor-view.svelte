@@ -243,8 +243,8 @@
 						</Card.Header>
 						<Card.Content class="space-y-4">
 							<div class="grid min-w-0 gap-4 sm:grid-cols-2">
-								<div class="space-y-2">
-									<label for="topic-title" class="text-sm font-medium">
+								<div class="flex flex-col gap-2">
+									<label for="topic-title" class="block text-sm font-medium">
 										Nama Topik <span class="text-destructive">*</span>
 									</label>
 									<Input
@@ -257,8 +257,8 @@
 										aria-describedby="topic-title-error"
 									/>{@render fieldError('title')}
 								</div>
-								<div class="space-y-2">
-									<label for="topic-level" class="text-sm font-medium">
+								<div class="flex flex-col gap-2">
+									<label for="topic-level" class="block text-sm font-medium">
 										Level JLPT <span class="text-destructive">*</span>
 									</label>
 									<ManagementSelect
@@ -267,8 +267,8 @@
 										options={kotobaLevels.map((value) => ({ value, label: value }))}
 									/>
 								</div>
-								<div class="space-y-2">
-									<label for="topic-category" class="text-sm font-medium">
+								<div class="flex flex-col gap-2">
+									<label for="topic-category" class="block text-sm font-medium">
 										Label / Badge <span class="text-destructive">*</span>
 									</label>
 									<ManagementSelect
@@ -280,8 +280,8 @@
 										}))}
 									/>
 								</div>
-								<div class="space-y-2">
-									<label for="topic-order" class="text-sm font-medium">
+								<div class="flex flex-col gap-2">
+									<label for="topic-order" class="block text-sm font-medium">
 										Urutan Topik <span class="text-destructive">*</span>
 									</label>
 									<Input
@@ -296,8 +296,8 @@
 									/>{@render fieldError('order')}
 								</div>
 							</div>
-							<div class="space-y-2">
-								<label for="topic-description" class="text-sm font-medium">
+							<div class="flex flex-col gap-2">
+								<label for="topic-description" class="block text-sm font-medium">
 									Deskripsi Topik <span class="text-destructive">*</span>
 								</label>
 								<Textarea

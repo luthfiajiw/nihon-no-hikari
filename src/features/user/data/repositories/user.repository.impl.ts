@@ -6,6 +6,7 @@ import type {
 	UpdateProfilePayload,
 	ChangePasswordPayload,
 	LinkGooglePayload,
+	UnlinkGooglePayload,
 	VerifyLinkGoogleCodePayload,
 	VerifyLinkGoogleCodeResult
 } from '../../domain/entities/user-profile.entity';
@@ -47,6 +48,10 @@ export class UserRepositoryImpl implements UserAdminRepository, UserProfileRepos
 
 	linkGoogle(payload: LinkGooglePayload): Promise<void> {
 		return this.userSource.linkGoogle(payload);
+	}
+
+	unlinkGoogle(payload: UnlinkGooglePayload): Promise<void> {
+		return this.userSource.unlinkGoogle(payload);
 	}
 
 	revokeOtherSessions(): Promise<void> {

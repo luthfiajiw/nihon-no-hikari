@@ -33,7 +33,7 @@
 	<Card.Content class="px-0">
 		{#if !hasPassword}
 			<div
-				class="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"
+				class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300"
 			>
 				<p class="font-semibold">💡 Info Akun Google</p>
 				<p class="mt-1">
@@ -58,10 +58,7 @@
 			<Field.FieldGroup class="gap-4">
 				{#if hasPassword}
 					<Field.Field>
-						<Field.FieldLabel
-							for="current_password"
-							class="text-xs font-bold tracking-wider uppercase"
-						>
+						<Field.FieldLabel for="current_password" class="text-sm font-medium">
 							Kata Sandi Saat Ini
 						</Field.FieldLabel>
 						<InputGroup.Root>
@@ -80,7 +77,7 @@
 				{/if}
 
 				<Field.Field>
-					<Field.FieldLabel for="new_password" class="text-xs font-bold tracking-wider uppercase">
+					<Field.FieldLabel for="new_password" class="text-sm font-medium">
 						Kata Sandi Baru
 					</Field.FieldLabel>
 					<InputGroup.Root>
@@ -99,10 +96,7 @@
 				</Field.Field>
 
 				<Field.Field>
-					<Field.FieldLabel
-						for="confirm_password"
-						class="text-xs font-bold tracking-wider uppercase"
-					>
+					<Field.FieldLabel for="confirm_password" class="text-sm font-medium">
 						Konfirmasi Kata Sandi Baru
 					</Field.FieldLabel>
 					<InputGroup.Root>
