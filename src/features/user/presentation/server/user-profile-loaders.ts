@@ -22,6 +22,7 @@ export async function loadUserProfile(event: RequestEvent): Promise<{ profile: U
 				role: event.locals.user.role,
 				has_password: true,
 				google_linked: false,
+				google_email: null,
 				sessions: []
 			}
 		};

@@ -15,6 +15,7 @@ export interface UserProfileData {
 	role: 'User' | 'Admin';
 	has_password: boolean;
 	google_linked: boolean;
+	google_email?: string | null;
 	sessions: ProfileSessionSummary[];
 }
 

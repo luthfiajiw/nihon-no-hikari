@@ -10,10 +10,11 @@
 
 	interface Props {
 		open: boolean;
+		googleEmail?: string | null;
 		onSuccess?: () => void;
 	}
 
-	let { open = $bindable(false), onSuccess }: Props = $props();
+	let { open = $bindable(false), googleEmail, onSuccess }: Props = $props();
 
 	let currentPassword = $state('');
 	let isLoading = $state(false);
@@ -68,9 +69,12 @@
 				Putuskan Tautan Akun Google
 			</Dialog.Title>
 			<Dialog.Description class="text-sm text-muted-foreground">
-				Setelah tautan diputuskan, Anda tidak dapat lagi masuk menggunakan akun Google ini sampai
-				Anda menautkannya kembali. Anda tetap dapat masuk menggunakan email dan kata sandi akun
-				Anda.
+				{#if googleEmail}
+					Setelah tautan akun Google (<span class="font-medium text-foreground">{googleEmail}</span>) diputuskan, Anda tidak dapat lagi masuk menggunakan akun tersebut sampai Anda menautkannya kembali.
+				{:else}
+					Setelah tautan diputuskan, Anda tidak dapat lagi masuk menggunakan akun Google ini sampai Anda menautkannya kembali.
+				{/if}
+				Anda tetap dapat masuk menggunakan email dan kata sandi akun Anda.
 			</Dialog.Description>
 		</Dialog.Header>
 

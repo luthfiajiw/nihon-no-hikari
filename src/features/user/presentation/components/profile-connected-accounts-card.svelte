@@ -11,12 +11,15 @@
 		googleLinked: boolean;
 		hasPassword: boolean;
 		email: string;
+		googleEmail?: string | null;
 	}
 
-	let { googleLinked, hasPassword, email }: Props = $props();
+	let { googleLinked, hasPassword, email, googleEmail }: Props = $props();
 
 	let linkDialogOpen = $state(false);
 	let unlinkDialogOpen = $state(false);
+
+	let connectedGoogleEmail = $derived(googleEmail || (googleLinked ? email : ''));
 </script>
 
 <Card.Root class="p-6">
@@ -36,15 +39,20 @@
 					>
 						<img src={googleLogo} alt="Google" class="size-5 object-contain" />
 					</div>
-					<div>
+					<div class="space-y-0.5">
 						<p class="text-sm font-semibold text-foreground">Google</p>
+						{#if googleLinked && connectedGoogleEmail}
+							<p class="text-xs font-medium text-foreground break-all">
+								{connectedGoogleEmail}
+							</p>
+						{/if}
 						<p class="text-xs text-muted-foreground">
 							{googleLinked
 								? 'Akun Google Anda terhubung dan dapat digunakan untuk masuk.'
 								: 'Tautkan akun Google untuk mempermudah proses masuk.'}
 						</p>
 						{#if googleLinked && !hasPassword}
-							<p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+							<p class="pt-0.5 text-xs text-amber-600 dark:text-amber-400">
 								Buat kata sandi akun terlebih dahulu pada formulir di atas sebelum memutuskan tautan Google.
 							</p>
 						{/if}
@@ -96,4 +104,5 @@
 
 <ProfileGoogleUnlinkDialog
 	bind:open={unlinkDialogOpen}
+	googleEmail={connectedGoogleEmail}
 />

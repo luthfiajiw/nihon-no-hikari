@@ -118,6 +118,7 @@
 					googleLinked={data.profile.google_linked}
 					hasPassword={data.profile.has_password}
 					email={data.profile.email}
+					googleEmail={data.profile.google_email}
 				/>
 
 				<ProfileSessionsCard sessions={data.profile.sessions} />
