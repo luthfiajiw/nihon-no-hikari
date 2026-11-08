@@ -7,6 +7,8 @@ import type {
 	CourseAdminContentDetail,
 	CourseAdminRecord,
 	CourseAdminContentRecord,
+	CourseAdminLevel,
+	CourseAdminLevelInput,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../../domain/entities/course-admin.entity';
@@ -14,6 +16,7 @@ import { courseAdminContentResources } from '../course-admin-endpoints';
 type ApiPayload<T> = { data: T; error?: string; message?: string };
 import type {
 	CourseDetailResponse,
+	CourseLevelItem,
 	ListCourseResponse,
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
@@ -148,6 +151,22 @@ export class CourseSource {
 
 		return data;
 	}
+
+	async getPublicLevels(): Promise<CourseLevelItem[]> {
+		const response = await this.fetcher('/api/v1/levels', {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json'
+			}
+		});
+		const data = (await response.json().catch(() => ({}))) as { data?: CourseLevelItem[] } & ErrorResponse;
+
+		if (!response.ok) {
+			throw new Error(data?.error || data?.message || 'Gagal mengambil daftar level.');
+		}
+
+		return data.data ?? [];
+	}
 	private adminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
 		return requestJson<T>(this.fetcher, `/api/v1/admin${path}`, options);
 	}
@@ -181,8 +200,45 @@ export class CourseSource {
 		return this.adminRequest(this.contentPath(kind, id));
 	}
 
-	async getAdminLevels(): Promise<CourseAdminContentRecord[]> {
-		return (await this.adminRequest<ApiPayload<CourseAdminContentRecord[]>>('/levels')).data;
+	async getAdminLevels(): Promise<CourseAdminLevel[]> {
+		return (await this.adminRequest<ApiPayload<CourseAdminLevel[]>>('/levels')).data;
+	}
+
+	async getAdminLevel(id: string): Promise<CourseAdminLevel> {
+		return (await this.adminRequest<ApiPayload<CourseAdminLevel>>(`/levels/${encodeURIComponent(id)}`)).data;
+	}
+
+	async createAdminLevel(input: CourseAdminLevelInput): Promise<CourseAdminLevel> {
+		return (
+			await this.adminRequest<ApiPayload<CourseAdminLevel>>('/levels', {
+				method: 'POST',
+				body: JSON.stringify(input)
+			})
+		).data;
+	}
+
+	async updateAdminLevel(id: string, input: CourseAdminLevelInput): Promise<CourseAdminLevel> {
+		return (
+			await this.adminRequest<ApiPayload<CourseAdminLevel>>(`/levels/${encodeURIComponent(id)}`, {
+				method: 'PATCH',
+				body: JSON.stringify(input)
+			})
+		).data;
+	}
+
+	async deleteAdminLevel(id: string): Promise<void> {
+		await this.adminRequest(`/levels/${encodeURIComponent(id)}`, {
+			method: 'DELETE'
+		});
+	}
+
+	async updateAdminLevelPrice(id: string, price: number): Promise<CourseAdminLevel> {
+		return (
+			await this.adminRequest<ApiPayload<CourseAdminLevel>>(`/levels/${encodeURIComponent(id)}`, {
+				method: 'PATCH',
+				body: JSON.stringify({ price })
+			})
+		).data;
 	}
 
 	saveAdminContent(

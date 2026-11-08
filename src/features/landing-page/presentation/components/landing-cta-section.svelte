@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { CircleCheck } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 </script>
 
@@ -35,10 +36,10 @@
 
 			<div class="relative z-10 mt-6 flex items-center gap-4 font-label-sm text-label-sm text-white/80">
 				<span class="flex items-center gap-1">
-					<span class="material-symbols-outlined text-[16px]">check_circle</span> 100% Gratis di Awal
+					<CircleCheck class="size-4" /> 100% Gratis di Awal
 				</span>
 				<span class="flex items-center gap-1">
-					<span class="material-symbols-outlined text-[16px]">check_circle</span> Tanpa Kartu Kredit
+					<CircleCheck class="size-4" /> Tanpa Kartu Kredit
 				</span>
 			</div>
 		</div>

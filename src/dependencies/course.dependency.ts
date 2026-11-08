@@ -1,3 +1,11 @@
+import {
+	GetCourseAdminLevelsUseCase,
+	GetCourseAdminLevelEditorUseCase,
+	SaveCourseAdminLevelUseCase,
+	DeleteCourseAdminLevelUseCase,
+	UpdateCourseAdminLevelPriceUseCase
+} from '$features/course/domain/usecases/course-admin-levels.usecase';
+import { GetPublicLevelsUseCase } from '$features/course/domain/usecases/get-public-levels.usecase';
 import { ReorderCourseAdminContentUseCase } from '$features/course/domain/usecases/course-admin-reorder.usecase';
 import { PreviewCourseAdminLessonUseCase } from '$features/course/domain/usecases/course-admin-lesson-preview.usecase';
 import { ManageCourseAdminContentUseCase } from '$features/course/domain/usecases/course-admin-content.usecase';
@@ -24,6 +32,7 @@ export const getCourseModulesUseCase = new GetCourseModulesUseCase(courseReposit
 export const getLessonDetailUseCase = new GetLessonDetailUseCase(courseRepository);
 export const updateModuleProgressUseCase = new UpdateModuleProgressUseCase(courseRepository);
 export const updateLessonProgressUseCase = new UpdateLessonProgressUseCase(courseRepository);
+export const getPublicLevelsUseCase = new GetPublicLevelsUseCase(courseRepository);
 
 export const getCourseAdminCatalogUseCase = new GetCourseAdminCatalogUseCase(courseRepository);
 
@@ -34,6 +43,16 @@ export const getCourseAdminContentListUseCase = new GetCourseAdminContentListUse
 export const getCourseAdminDetailUseCase = new GetCourseAdminDetailUseCase(courseRepository);
 
 export const getCourseAdminEditorUseCase = new GetCourseAdminEditorUseCase(courseRepository);
+
+export const getCourseAdminLevelsUseCase = new GetCourseAdminLevelsUseCase(courseRepository);
+export const getCourseAdminLevelEditorUseCase = new GetCourseAdminLevelEditorUseCase(
+	courseRepository
+);
+export const saveCourseAdminLevelUseCase = new SaveCourseAdminLevelUseCase(courseRepository);
+export const deleteCourseAdminLevelUseCase = new DeleteCourseAdminLevelUseCase(courseRepository);
+export const updateCourseAdminLevelPriceUseCase = new UpdateCourseAdminLevelPriceUseCase(
+	courseRepository
+);
 
 export const manageCourseAdminContentUseCase = new ManageCourseAdminContentUseCase(
 	courseRepository

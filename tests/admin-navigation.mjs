@@ -101,6 +101,15 @@ const managedUser = {
 	display_name: 'Siswa Fixture',
 	role: 'User'
 };
+const fixtureLevel = {
+	id: course.level_id,
+	code: 'N5',
+	name: 'N5',
+	description: 'Pemula Dasar',
+	order_index: 0,
+	price: 0,
+	points: ['Modul Hiragana lengkap']
+};
 const drafts = new Map();
 let mutationGate = null;
 let failNextMutation = false;
@@ -138,21 +147,23 @@ const api = createServer(async (request, response) => {
 		url.pathname.match(/^\/api\/v1\/admin\/(modules|lessons)\/reorder$/);
 	const roleChange =
 		request.method === 'PATCH' && url.pathname === `/api/v1/admin/users/${managedUser.id}/role`;
+	const levelPriceChange =
+		request.method === 'PATCH' && url.pathname === `/api/v1/admin/levels/${fixtureLevel.id}`;
 	if (request.method !== 'GET') {
+		let body = '';
+		for await (const chunk of request) body += chunk;
+		const payload = body ? JSON.parse(body) : null;
 		const contentMutation =
 			contentRoute &&
 			((request.method === 'POST' && !contentRoute[2]) ||
 				(resource &&
 					((request.method === 'POST' && contentRoute[3]) ||
 						(!contentRoute[3] && ['PATCH', 'DELETE'].includes(request.method)))));
-		if (!preview && !reorder && !roleChange && !contentMutation) {
+		if (!preview && !reorder && !roleChange && !levelPriceChange && !contentMutation) {
 			response.writeHead(404, { 'Content-Type': 'application/json' });
 			response.end(JSON.stringify({ error: 'Fixture: endpoint tidak ditemukan.' }));
 			return;
 		}
-		let body = '';
-		for await (const chunk of request) body += chunk;
-		const payload = body ? JSON.parse(body) : null;
 		// Preview is read-only: it must not consume save failures or mutation gates.
 		if (preview) {
 			response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -180,7 +191,15 @@ const api = createServer(async (request, response) => {
 				if (draft?.[parentField] === payload.parent_id) draft.order_index = item.order_index;
 			}
 		} else if (roleChange) managedUser.role = payload.role;
-		else if (contentRoute[3] === 'publish') {
+		else if (levelPriceChange) {
+			if (payload.price !== undefined) fixtureLevel.price = payload.price;
+			if (payload.points !== undefined) fixtureLevel.points = payload.points;
+			if (payload.name !== undefined) fixtureLevel.name = payload.name;
+			if (payload.code !== undefined) fixtureLevel.code = payload.code;
+			if (payload.description !== undefined) fixtureLevel.description = payload.description;
+			if (payload.order_index !== undefined) fixtureLevel.order_index = payload.order_index;
+			result = { success: true, data: fixtureLevel };
+		} else if (contentRoute[3] === 'publish') {
 			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
 			drafts.delete(resource.id);
 			result.id = resource.id;
@@ -212,7 +231,8 @@ const api = createServer(async (request, response) => {
 				}),
 			question_sets: [set]
 		};
-	else if (url.pathname === '/api/v1/admin/levels') data = [{ id: course.level_id, name: 'N5' }];
+	else if (url.pathname === '/api/v1/admin/levels') data = [fixtureLevel];
+	else if (url.pathname === `/api/v1/admin/levels/${fixtureLevel.id}`) data = fixtureLevel;
 	else if (contentRoute && !contentRoute[3]) data = contentRoute[2] ? resource : collection;
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
 	response.end(
@@ -533,6 +553,23 @@ try {
 	await page.waitForLoadState('networkidle');
 	assert.equal(managedUser.role, 'Admin');
 	assert.equal(await page.title(), 'Kelola Pengguna | Admin - Gakkobit');
+	await clickAdminNavigation('Level & Harga');
+	await page.getByRole('heading', { name: 'Level & Harga', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Level & Harga | Admin - Gakkobit');
+	await page.getByRole('button', { name: 'Edit N5', exact: true }).click();
+	await page.getByRole('heading', { name: 'Edit Level N5', exact: true }).waitFor();
+	assert.equal(await page.title(), 'Edit Level N5 | Admin - Gakkobit');
+	const priceInput = page.getByRole('spinbutton', { name: 'Harga Paket (Rp)' });
+	await priceInput.fill('149000');
+	await page.getByRole('button', { name: 'Tambah Poin' }).click();
+	await page.getByPlaceholder('Poin manfaat 2').fill('Simulasi Ujian JLPT N5');
+	await page.getByRole('button', { name: 'Simpan Level' }).click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: 'Level berhasil disimpan.' })
+		.waitFor();
+	assert.equal(fixtureLevel.price, 149000);
+	assert.deepEqual(fixtureLevel.points, ['Modul Hiragana lengkap', 'Simulasi Ujian JLPT N5']);
 	// One module prerequisite: hidden for entry content, search, replace, reload, publish and clear.
 	await page.goto(`${origin}/admin/content/module/${modules[0].id}`, { waitUntil: 'networkidle' });
 	assert.equal(await page.title(), 'Edit Module | Admin - Gakkobit');

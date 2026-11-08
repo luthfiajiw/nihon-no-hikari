@@ -6,7 +6,10 @@ import { readManagementFormPayload, managementActionFailure } from '$lib/server/
 import {
 	reorderCourseAdminContentUseCase,
 	manageCourseAdminContentUseCase,
-	previewCourseAdminLessonUseCase
+	previewCourseAdminLessonUseCase,
+	updateCourseAdminLevelPriceUseCase,
+	saveCourseAdminLevelUseCase,
+	deleteCourseAdminLevelUseCase
 } from '$dependencies/course.dependency';
 import type {
 	CourseAdminContentKind,
@@ -74,4 +77,46 @@ export async function previewCourseAdminLesson(event: RequestEvent) {
 		if (cause.status === 403) redirect(303, resolve('/dashboard'));
 		return json({ error: cause.message }, { status: cause.status });
 	}
+}
+
+export async function updateCourseAdminLevelPrice(event: RequestEvent) {
+	try {
+		const form = await event.request.formData();
+		const levelId = String(form.get('levelId') ?? '');
+		const rawPrice = form.get('price');
+		const price = rawPrice === null || rawPrice === '' ? NaN : Number(rawPrice);
+		if (Number.isNaN(price)) {
+			throw new HttpError(400, 'Harga level harus berupa angka.');
+		}
+		await updateCourseAdminLevelPriceUseCase.exec(levelId, price);
+		return { message: 'Harga level berhasil diperbarui.' };
+	} catch (cause) {
+		return managementActionFailure(cause);
+	}
+}
+
+export async function saveCourseAdminLevel(event: RequestEvent) {
+	const id = event.params.id!;
+	let saved;
+	try {
+		const form = await event.request.formData();
+		const payload = readManagementFormPayload(form.get('payload'));
+		saved = await saveCourseAdminLevelUseCase.exec(id, payload);
+	} catch (cause) {
+		return managementActionFailure(cause);
+	}
+	if (id === 'new' && saved?.id) {
+		redirect(303, resolve('/(protected)/admin/levels/[id]', { id: saved.id }));
+	}
+	return { message: 'Level berhasil disimpan.' };
+}
+
+export async function deleteCourseAdminLevel(event: RequestEvent) {
+	const id = event.params.id!;
+	try {
+		await deleteCourseAdminLevelUseCase.exec(id);
+	} catch (cause) {
+		return managementActionFailure(cause);
+	}
+	redirect(303, resolve('/(protected)/admin/levels'));
 }

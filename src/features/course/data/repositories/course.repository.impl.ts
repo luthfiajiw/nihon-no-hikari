@@ -7,11 +7,14 @@ import type {
 	CourseAdminContentDetail,
 	CourseAdminRecord,
 	CourseAdminContentRecord,
+	CourseAdminLevel,
+	CourseAdminLevelInput,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../../domain/entities/course-admin.entity';
 import type {
 	CourseDetailResponse,
+	CourseLevelItem,
 	ListCourseResponse,
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
@@ -58,6 +61,9 @@ export class CourseRepositoryImpl implements CourseRepository, CourseAdminReposi
 	): Promise<UpdateLessonProgressResponse> {
 		return this.courseSource.updateLessonProgress(lessonId, payload);
 	}
+	getPublicLevels(): Promise<CourseLevelItem[]> {
+		return this.courseSource.getPublicLevels();
+	}
 	reorderAdminContent(kind: CourseAdminReorderKind, input: CourseAdminReorderInput): Promise<void> {
 		return this.courseSource.reorderAdminContent(kind, input);
 	}
@@ -70,8 +76,23 @@ export class CourseRepositoryImpl implements CourseRepository, CourseAdminReposi
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
 		return this.courseSource.getAdminContent(kind, id);
 	}
-	getAdminLevels(): Promise<CourseAdminContentRecord[]> {
+	getAdminLevels(): Promise<CourseAdminLevel[]> {
 		return this.courseSource.getAdminLevels();
+	}
+	getAdminLevel(id: string): Promise<CourseAdminLevel> {
+		return this.courseSource.getAdminLevel(id);
+	}
+	createAdminLevel(input: CourseAdminLevelInput): Promise<CourseAdminLevel> {
+		return this.courseSource.createAdminLevel(input);
+	}
+	updateAdminLevel(id: string, input: CourseAdminLevelInput): Promise<CourseAdminLevel> {
+		return this.courseSource.updateAdminLevel(id, input);
+	}
+	deleteAdminLevel(id: string): Promise<void> {
+		return this.courseSource.deleteAdminLevel(id);
+	}
+	updateAdminLevelPrice(id: string, price: number): Promise<CourseAdminLevel> {
+		return this.courseSource.updateAdminLevelPrice(id, price);
 	}
 	saveAdminContent(
 		kind: CourseAdminContentKind,

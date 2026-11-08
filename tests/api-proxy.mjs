@@ -306,7 +306,7 @@ try {
 	await page.goto(`${origin}/courses`, { waitUntil: 'networkidle' });
 	assert.equal((await abandon).status(), 204);
 	assert.equal(requests.filter((r) => r.path.endsWith('/abandon')).length, 1);
-	await page.locator('[aria-haspopup="menu"]').filter({ hasText: 'Fixture User' }).click();
+	await page.locator('[aria-haspopup="menu"]').click();
 	await page.getByRole('menuitem', { name: 'Keluar', exact: true }).click();
 	await page.waitForURL('**/signin');
 	assert.equal(await state(), null);

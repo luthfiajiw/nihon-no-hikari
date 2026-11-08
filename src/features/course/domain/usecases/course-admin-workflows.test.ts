@@ -16,11 +16,18 @@ function fixture() {
 			.fn()
 			.mockResolvedValue({ data: { id: 'course', title: 'N5' }, draft: null }),
 		getAdminLevels: vi.fn().mockResolvedValue([{ id: 'level', name: 'N5' }]),
+		updateAdminLevelPrice: vi
+			.fn()
+			.mockResolvedValue({ id: 'level', code: 'N5', name: 'N5', order_index: 0, price: 0 }),
 		saveAdminContent: vi.fn().mockResolvedValue({ id: 'created' }),
 		publishAdminContent: vi.fn().mockResolvedValue({ id: 'published-version' }),
 		removeAdminContent: vi.fn().mockResolvedValue(undefined),
 		restoreAdminContent: vi.fn().mockResolvedValue(undefined),
-		previewAdminLesson: vi.fn().mockResolvedValue({ content: '<p>safe</p>', tips: '' })
+		previewAdminLesson: vi.fn().mockResolvedValue({ content: '<p>safe</p>', tips: '' }),
+		getAdminLevel: vi.fn().mockResolvedValue({ id: 'level', code: 'N5', name: 'N5', price: 0, points: [], order_index: 0 }),
+		createAdminLevel: vi.fn().mockResolvedValue({ id: 'created-level', code: 'N5', name: 'N5', price: 0, points: [], order_index: 0 }),
+		updateAdminLevel: vi.fn().mockResolvedValue({ id: 'level', code: 'N5', name: 'N5', price: 0, points: [], order_index: 0 }),
+		deleteAdminLevel: vi.fn().mockResolvedValue(undefined)
 	} satisfies CourseAdminRepository;
 }
 describe('admin content ordering', () => {

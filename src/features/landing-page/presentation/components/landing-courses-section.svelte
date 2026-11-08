@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Bot, ChevronRight, Clock, GraduationCap, Layers } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	let {
@@ -14,7 +15,7 @@
 		<!-- Section Heading -->
 		<div class="mb-space-xl max-w-2xl" use:viewportReveal={{ direction: 'up' }}>
 			<div class="mb-space-sm inline-flex items-center gap-1.5 rounded-full bg-surface-container-highest px-3 py-1 font-semibold text-label-sm text-on-surface">
-				<span class="material-symbols-outlined text-[16px] text-primary-container">school</span>
+				<GraduationCap class="size-4 text-primary-container" />
 				Kurikulum Terpadu
 			</div>
 			<h2 class="mb-2 font-headline-lg text-headline-lg font-bold tracking-tight text-on-surface">
@@ -42,10 +43,10 @@
 					<div class="flex items-center justify-between pt-3 font-label-sm text-label-sm text-on-surface-variant">
 						<div class="flex items-center gap-4">
 							<span class="flex items-center gap-1">
-								<span class="material-symbols-outlined text-[16px]">schedule</span> 72 Jam
+								<Clock class="size-4" /> 72 Jam
 							</span>
 							<span class="flex items-center gap-1">
-								<span class="material-symbols-outlined text-[16px]">layers</span> 11 Materi
+								<Layers class="size-4" /> 11 Materi
 							</span>
 						</div>
 						<button
@@ -70,14 +71,14 @@
 					</p>
 					<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
 						<span class="flex items-center gap-1">
-							<span class="material-symbols-outlined text-[16px]">schedule</span> 90 Jam • 14 Materi
+							<Clock class="size-4" /> 90 Jam • 14 Materi
 						</span>
 						<button
 							type="button"
 							onclick={(e) => scrollTo('harga', e)}
 							class="flex items-center gap-0.5 font-semibold text-primary-container hover:underline"
 						>
-							Buka Modul <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+							Buka Modul <ChevronRight class="size-3.5" />
 						</button>
 					</div>
 				</div>
@@ -109,7 +110,7 @@
 						onclick={(e) => scrollTo('ai-scheduler', e)}
 						class="flex items-center gap-1 rounded-full bg-surface-container px-3 py-1 font-semibold text-label-sm text-on-surface transition-colors hover:bg-surface-container-high"
 					>
-						<span class="material-symbols-outlined text-[14px]">smart_toy</span> Tanya AI Sensei
+						<Bot class="size-3.5" /> Tanya AI Sensei
 					</button>
 				</div>
 

@@ -6,6 +6,8 @@ import type {
 	CourseAdminContentDetail,
 	CourseAdminRecord,
 	CourseAdminContentRecord,
+	CourseAdminLevel,
+	CourseAdminLevelInput,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../entities/course-admin.entity';
@@ -14,7 +16,12 @@ export interface CourseAdminRepository {
 	getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog>;
 	getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]>;
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail>;
-	getAdminLevels(): Promise<CourseAdminContentRecord[]>;
+	getAdminLevels(): Promise<CourseAdminLevel[]>;
+	getAdminLevel(id: string): Promise<CourseAdminLevel>;
+	createAdminLevel(input: CourseAdminLevelInput): Promise<CourseAdminLevel>;
+	updateAdminLevel(id: string, input: CourseAdminLevelInput): Promise<CourseAdminLevel>;
+	deleteAdminLevel(id: string): Promise<void>;
+	updateAdminLevelPrice(id: string, price: number): Promise<CourseAdminLevel>;
 	saveAdminContent(
 		kind: CourseAdminContentKind,
 		id: string | null,

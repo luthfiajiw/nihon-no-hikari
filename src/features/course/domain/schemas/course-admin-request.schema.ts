@@ -23,6 +23,17 @@ export const courseAdminPreviewLessonRequestSchema = z.object({
 	})
 });
 
+export const courseAdminLevelRequestSchema = z.object({
+	code: z.string().trim().min(1, 'Kode level harus diisi.').max(8, 'Kode level maksimal 8 karakter.').optional(),
+	name: z.string().trim().min(1, 'Nama level harus diisi.').max(100, 'Nama level maksimal 100 karakter.').optional(),
+	description: z.string().trim().nullable().optional(),
+	order_index: integer('Urutan level', 32767, 0).optional(),
+	price: integer('Harga level', 100_000_000, 0).optional(),
+	points: z.array(z.string().trim().max(160, 'Setiap poin maksimal 160 karakter.')).max(20, 'Maksimal 20 poin per level.').optional()
+});
+
+export const courseAdminLevelPriceRequestSchema = courseAdminLevelRequestSchema;
+
 const coreFields = { title, slug, order_index: integer('Urutan', 32767).optional() };
 export const courseAdminCourseContentSchema = z.object({
 	...coreFields,

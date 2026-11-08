@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { GraduationCap, Languages } from 'lucide-svelte';
 	import logoFull from '$lib/assets/images/gakkobit-full-logo.png';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
@@ -26,7 +27,7 @@
 				</p>
 				<div class="flex items-center gap-space-sm text-on-surface-variant">
 					<span class="inline-flex size-8 items-center justify-center rounded-full border border-outline-variant/40 bg-surface-container text-on-surface-variant">
-						<span class="material-symbols-outlined text-[16px]">school</span>
+						<GraduationCap class="size-4" />
 					</span>
 					<span class="font-label-sm text-label-sm">Terakreditasi Kurikulum JLPT Resmi</span>
 				</div>
@@ -70,7 +71,7 @@
 			<div>© 2025 Ganbare Japanese Learning Platform. Hak Cipta Dilindungi Undang-Undang.</div>
 			<div class="flex items-center gap-space-md text-on-surface-variant">
 				<span class="flex items-center gap-space-xs">
-					<span class="material-symbols-outlined text-[14px]">translate</span> Bahasa Indonesia
+					<Languages class="size-3.5" /> Bahasa Indonesia
 				</span>
 				<span>•</span>
 				<span>Tokyo &amp; Jakarta</span>

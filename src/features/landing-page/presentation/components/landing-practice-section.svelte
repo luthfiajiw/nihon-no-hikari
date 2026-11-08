@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Check, ClipboardCheck, Lightbulb, Timer } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	let {
@@ -13,7 +14,7 @@
 	<div class="mx-auto max-w-7xl px-gutter">
 		<div class="mx-auto mb-space-xl max-w-2xl text-center" use:viewportReveal={{ direction: 'up' }}>
 			<div class="mb-space-sm inline-flex items-center gap-1.5 rounded-full bg-surface-container-highest px-3 py-1 font-semibold text-label-sm text-on-surface">
-				<span class="material-symbols-outlined text-[16px] text-primary-container">fact_check</span>
+				<ClipboardCheck class="size-4 text-primary-container" />
 				Simulasi Standar Resmi
 			</div>
 			<h2 class="mb-2 font-headline-lg text-headline-lg font-bold tracking-tight text-on-surface">
@@ -33,7 +34,7 @@
 					<span class="font-medium text-body-sm text-on-surface-variant">Sesi: Moji • Goi (Huruf &amp; Kosakata)</span>
 				</div>
 				<div class="flex items-center gap-2 rounded-full bg-secondary-fixed px-4 py-1.5 font-bold font-label-sm text-label-sm text-on-secondary-fixed">
-					<span class="material-symbols-outlined text-[16px]">timer</span>
+					<Timer class="size-4" />
 					<span>Sisa Waktu: 00:24:18</span>
 				</div>
 			</div>
@@ -83,7 +84,7 @@
 							<span class="font-japanese-kana-md text-body-lg font-bold">は (wa)</span>
 						</span>
 						{#if selectedExamOption === 'B'}
-							<span class="material-symbols-outlined text-[18px]">check</span>
+							<Check class="size-[18px]" />
 						{/if}
 					</button>
 
@@ -119,7 +120,7 @@
 
 			<!-- Feedback & Explanation Inset -->
 			<div class="flex items-start gap-3 rounded-2xl bg-surface-container-high/60 p-4">
-				<span class="material-symbols-outlined mt-0.5 text-[20px] text-primary-container">lightbulb</span>
+				<Lightbulb class="mt-0.5 size-5 shrink-0 text-primary-container" />
 				<div class="font-body-sm text-body-sm text-on-surface">
 					<span class="font-bold">Penjelasan Sensei:</span> Partikel <strong>は (wa)</strong> berfungsi sebagai penanda topik utama kalimat ("Saya"). Sedangkan objek pembelajaran ditandai dengan partikel を (wo).
 				</div>

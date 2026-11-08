@@ -1,7 +1,8 @@
 import {
 	courseAdminContentSchemas,
 	courseAdminReorderRequestSchema,
-	courseAdminPreviewLessonRequestSchema
+	courseAdminPreviewLessonRequestSchema,
+	courseAdminLevelRequestSchema
 } from '$features/course/domain/schemas/course-admin-request.schema';
 import { courseAdminContentKind } from '$features/course/data/course-admin-endpoints';
 import {
@@ -47,6 +48,8 @@ function requestSchema(method: string, pathname: string): z.ZodType | undefined 
 				return questionKanaTemplateUploadSchema;
 			case '/api/v1/admin/lessons/preview':
 				return courseAdminPreviewLessonRequestSchema;
+			case '/api/v1/admin/levels':
+				return courseAdminLevelRequestSchema;
 			case '/api/v1/admin/kotoba/topics':
 				return createKotobaTopicSchema;
 		}
@@ -64,6 +67,8 @@ function requestSchema(method: string, pathname: string): z.ZodType | undefined 
 		if (/^\/api\/v1\/lessons\/[^/]+\/progress$/.test(pathname)) return updateLessonProgressSchema;
 	}
 	if (method === 'PATCH') {
+		if (/^\/api\/v1\/admin\/levels\/[^/]+$/.test(pathname))
+			return courseAdminLevelRequestSchema;
 		if (/^\/api\/v1\/admin\/users\/[^/]+\/role$/.test(pathname))
 			return userAdminChangeRoleRequestSchema;
 		if (/^\/api\/v1\/admin\/templates\/[^/]+$/.test(pathname))

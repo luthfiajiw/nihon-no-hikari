@@ -24,6 +24,25 @@ export type CourseAdminCatalog = Record<
 	'courses' | 'modules' | 'lessons' | 'question_sets',
 	CourseAdminRecord[]
 >;
+export type CourseAdminLevel = {
+	id: string;
+	code: string;
+	name: string;
+	description?: string | null;
+	order_index: number;
+	price: number;
+	points: string[];
+	created_at?: string;
+	updated_at?: string;
+};
+export type CourseAdminLevelInput = {
+	code: string;
+	name: string;
+	description?: string | null;
+	order_index: number;
+	price: number;
+	points: string[];
+};
 export type CourseAdminContentRecord = Record<string, unknown>;
 export type CourseAdminContentDetail = {
 	data: CourseAdminContentRecord;

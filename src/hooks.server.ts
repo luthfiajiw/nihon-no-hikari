@@ -1,7 +1,7 @@
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { getValidAccessToken, initializeAuthLocals, refreshAuthSession } from '$lib/server/auth';
-import { getApiBaseUrl, isApiRequest, isPublicAuthRequest } from '$lib/server/api-proxy';
+import { getApiBaseUrl, isApiRequest, isPublicApiRequest } from '$lib/server/api-proxy';
 import { sequence } from '@sveltejs/kit/hooks';
 import { json, type Handle, type HandleFetch } from '@sveltejs/kit';
 
@@ -37,7 +37,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 	request = new Request(request, { credentials: 'omit' });
 	request.headers.delete('authorization');
 	request.headers.delete('cookie');
-	if (isPublicAuthRequest(url, base)) return fetch(request);
+	if (isPublicApiRequest(url, base, request.method)) return fetch(request);
 
 	const token = await getValidAccessToken(event);
 	if (!token) return json({ error: 'Silakan masuk kembali.' }, { status: 401 });

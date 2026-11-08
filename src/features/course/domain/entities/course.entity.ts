@@ -6,6 +6,23 @@ export interface CourseLevel {
 	name: string;
 }
 
+export interface CourseLevelItem {
+	id: string;
+	code: string;
+	name: string;
+	description?: string | null;
+	order_index: number;
+	price: number;
+	points?: string[];
+	created_at?: string;
+	updated_at?: string;
+}
+
+export interface ListLevelsResponse {
+	success: boolean;
+	data: CourseLevelItem[];
+}
+
 export interface Module {
 	id: string;
 	slug: string;

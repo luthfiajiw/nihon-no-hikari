@@ -27,7 +27,9 @@
 	);
 
 	let activeSection = $state('beranda');
-	let activeCategory = $state<'all' | 'Kata Keterangan' | 'Kata Benda' | 'Kata Kerja'>('Kata Keterangan');
+	let activeCategory = $state<'all' | 'Kata Keterangan' | 'Kata Benda' | 'Kata Kerja'>(
+		'Kata Keterangan'
+	);
 	let selectedExamOption = $state<'A' | 'B' | 'C' | 'D'>('B');
 	let isAudioPlaying = $state(false);
 
@@ -35,7 +37,7 @@
 		{ id: 'beranda', label: 'Beranda' },
 		{ id: 'kursus', label: 'Kursus' },
 		{ id: 'kosakata', label: 'Kosakata' },
-		{ id: 'ai-scheduler', label: 'AI Scheduler' },
+		{ id: 'ai-sensei', label: 'AI Sensei' },
 		{ id: 'latihan', label: 'Latihan & Try Out' },
 		{ id: 'harga', label: 'Paket & Harga' }
 	];
@@ -88,47 +90,28 @@
 	}
 </script>
 
-<div class="landing-scope min-h-screen bg-surface font-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
-	<LandingHeader
-		{user}
-		{displayName}
-		{avatarUrl}
-		{activeSection}
-		{navSections}
-		{scrollTo}
-	/>
+<div
+	class="landing-scope min-h-screen bg-surface font-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"
+>
+	<LandingHeader {user} {displayName} {avatarUrl} {activeSection} {navSections} {scrollTo} />
 
 	<main class="min-h-[calc(100vh-20rem)] w-full bg-surface pt-20">
 		<div class="flex w-full flex-col">
-			<LandingHeroSection
-				{scrollTo}
-				{isAudioPlaying}
-				{playDemoAudio}
-			/>
+			<LandingHeroSection {scrollTo} {isAudioPlaying} {playDemoAudio} />
 
-			<LandingCoursesSection
-				{scrollTo}
-			/>
+			<LandingCoursesSection {scrollTo} />
 
-			<LandingVocabularySection
-				bind:activeCategory
-				{isAudioPlaying}
-				{playDemoAudio}
-			/>
+			<LandingVocabularySection bind:activeCategory {isAudioPlaying} {playDemoAudio} />
 
 			<LandingAiSchedulerSection />
 
-			<LandingPracticeSection
-				bind:selectedExamOption
-			/>
+			<LandingPracticeSection bind:selectedExamOption />
 
-			<LandingPricingSection />
+			<LandingPricingSection levels={data.levels ?? []} />
 
 			<LandingCtaSection />
 		</div>
 	</main>
 
-	<LandingFooterSection
-		{scrollTo}
-	/>
+	<LandingFooterSection {scrollTo} />
 </div>

@@ -29,6 +29,14 @@ export function isPublicAuthRequest(url: URL, base: URL): boolean {
 	);
 }
 
+export function isPublicApiRequest(url: URL, base: URL, method = 'GET'): boolean {
+	const path = url.pathname.replace(/\/$/, '');
+	const prefix = `${base.pathname.replace(/\/$/, '')}/v1`;
+	if (isPublicAuthRequest(url, base)) return true;
+	if (method === 'GET' && path === `${prefix}/levels`) return true;
+	return false;
+}
+
 // Fetch decodes compressed responses. Content lengths/encodings from the upstream
 // must not describe the decoded body returned by the SvelteKit endpoint.
 export function proxyHeaders(headers: Headers, response = false): Headers {

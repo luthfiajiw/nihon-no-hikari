@@ -23,7 +23,8 @@
 		Users,
 		ArrowUpRight,
 		ArrowDownLeft,
-		Store
+		Store,
+		Tag
 	} from 'lucide-svelte';
 
 	let {
@@ -36,6 +37,7 @@
 	const adminNav = [
 		{ name: 'Ringkasan', url: '/admin', icon: House },
 		{ name: 'Kursus & Materi', url: '/admin/courses', icon: BookOpen },
+		{ name: 'Level & Harga', url: '/admin/levels', icon: Tag },
 		{ name: 'Kotoba', url: '/admin/kotoba', icon: Languages },
 		{ name: 'Question Sets', url: '/admin/question-sets', icon: ClipboardCheck },
 		{ name: 'Template Kana', url: '/admin/kana-templates', icon: FileText },

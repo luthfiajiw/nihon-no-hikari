@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Brain, CircleCheck, RefreshCw, Volume2 } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	let {
@@ -19,7 +20,7 @@
 		<div class="mb-space-lg flex flex-col justify-between gap-space-md md:flex-row md:items-end" use:viewportReveal={{ direction: 'up' }}>
 			<div class="max-w-2xl">
 				<div class="mb-space-sm inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 font-semibold text-label-sm text-on-secondary-fixed">
-					<span class="material-symbols-outlined text-[16px]">psychology</span>
+					<Brain class="size-4" />
 					Spaced Repetition System (SRS)
 				</div>
 				<h2 class="mb-2 font-headline-lg text-headline-lg font-bold tracking-tight text-on-surface">
@@ -85,7 +86,7 @@
 							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
 							type="button"
 						>
-							<span class="material-symbols-outlined text-[18px]">volume_up</span>
+							<Volume2 class="size-[18px]" />
 						</button>
 					</div>
 				</div>
@@ -95,7 +96,7 @@
 				</div>
 				<div class="flex items-center justify-between pt-1 text-label-sm text-outline">
 					<span class="flex items-center gap-1">
-						<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span> Menguasai: Level 4
+						<CircleCheck class="size-3.5 text-tertiary" /> Menguasai: Level 4
 					</span>
 					<span class="font-semibold text-primary-container">Review: 5 Hari lagi</span>
 				</div>
@@ -122,7 +123,7 @@
 							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
 							type="button"
 						>
-							<span class="material-symbols-outlined text-[18px]">volume_up</span>
+							<Volume2 class="size-[18px]" />
 						</button>
 					</div>
 				</div>
@@ -132,7 +133,7 @@
 				</div>
 				<div class="flex items-center justify-between pt-1 text-label-sm text-outline">
 					<span class="flex items-center gap-1">
-						<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span> Menguasai: Level 3
+						<CircleCheck class="size-3.5 text-tertiary" /> Menguasai: Level 3
 					</span>
 					<span class="font-semibold text-primary-container">Review: 2 Hari lagi</span>
 				</div>
@@ -159,7 +160,7 @@
 							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
 							type="button"
 						>
-							<span class="material-symbols-outlined text-[18px]">volume_up</span>
+							<Volume2 class="size-[18px]" />
 						</button>
 					</div>
 				</div>
@@ -169,7 +170,7 @@
 				</div>
 				<div class="flex items-center justify-between pt-1 text-label-sm text-outline">
 					<span class="flex items-center gap-1">
-						<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span> Menguasai: Baru
+						<CircleCheck class="size-3.5 text-tertiary" /> Menguasai: Baru
 					</span>
 					<span class="font-semibold text-primary-container">Review: Hari ini</span>
 				</div>
@@ -180,7 +181,7 @@
 		<div class="mt-space-lg flex flex-col items-center justify-between gap-4 rounded-2xl bg-surface-container-low p-5 md:flex-row" use:viewportReveal={{ direction: 'up', delay: 150 }}>
 			<div class="flex items-center gap-3">
 				<div class="flex size-10 items-center justify-center rounded-full bg-primary-fixed text-on-primary-fixed">
-					<span class="material-symbols-outlined text-[20px]">sync</span>
+					<RefreshCw class="size-5" />
 				</div>
 				<div>
 					<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Bagaimana SRS Membantu Kamu?</h4>

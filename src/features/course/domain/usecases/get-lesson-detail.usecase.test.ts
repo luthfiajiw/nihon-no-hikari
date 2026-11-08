@@ -23,7 +23,8 @@ describe('GetLessonDetailUseCase', () => {
 			getModules: vi.fn(),
 			getLesson: vi.fn().mockResolvedValue(response),
 			updateModuleProgress: vi.fn(),
-			updateLessonProgress: vi.fn()
+			updateLessonProgress: vi.fn(),
+			getPublicLevels: vi.fn()
 		};
 		const useCase = new GetLessonDetailUseCase(repository);
 

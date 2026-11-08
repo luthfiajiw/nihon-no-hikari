@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ArrowRight, BadgeCheck, BookOpen, TrendingUp, Volume2 } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	let {
@@ -18,11 +19,11 @@
 		<!-- Top Trust Badges -->
 		<div class="mb-space-lg flex flex-wrap items-center gap-space-sm" use:viewportReveal={{ direction: 'up', delay: 100 }}>
 			<span class="inline-flex items-center gap-1.5 rounded-full bg-primary-fixed px-3.5 py-1 font-label-sm text-label-sm text-on-primary-fixed">
-				<span class="material-symbols-outlined text-[15px]">verified</span>
+				<BadgeCheck class="size-4" />
 				Persiapan JLPT N5 - N1 Lengkap
 			</span>
 			<span class="inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3.5 py-1 font-label-sm text-label-sm text-on-surface-variant">
-				<span class="material-symbols-outlined text-[15px]">volume_up</span>
+				<Volume2 class="size-4" />
 				Native Accent Audio
 			</span>
 		</div>
@@ -49,14 +50,14 @@
 						href="/register"
 					>
 						<span class="!text-white text-white">Trial Belajar Gratis 7 Hari</span>
-						<span class="material-symbols-outlined !text-white text-white text-[18px]">arrow_forward</span>
+						<ArrowRight class="size-[18px]" />
 					</a>
 					<button
 						type="button"
 						onclick={(e) => scrollTo('kursus', e)}
 						class="inline-flex items-center justify-center gap-2 rounded-full bg-surface-container-lowest px-6 py-3.5 text-center font-label-lg text-label-lg text-on-surface shadow-sm transition-all duration-200 hover:bg-surface-container"
 					>
-						<span class="material-symbols-outlined text-[18px]">menu_book</span>
+						<BookOpen class="size-[18px]" />
 						<span>Lihat Contoh Modul</span>
 					</button>
 				</div>
@@ -110,7 +111,7 @@
 							<div>
 								<div class="mb-2 flex items-center justify-between">
 									<span class="flex items-center gap-1.5 font-label-md text-label-md font-semibold text-on-surface">
-										<span class="material-symbols-outlined text-[18px] text-landing-primary">trending_up</span>
+										<TrendingUp class="size-[18px] text-landing-primary" />
 										Progress Belajarmu
 									</span>
 									<span class="font-bold text-label-sm text-primary-container">33%</span>
@@ -129,7 +130,7 @@
 								class="inline-flex w-full items-center justify-between rounded-xl bg-primary-container px-3 py-2 font-semibold text-label-sm !text-white text-white transition-colors hover:bg-landing-primary"
 							>
 								<span>Lanjut Belajar</span>
-								<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+								<ArrowRight class="size-4" />
 							</button>
 						</div>
 
@@ -144,7 +145,7 @@
 										type="button"
 										onclick={playDemoAudio}
 									>
-										<span class="material-symbols-outlined text-[18px]">volume_up</span>
+										<Volume2 class="size-[18px]" />
 									</button>
 								</div>
 								<div class="flex items-baseline gap-2">

@@ -1,5 +1,6 @@
 import type {
 	CourseDetailResponse,
+	CourseLevelItem,
 	ListCourseResponse,
 	UpdateModuleProgressRequest,
 	UpdateModuleProgressResponse
@@ -25,4 +26,5 @@ export interface CourseRepository {
 		lessonId: string,
 		payload: UpdateLessonProgressRequest
 	): Promise<UpdateLessonProgressResponse>;
+	getPublicLevels(): Promise<CourseLevelItem[]>;
 }

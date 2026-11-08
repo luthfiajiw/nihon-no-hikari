@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ArrowRight, Bot, CalendarSync, CircleCheck, Clock, MessageSquare, Sparkles } from 'lucide-svelte';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 </script>
 
@@ -9,7 +10,7 @@
 			<!-- Left: Explanatory points -->
 			<div class="flex flex-col justify-center lg:col-span-5" use:viewportReveal={{ direction: 'left', delay: 100 }}>
 				<div class="mb-space-sm inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-fixed px-3 py-1 font-semibold text-label-sm text-on-primary-fixed">
-					<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+					<Sparkles class="size-4" />
 					AI Sensei Assistant
 				</div>
 				<h2 class="mb-space-sm font-headline-lg text-headline-lg font-bold leading-tight tracking-tight text-on-surface">
@@ -20,7 +21,7 @@
 				</p>
 				<div class="mb-space-lg space-y-space-md">
 					<div class="flex items-start gap-3 rounded-2xl bg-surface-container-lowest p-3.5 shadow-sm">
-						<span class="material-symbols-outlined mt-0.5 text-[22px] text-primary-container">event_repeat</span>
+						<CalendarSync class="mt-0.5 size-5 shrink-0 text-primary-container" />
 						<div>
 							<h4 class="font-label-lg text-label-lg font-bold text-on-surface">AI Adaptive Rescheduling</h4>
 							<p class="font-body-sm text-body-sm text-on-surface-variant">
@@ -29,7 +30,7 @@
 						</div>
 					</div>
 					<div class="flex items-start gap-3 rounded-2xl bg-surface-container-lowest p-3.5 shadow-sm">
-						<span class="material-symbols-outlined mt-0.5 text-[22px] text-primary-container">chat_bubble</span>
+						<MessageSquare class="mt-0.5 size-5 shrink-0 text-primary-container" />
 						<div>
 							<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Tanya Sensei AI 24/7</h4>
 							<p class="font-body-sm text-body-sm text-on-surface-variant">
@@ -43,7 +44,7 @@
 					href="/register"
 				>
 					<span>Uji Coba Rencana Belajar AI Gratis</span>
-					<span class="material-symbols-outlined text-[18px]">east</span>
+					<ArrowRight class="size-[18px]" />
 				</a>
 			</div>
 
@@ -66,7 +67,7 @@
 					<div class="rounded-2xl bg-surface-container p-3 text-on-surface shadow-xs">
 						<div class="mb-1 flex items-center justify-between text-[11px] font-bold text-primary-container">
 							<span>SENIN</span>
-							<span class="material-symbols-outlined text-[14px]">check_circle</span>
+							<CircleCheck class="size-3.5" />
 						</div>
 						<div class="font-label-md text-label-md font-semibold text-on-surface">20 Kanji Dasar</div>
 						<div class="mt-0.5 text-[11px] text-outline">Selesai • 25 mnt</div>
@@ -74,7 +75,7 @@
 					<div class="rounded-2xl bg-surface-container p-3 text-on-surface shadow-xs">
 						<div class="mb-1 flex items-center justify-between text-[11px] font-bold text-primary-container">
 							<span>SELASA</span>
-							<span class="material-symbols-outlined text-[14px]">check_circle</span>
+							<CircleCheck class="size-3.5" />
 						</div>
 						<div class="font-label-md text-label-md font-semibold text-on-surface">Choukai Audio</div>
 						<div class="mt-0.5 text-[11px] text-outline">Selesai • 30 mnt</div>
@@ -90,7 +91,7 @@
 					<div class="rounded-2xl bg-surface-container-low p-3 text-on-surface">
 						<div class="mb-1 flex items-center justify-between text-[11px] font-bold text-outline">
 							<span>KAMIS</span>
-							<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+							<Clock class="size-3.5 text-outline" />
 						</div>
 						<div class="font-label-md text-label-md font-semibold text-on-surface">Review SRS Harian</div>
 						<div class="mt-0.5 text-[11px] text-outline">35 Kartu kosakata</div>
@@ -98,7 +99,7 @@
 					<div class="rounded-2xl bg-surface-container-low p-3 text-on-surface">
 						<div class="mb-1 flex items-center justify-between text-[11px] font-bold text-outline">
 							<span>JUMAT</span>
-							<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+							<Clock class="size-3.5 text-outline" />
 						</div>
 						<div class="font-label-md text-label-md font-semibold text-on-surface">Latihan Soal Dokkai</div>
 						<div class="mt-0.5 text-[11px] text-outline">2 Wacana pendek</div>
@@ -106,7 +107,7 @@
 					<div class="rounded-2xl bg-surface-container-low p-3 text-on-surface">
 						<div class="mb-1 flex items-center justify-between text-[11px] font-bold text-outline">
 							<span>SABTU</span>
-							<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+							<Clock class="size-3.5 text-outline" />
 						</div>
 						<div class="font-label-md text-label-md font-semibold text-on-surface">Simulasi Mini Exam</div>
 						<div class="mt-0.5 text-[11px] text-outline">25 Soal • Timer</div>
@@ -115,7 +116,7 @@
 
 				<!-- Sensei AI Chat Pill Input Simulation -->
 				<div class="flex items-center gap-2 rounded-2xl bg-surface-container-low p-3">
-					<span class="material-symbols-outlined text-[20px] text-primary-container">smart_toy</span>
+					<Bot class="size-5 shrink-0 text-primary-container" />
 					<span class="truncate font-body-sm text-body-sm text-outline">"Sensei, jelaskan perbedaan penggunaan これ (kore) dan この (kono)..."</span>
 					<button
 						class="ml-auto rounded-full bg-primary-container px-3 py-1 font-semibold whitespace-nowrap text-label-sm !text-white text-white transition-colors hover:bg-landing-primary"
