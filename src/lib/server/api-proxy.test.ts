@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('$env/dynamic/private', () => ({ env: { API_BASE_URL: 'https://api.example.test/api/' } }));
 import { env } from '$env/dynamic/private';
+import { isPublicApiRequest } from './api-proxy';
 import * as handlers from '../../routes/api/v1/[...path]/+server';
 
 function invoke(
@@ -287,5 +288,27 @@ describe('API proxy', () => {
 		expect(await response.json()).toEqual({
 			error: 'Gagal terhubung ke server. Silakan coba lagi.'
 		});
+	});
+
+	it('identifies public pricing requests correctly', () => {
+		const base = new URL('https://api.example.test/api');
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/pricing'), base, 'GET')
+		).toBe(true);
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/pricing/n5'), base, 'GET')
+		).toBe(true);
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/pricing/n5/'), base, 'GET')
+		).toBe(true);
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/pricing'), base, 'POST')
+		).toBe(false);
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/levels'), base, 'GET')
+		).toBe(true);
+		expect(
+			isPublicApiRequest(new URL('https://api.example.test/api/v1/courses'), base, 'GET')
+		).toBe(false);
 	});
 });

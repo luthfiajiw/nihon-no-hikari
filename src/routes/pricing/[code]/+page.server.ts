@@ -1,19 +1,20 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getPublicLevelsUseCase } from '$dependencies/course.dependency';
-import { resolveLevelPricingDetail } from '$features/landing-page/domain/landing-pricing-data';
+import { getPricingDetailUseCase } from '$dependencies/landing-page.dependency';
+import { PricingNotFoundError } from '$features/landing-page/domain/entities/landing-pricing.entity';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const code = params.code.toUpperCase();
-	const levels = await getPublicLevelsUseCase.exec().catch(() => []);
-	const level = levels.find((l) => l.code.toUpperCase() === code);
-	if (!level && !['N5', 'N4', 'N3', 'N2', 'N1'].includes(code)) {
+	const code = params.code;
+	try {
+		const detail = await getPricingDetailUseCase.exec(code);
+		return {
+			user: locals.user ?? null,
+			detail
+		};
+	} catch (err) {
+		if (err instanceof PricingNotFoundError) {
+			throw error(404, err.message);
+		}
 		throw error(404, `Paket belajar level ${params.code} tidak ditemukan.`);
 	}
-	const detail = resolveLevelPricingDetail(code, levels);
-	return {
-		user: locals.user ?? null,
-		detail,
-		levels
-	};
 };

@@ -10,6 +10,7 @@ export interface CourseLevelItem {
 	id: string;
 	code: string;
 	name: string;
+	tag?: string | null;
 	description?: string | null;
 	order_index: number;
 	price: number;

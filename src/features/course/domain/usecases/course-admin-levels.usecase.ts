@@ -23,6 +23,13 @@ const levelInputSchema = z.object({
 		.trim()
 		.min(1, 'Nama level harus diisi.')
 		.max(100, 'Nama level maksimal 100 karakter.'),
+	tag: z
+		.string()
+		.trim()
+		.max(40, 'Tag level maksimal 40 karakter.')
+		.nullable()
+		.optional()
+		.transform((v) => (v ? v : null)),
 	description: z
 		.string()
 		.trim()
@@ -60,6 +67,7 @@ export class GetCourseAdminLevelEditorUseCase {
 				id: 'new',
 				code: '',
 				name: '',
+				tag: null,
 				description: '',
 				price: 0,
 				points: [],

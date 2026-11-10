@@ -26,6 +26,7 @@ export const courseAdminPreviewLessonRequestSchema = z.object({
 export const courseAdminLevelRequestSchema = z.object({
 	code: z.string().trim().min(1, 'Kode level harus diisi.').max(8, 'Kode level maksimal 8 karakter.').optional(),
 	name: z.string().trim().min(1, 'Nama level harus diisi.').max(100, 'Nama level maksimal 100 karakter.').optional(),
+	tag: z.string().trim().max(40, 'Tag level maksimal 40 karakter.').nullable().optional(),
 	description: z.string().trim().nullable().optional(),
 	order_index: integer('Urutan level', 32767, 0).optional(),
 	price: integer('Harga level', 100_000_000, 0).optional(),

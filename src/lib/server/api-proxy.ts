@@ -34,6 +34,8 @@ export function isPublicApiRequest(url: URL, base: URL, method = 'GET'): boolean
 	const prefix = `${base.pathname.replace(/\/$/, '')}/v1`;
 	if (isPublicAuthRequest(url, base)) return true;
 	if (method === 'GET' && path === `${prefix}/levels`) return true;
+	if (method === 'GET' && (path === `${prefix}/pricing` || path.startsWith(`${prefix}/pricing/`)))
+		return true;
 	return false;
 }
 

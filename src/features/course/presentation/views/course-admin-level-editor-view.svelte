@@ -27,6 +27,7 @@
 	const initial = untrack(() => data.level);
 	let code = $state(initial.code ?? '');
 	let name = $state(initial.name ?? '');
+	let tag = $state(initial.tag ?? '');
 	let description = $state(initial.description ?? '');
 	let price = $state(initial.price ?? 0);
 	let orderIndex = $state(initial.order_index ?? 0);
@@ -62,6 +63,7 @@
 		return JSON.stringify({
 			code: code.trim(),
 			name: name.trim(),
+			tag: tag.trim() || null,
 			description: description.trim(),
 			price: Number(price) || 0,
 			points: collectedPoints,
@@ -156,6 +158,19 @@
 					/>
 				</label>
 			</div>
+
+			<label class="block text-sm font-medium">
+				Tag Kartu (Opsional)
+				<Input
+					bind:value={tag}
+					maxlength={40}
+					placeholder="Favorit Pemula"
+					class="mt-2 h-10"
+				/>
+				<span class="mt-1 block text-xs text-muted-foreground">
+					Badge kecil yang ditampilkan di pojok atas kartu harga (misal: Favorit Pemula, Populer).
+				</span>
+			</label>
 
 			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 				<label class="block text-sm font-medium">

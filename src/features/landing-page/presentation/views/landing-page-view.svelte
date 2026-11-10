@@ -107,7 +107,7 @@
 
 			<LandingPracticeSection bind:selectedExamOption />
 
-			<LandingPricingSection levels={data.levels ?? []} />
+			<LandingPricingSection plans={data.pricingPlans ?? []} />
 
 			<LandingCtaSection />
 		</div>

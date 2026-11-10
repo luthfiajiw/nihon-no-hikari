@@ -144,6 +144,7 @@ describe('SaveCourseAdminLevelUseCase', () => {
 	const validPayload = {
 		code: 'N5',
 		name: 'JLPT N5',
+		tag: null,
 		description: 'Deskripsi',
 		price: 49000,
 		points: ['Poin 1', 'Poin 2'],

@@ -28,6 +28,7 @@ export type CourseAdminLevel = {
 	id: string;
 	code: string;
 	name: string;
+	tag?: string | null;
 	description?: string | null;
 	order_index: number;
 	price: number;
@@ -38,6 +39,7 @@ export type CourseAdminLevel = {
 export type CourseAdminLevelInput = {
 	code: string;
 	name: string;
+	tag?: string | null;
 	description?: string | null;
 	order_index: number;
 	price: number;
