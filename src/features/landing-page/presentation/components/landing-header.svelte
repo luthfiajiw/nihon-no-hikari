@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import logoFull from '$lib/assets/images/gakkobit-full-logo.png';
 
@@ -10,7 +12,7 @@
 		navSections,
 		scrollTo
 	}: {
-		user: any;
+		user: AuthUser | null | undefined;
 		displayName: string;
 		avatarUrl: string;
 		activeSection: string;
@@ -20,7 +22,9 @@
 </script>
 
 <!-- HEADER NAVIGATION -->
-<header class="fixed top-0 right-0 left-0 z-50 border-b border-outline-variant/40 bg-surface/90 shadow-xs backdrop-blur-md">
+<header
+	class="fixed top-0 right-0 left-0 z-50 border-b border-outline-variant/40 bg-surface/90 shadow-sm backdrop-blur-md"
+>
 	<div class="mx-auto flex h-20 max-w-7xl items-center justify-between gap-space-md px-gutter">
 		<!-- Logo -->
 		<div class="flex items-center">
@@ -29,11 +33,7 @@
 				href="#beranda"
 				onclick={(e) => scrollTo('beranda', e)}
 			>
-				<img
-					alt="Gakkobit Ganbare Logo"
-					class="h-9 w-auto object-contain"
-					src={logoFull}
-				/>
+				<img alt="Gakkobit Ganbare Logo" class="h-9 w-auto object-contain" src={logoFull} />
 			</a>
 		</div>
 
@@ -42,11 +42,12 @@
 			class="mx-auto hidden items-center justify-center gap-1.5 rounded-full border border-outline-variant/20 bg-surface-container/60 p-1.5 xl:flex"
 			id="main-nav"
 		>
-			{#each navSections as item}
+			{#each navSections as item (item.id)}
 				<button
 					type="button"
 					onclick={(e) => scrollTo(item.id, e)}
-					class="rounded-full px-3.5 py-1.5 font-label-lg text-label-lg transition-all duration-200 {activeSection === item.id
+					class="rounded-full px-3.5 py-1.5 font-label-lg text-label-lg transition-all duration-200 {activeSection ===
+					item.id
 						? 'bg-primary-fixed font-bold text-primary-container shadow-xs'
 						: 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}"
 				>
@@ -61,12 +62,12 @@
 				<div class="flex items-center gap-3">
 					<a
 						class="landing-btn-primary inline-flex items-center justify-center rounded-full bg-primary-container px-space-lg py-space-sm font-label-lg text-label-lg font-bold !text-white text-white shadow-sm transition-colors duration-200 hover:bg-landing-primary"
-						href="/dashboard"
+						href={resolve('/dashboard')}
 					>
 						<span class="!text-white text-white">Dashboard</span>
 					</a>
 					<a
-						href="/profile"
+						href={resolve('/profile')}
 						class="inline-flex items-center rounded-full transition-transform hover:scale-105"
 						title={`Profil ${displayName}`}
 					>
@@ -81,7 +82,7 @@
 			{:else}
 				<a
 					class="landing-btn-primary inline-flex items-center justify-center rounded-full bg-primary-container px-space-lg py-space-sm font-label-lg text-label-lg font-bold !text-white text-white shadow-sm transition-colors duration-200 hover:bg-landing-primary"
-					href="/signin"
+					href={resolve('/signin')}
 				>
 					<span class="!text-white text-white">Login</span>
 				</a>

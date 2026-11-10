@@ -37,7 +37,7 @@
 			{
 				variant: ['default', 'secondary', 'destructive', 'outline'],
 				class:
-					'bg-clip-border shadow-[2px_4px_0_var(--button-shadow),inset_0_2px_0_rgb(255_255_255/0.35)] active:trantaupe-y-1 active:shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] data-[flat]:shadow-none data-[flat]:active:trantaupe-y-0'
+					'bg-clip-border shadow-[2px_4px_0_var(--button-shadow),inset_0_2px_0_rgb(255_255_255/0.35)] active:translate-y-1 active:shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] data-[flat]:shadow-none data-[flat]:active:translate-y-0'
 			}
 		],
 		defaultVariants: {

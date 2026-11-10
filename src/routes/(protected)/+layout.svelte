@@ -233,7 +233,7 @@
 							<DropdownMenu.Group>
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
-										<a href="/profile" {...props}>
+										<a href={resolve('/profile')} {...props}>
 											<User />
 											Akun Saya
 										</a>

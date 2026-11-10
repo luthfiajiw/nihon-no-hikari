@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CircleCheck } from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 </script>
 
@@ -28,7 +29,7 @@
 			<div class="relative z-10 flex w-full max-w-md justify-center">
 				<a
 					class="w-full rounded-full bg-on-surface px-7 py-3.5 text-center font-label-lg text-label-lg font-bold text-surface shadow-md transition-all duration-200 hover:bg-black hover:shadow-lg sm:w-auto"
-					href="/register"
+					href={resolve('/register')}
 				>
 					Daftar Sekarang! Gratis
 				</a>

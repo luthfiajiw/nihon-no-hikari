@@ -83,7 +83,7 @@
 						<button
 							aria-label="Audio Play"
 							onclick={playDemoAudio}
-							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
+							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white {isAudioPlaying ? 'ring-2 ring-primary-container' : ''}"
 							type="button"
 						>
 							<Volume2 class="size-[18px]" />
@@ -120,7 +120,7 @@
 						<button
 							aria-label="Audio Play"
 							onclick={playDemoAudio}
-							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
+							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white {isAudioPlaying ? 'ring-2 ring-primary-container' : ''}"
 							type="button"
 						>
 							<Volume2 class="size-[18px]" />
@@ -157,7 +157,7 @@
 						<button
 							aria-label="Audio Play"
 							onclick={playDemoAudio}
-							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white"
+							class="flex size-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant shadow-sm transition-colors hover:bg-primary-container hover:!text-white hover:text-white {isAudioPlaying ? 'ring-2 ring-primary-container' : ''}"
 							type="button"
 						>
 							<Volume2 class="size-[18px]" />

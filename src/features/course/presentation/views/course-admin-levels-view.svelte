@@ -2,7 +2,6 @@
 	import type { ManagementFormResult } from '$lib/models/management-form.model';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import type { Pathname } from '$app/types';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';

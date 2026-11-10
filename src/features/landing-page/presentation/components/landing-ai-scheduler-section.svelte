@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ArrowRight, Bot, CalendarSync, CircleCheck, Clock, MessageSquare, Sparkles } from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 </script>
 
@@ -41,7 +42,7 @@
 				</div>
 				<a
 					class="inline-flex items-center gap-2 font-label-lg text-label-lg font-semibold text-primary-container hover:underline"
-					href="/register"
+					href={resolve('/register')}
 				>
 					<span>Uji Coba Rencana Belajar AI Gratis</span>
 					<ArrowRight class="size-[18px]" />

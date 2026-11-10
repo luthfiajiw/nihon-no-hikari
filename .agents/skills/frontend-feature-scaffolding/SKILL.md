@@ -27,6 +27,8 @@ Standard operating procedure for scaffolding and implementing feature modules in
 4. **Svelte 5 Runes & Modern UI**:
    - Use Svelte 5 Runes (`$props()`, `$state()`, `$derived()`, etc.).
    - Utilize shadcn-svelte components (`$lib/components/ui/...`) and Tailwind CSS.
+   - **Type-safe Routing with `resolve()` (`svelte/no-navigation-without-resolve`)**: Always wrap internal route paths in `resolve()` from `$app/paths` for every `<a href={...}>` navigation link and programmatic `goto(...)` call (e.g. `href={resolve('/register')}`, `href={resolve('/pricing/[code]', { code })}`, or `href={`${resolve('/')}#section`}`). Never hardcode bare string paths like `href="/register"`.
+   - **Mandatory Keyed `{#each}` Blocks (`svelte/require-each-key`)**: Every `{#each}` block **MUST** specify a unique key identifier to ensure reliable reactivity and DOM reconciliation (e.g. `{#each items as item (item.id)}` or `{#each points as point (point)}`). Never write unkeyed each blocks (`{#each items as item}`).
 
 ---
 
@@ -236,6 +238,7 @@ export async function loadBookmarks(event: RequestEvent) {
 
 ```svelte
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { BookmarkRecord } from '../../domain/entities/bookmark.entity';
 	import * as Card from '$lib/components/ui/card';
 
@@ -247,7 +250,15 @@ export async function loadBookmarks(event: RequestEvent) {
 </script>
 
 <div class="space-y-6 p-4 sm:p-6">
-	<h1 class="text-2xl font-bold tracking-tight">Bookmarks</h1>
+	<div class="flex items-center justify-between">
+		<h1 class="text-2xl font-bold tracking-tight">Bookmarks</h1>
+		<a
+			href={resolve('/dashboard')}
+			class="text-sm font-semibold text-primary hover:underline"
+		>
+			Kembali ke Dashboard
+		</a>
+	</div>
 	{#if items.length === 0}
 		<Card.Root>
 			<Card.Content class="py-6 text-center text-muted-foreground">
@@ -256,6 +267,7 @@ export async function loadBookmarks(event: RequestEvent) {
 		</Card.Root>
 	{:else}
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			<!-- Always specify a key for each block (svelte/require-each-key) -->
 			{#each items as item (item.id)}
 				<Card.Root>
 					<Card.Header>
@@ -308,6 +320,7 @@ export const load: PageServerLoad = loadBookmarks;
    Run the following verification commands:
 
    ```bash
+   npx eslint src
    npm run check
    npm run test:unit -- --run
    npm run build

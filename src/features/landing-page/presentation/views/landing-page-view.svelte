@@ -9,11 +9,14 @@
 	import LandingPricingSection from '../components/landing-pricing-section.svelte';
 	import LandingCtaSection from '../components/landing-cta-section.svelte';
 	import LandingFooterSection from '../components/landing-footer-section.svelte';
+	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
+	import type { PricingPlan } from '$features/landing-page/domain/entities/landing-pricing.entity';
 
 	interface Props {
 		data: {
-			user?: any;
-			[key: string]: any;
+			user?: AuthUser | null;
+			pricingPlans?: PricingPlan[];
+			[key: string]: unknown;
 		};
 	}
 

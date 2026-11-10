@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-	DomainError,
 	InvalidCredentialsError,
 	SignInNetworkError
 } from '../../domain/entities/auth.entity';

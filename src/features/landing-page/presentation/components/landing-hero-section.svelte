@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ArrowRight, BadgeCheck, BookOpen, TrendingUp, Volume2 } from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	let {
@@ -47,7 +48,7 @@
 				<div class="mb-space-xl flex flex-col items-stretch gap-space-md sm:flex-row sm:items-center">
 					<a
 						class="landing-btn-primary inline-flex items-center justify-center gap-2 rounded-full bg-primary-container px-7 py-3.5 text-center font-label-lg text-label-lg font-bold !text-white text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-landing-primary hover:shadow-lg"
-						href="/register"
+						href={resolve('/register')}
 					>
 						<span class="!text-white text-white">Trial Belajar Gratis 7 Hari</span>
 						<ArrowRight class="size-[18px]" />

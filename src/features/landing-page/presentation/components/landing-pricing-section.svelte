@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { BadgeCheck, CircleCheck, Tag } from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 	import { viewportReveal } from '$lib/actions/viewport-reveal';
 	import type { PricingPlan } from '$features/landing-page/domain/entities/landing-pricing.entity';
 
@@ -83,7 +84,7 @@
 								<div
 									class="mb-6 space-y-2 border-t border-outline-variant/30 pt-3 font-body-sm text-[12px] text-on-surface-variant"
 								>
-									{#each plan.points as point}
+									{#each plan.points as point (point)}
 										<div class="flex items-start gap-1.5">
 											<CircleCheck class="mt-0.5 size-4 shrink-0 text-primary-container" />
 											<span>{point}</span>
@@ -94,7 +95,7 @@
 						</div>
 						<a
 							class="block w-full rounded-full bg-surface-container py-2.5 text-center font-label-md text-label-md font-bold text-on-surface transition-colors hover:bg-surface-container-high"
-							href="/pricing/{plan.code.toLowerCase()}"
+							href={resolve('/pricing/[code]', { code: plan.code.toLowerCase() })}
 						>
 							Lihat Detail {plan.code}
 						</a>
