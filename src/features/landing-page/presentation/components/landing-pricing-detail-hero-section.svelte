@@ -3,6 +3,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import type { PricingDetail } from '$features/landing-page/domain/entities/landing-pricing.entity';
 	import { ArrowLeft, Zap, Infinity as InfinityIcon, CheckCircle } from 'lucide-svelte';
+	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	interface Props {
 		detail: PricingDetail;
@@ -13,19 +14,19 @@
 </script>
 
 <!-- Breadcrumb & Back Navigation -->
-<div class="mb-4 flex items-center gap-2">
-	<a
-		href={backHref}
-		class="inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3.5 py-1.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container-high"
-	>
-		<ArrowLeft class="size-3.5" />
-		Kembali
-	</a>
-</div>
+<a
+	href={backHref}
+	use:viewportReveal={{ direction: 'up' }}
+	class="mb-4 inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3.5 py-1.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container-high"
+>
+	<ArrowLeft class="size-3.5" />
+	Kembali
+</a>
 
 <!-- Hero Overview Banner Section -->
 <section
 	class="relative mb-space-lg overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-low p-6 shadow-md sm:p-8 lg:p-10"
+	use:viewportReveal={{ direction: 'up', delay: 100 }}
 >
 	<!-- Ambient Japanese aesthetic background accent -->
 	<div

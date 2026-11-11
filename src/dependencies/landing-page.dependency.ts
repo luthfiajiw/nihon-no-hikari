@@ -3,9 +3,11 @@ import { LandingPricingSource } from '$features/landing-page/data/sources/landin
 import { LandingPricingRepositoryImpl } from '$features/landing-page/data/repositories/landing-pricing.repository.impl';
 import { GetPricingPlansUseCase } from '$features/landing-page/domain/usecases/get-pricing-plans.usecase';
 import { GetPricingDetailUseCase } from '$features/landing-page/domain/usecases/get-pricing-detail.usecase';
+import { GetPricingPaymentSummaryUseCase } from '$features/landing-page/domain/usecases/get-pricing-payment-summary.usecase';
 
 const landingPricingSource = new LandingPricingSource(requestFetch);
 const landingPricingRepository = new LandingPricingRepositoryImpl(landingPricingSource);
 
 export const getPricingPlansUseCase = new GetPricingPlansUseCase(landingPricingRepository);
 export const getPricingDetailUseCase = new GetPricingDetailUseCase(landingPricingRepository);
+export const getPricingPaymentSummaryUseCase = new GetPricingPaymentSummaryUseCase();

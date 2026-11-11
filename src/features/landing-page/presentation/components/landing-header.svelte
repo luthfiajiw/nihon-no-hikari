@@ -25,7 +25,7 @@
 <header
 	class="fixed top-0 right-0 left-0 z-50 border-b border-outline-variant/40 bg-surface/90 shadow-sm backdrop-blur-md"
 >
-	<div class="mx-auto flex h-20 max-w-7xl items-center justify-between gap-space-md px-gutter">
+	<div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-space-md px-gutter">
 		<!-- Logo -->
 		<div class="flex items-center">
 			<a

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Info, UserCheck, CheckCircle2, Check } from 'lucide-svelte';
+	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	interface Props {
 		prerequisites?: string[];
@@ -23,12 +24,18 @@
 </script>
 
 <!-- Prasyarat & Target Peserta -->
-<section class="rounded-2xl border border-outline-variant/20 bg-white p-6 shadow-md sm:p-8">
+<section
+	class="rounded-2xl border border-outline-variant/20 bg-white p-6 shadow-md sm:p-8"
+	use:viewportReveal={{ direction: 'up' }}
+>
 	<h2 class="mb-6 font-headline-lg text-xl font-bold text-on-surface sm:text-2xl">
 		Prasyarat &amp; Target Peserta
 	</h2>
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-		<div class="rounded-xl bg-surface-container-low p-5">
+		<div
+			class="rounded-xl bg-surface-container-low p-5"
+			use:viewportReveal={{ direction: 'left', delay: 100 }}
+		>
 			<div class="mb-3 flex items-center gap-2">
 				<Info class="size-5 text-primary" />
 				<h3 class="font-headline-sm text-base font-bold text-on-surface">Prasyarat Belajar</h3>
@@ -43,7 +50,10 @@
 			</ul>
 		</div>
 
-		<div class="rounded-xl bg-surface-container-low p-5">
+		<div
+			class="rounded-xl bg-surface-container-low p-5"
+			use:viewportReveal={{ direction: 'right', delay: 200 }}
+		>
 			<div class="mb-3 flex items-center gap-2">
 				<UserCheck class="size-5 text-primary" />
 				<h3 class="font-headline-sm text-base font-bold text-on-surface">Cocok Untuk Siapa?</h3>

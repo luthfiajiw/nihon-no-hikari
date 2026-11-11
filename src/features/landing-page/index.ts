@@ -1,5 +1,6 @@
 export { default as LandingPageView } from './presentation/views/landing-page-view.svelte';
 export { default as PricingDetailView } from './presentation/views/pricing-detail-view.svelte';
+export { default as PricingPaymentView } from './presentation/views/pricing-payment-view.svelte';
 export { default as LandingHeader } from './presentation/components/landing-header.svelte';
 export { default as LandingHeroSection } from './presentation/components/landing-hero-section.svelte';
 export { default as LandingCoursesSection } from './presentation/components/landing-courses-section.svelte';
@@ -10,3 +11,5 @@ export { default as LandingPricingSection } from './presentation/components/land
 export { default as LandingCtaSection } from './presentation/components/landing-cta-section.svelte';
 export { default as LandingFooterSection } from './presentation/components/landing-footer-section.svelte';
 export * from './domain/entities/landing-pricing.entity';
+export * from './domain/entities/landing-pricing-payment.entity';
+export * from './presentation/contexts/landing-pricing-payment-context';

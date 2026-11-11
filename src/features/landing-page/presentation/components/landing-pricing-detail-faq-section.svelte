@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Accordion from '$lib/components/ui/accordion';
+	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	interface FaqItem {
 		question: string;
@@ -38,7 +39,10 @@
 </script>
 
 <!-- FAQ Calon Pembeli -->
-<section class="rounded-2xl border border-outline-variant/20 bg-white p-6 shadow-md sm:p-8">
+<section
+	class="rounded-2xl border border-outline-variant/20 bg-white p-6 shadow-md sm:p-8"
+	use:viewportReveal={{ direction: 'up' }}
+>
 	<div class="mb-6">
 		<span class="font-label-md text-xs font-semibold tracking-wider text-primary uppercase">
 			Punya Pertanyaan?
@@ -50,21 +54,23 @@
 
 	<Accordion.Root type="single" bind:value={openFaq} class="space-y-3">
 		{#each faqs as faq, index (`faq-${index}`)}
-			<Accordion.Item
-				value={`faq-${index}`}
-				class="rounded-xl border-none bg-surface-container-low px-4 py-1 transition-colors duration-200"
-			>
-				<Accordion.Trigger
-					class="cursor-pointer text-left font-headline-sm text-sm font-semibold text-on-surface hover:no-underline sm:text-base"
+			<div use:viewportReveal={{ direction: 'up', delay: Math.min(index * 80, 400) }}>
+				<Accordion.Item
+					value={`faq-${index}`}
+					class="rounded-xl border-none bg-surface-container-low px-4 py-1 transition-colors duration-200"
 				>
-					{faq.question}
-				</Accordion.Trigger>
-				<Accordion.Content
-					class="pb-3 font-body-md text-sm leading-relaxed text-on-surface-variant"
-				>
-					{faq.answer}
-				</Accordion.Content>
-			</Accordion.Item>
+					<Accordion.Trigger
+						class="cursor-pointer text-left font-headline-sm text-sm font-semibold text-on-surface hover:no-underline sm:text-base"
+					>
+						{faq.question}
+					</Accordion.Trigger>
+					<Accordion.Content
+						class="pb-3 font-body-md text-sm leading-relaxed text-on-surface-variant"
+					>
+						{faq.answer}
+					</Accordion.Content>
+				</Accordion.Item>
+			</div>
 		{/each}
 	</Accordion.Root>
 </section>

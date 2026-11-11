@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import LandingHeader from '../components/landing-header.svelte';
 	import LandingFooterSection from '../components/landing-footer-section.svelte';
 	import LandingPricingDetailHeroSection from '../components/landing-pricing-detail-hero-section.svelte';
@@ -6,9 +8,9 @@
 	import LandingPricingDetailPrerequisitesSection from '../components/landing-pricing-detail-prerequisites-section.svelte';
 	import LandingPricingDetailFaqSection from '../components/landing-pricing-detail-faq-section.svelte';
 	import LandingPricingDetailSidebar from '../components/landing-pricing-detail-sidebar.svelte';
-	import LandingPricingDetailCheckoutDialog from '../components/landing-pricing-detail-checkout-dialog.svelte';
 	import type { PricingDetail } from '$features/landing-page/domain/entities/landing-pricing.entity';
 	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
+	import { getLandingPricingPaymentContext } from '../contexts/landing-pricing-payment-context';
 
 	interface Props {
 		data: {
@@ -27,6 +29,23 @@
 			'https://gcwjewiszjevcgonvhld.supabase.co/storage/v1/object/public/public-avatars/gakkobit-default-ava.jpg'
 	);
 
+	const paymentContext = getLandingPricingPaymentContext();
+	let isNavigating = $state(false);
+
+	async function handleBuyPackage(): Promise<void> {
+		if (isNavigating) return;
+		isNavigating = true;
+
+		try {
+			const code = detail.code.toLowerCase();
+			paymentContext.setPackage(detail);
+			await goto(resolve('/pricing/[code]/payment', { code }));
+		} catch (error) {
+			console.error('Gagal berpindah ke halaman pembayaran:', error);
+			isNavigating = false;
+		}
+	}
+
 	const navSections = [
 		{ id: 'beranda', label: 'Beranda' },
 		{ id: 'kursus', label: 'Kursus' },
@@ -39,12 +58,6 @@
 	function scrollTo(id: string, e?: MouseEvent) {
 		if (e) e.preventDefault();
 		window.location.href = `/#${id}`;
-	}
-
-	let isCheckoutOpen = $state(false);
-
-	function openCheckout() {
-		isCheckoutOpen = true;
 	}
 </script>
 
@@ -76,13 +89,15 @@
 			</div>
 
 			<!-- RIGHT COLUMN: STICKY CHECKOUT & PURCHASE SUMMARY (4 Cols on Desktop) -->
-			<LandingPricingDetailSidebar {detail} {user} onOpenCheckout={openCheckout} />
+			<LandingPricingDetailSidebar
+				{detail}
+				{user}
+				{isNavigating}
+				onBuyPackage={handleBuyPackage}
+			/>
 		</div>
 	</div>
 </main>
 
 <!-- FOOTER -->
 <LandingFooterSection {scrollTo} />
-
-<!-- CHECKOUT DIALOG -->
-<LandingPricingDetailCheckoutDialog bind:open={isCheckoutOpen} {detail} />

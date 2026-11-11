@@ -2,25 +2,24 @@
 	import { resolve } from '$app/paths';
 	import type { PricingDetail } from '$features/landing-page/domain/entities/landing-pricing.entity';
 	import type { AuthUser } from '$features/auth/domain/entities/auth.entity';
-	import { LockOpen, ShoppingCart, PlayCircle, ShieldCheck, CheckCircle2 } from 'lucide-svelte';
+	import { LockOpen, ShoppingCart, PlayCircle, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-svelte';
+	import { viewportReveal } from '$lib/actions/viewport-reveal';
+	import { formatRupiah } from '../utils/landing-pricing-format';
 
 	interface Props {
 		detail: PricingDetail;
 		user?: AuthUser | null;
-		onOpenCheckout: () => void;
+		isNavigating?: boolean;
+		onBuyPackage: () => void;
 	}
 
-	let { detail, user = null, onOpenCheckout }: Props = $props();
-
-	function formatRupiah(value: number): string {
-		if (value === 0) return 'Gratis';
-		return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
-	}
+	let { detail, user = null, isNavigating = false, onBuyPackage }: Props = $props();
 </script>
 
 <aside class="sticky top-24 w-full space-y-6 lg:col-span-4">
 	<div
 		class="relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-white p-6 shadow-md sm:p-7"
+		use:viewportReveal={{ direction: 'right', delay: 150 }}
 	>
 		<!-- Card Header & Pricing -->
 		<div class="pt-2">
@@ -49,12 +48,18 @@
 		<!-- CTAs -->
 		<div class="mt-6 space-y-3">
 			<button
-				class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary-container px-6 py-3.5 font-label-lg text-sm font-bold text-on-primary shadow-md transition-all duration-200 hover:bg-landing-primary active:scale-[0.99]"
+				class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary-container px-6 py-3.5 font-label-lg text-sm font-bold text-on-primary shadow-md transition-all duration-200 hover:bg-landing-primary active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-75"
 				type="button"
-				onclick={onOpenCheckout}
+				disabled={isNavigating}
+				onclick={onBuyPackage}
 			>
-				<ShoppingCart class="size-4.5" />
-				Beli Paket {detail.code} Sekarang
+				{#if isNavigating}
+					<Loader2 class="size-4.5 animate-spin" />
+					<span>Memproses Pembayaran...</span>
+				{:else}
+					<ShoppingCart class="size-4.5" />
+					<span>Beli Paket {detail.code} Sekarang</span>
+				{/if}
 			</button>
 
 			<a

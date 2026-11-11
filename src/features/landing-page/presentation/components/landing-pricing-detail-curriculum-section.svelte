@@ -2,6 +2,7 @@
 	import * as Accordion from '$lib/components/ui/accordion';
 	import type { PricingDetail } from '$features/landing-page/domain/entities/landing-pricing.entity';
 	import { BookOpen, Clock, ChevronDown } from 'lucide-svelte';
+	import { viewportReveal } from '$lib/actions/viewport-reveal';
 
 	interface Props {
 		detail: PricingDetail;
@@ -55,6 +56,7 @@
 <!-- Kurikulum Terstruktur Header Card -->
 <section
 	class="relative overflow-hidden rounded-3xl border border-outline-variant/30 bg-white p-6 shadow-md sm:p-8"
+	use:viewportReveal={{ direction: 'up' }}
 >
 	<div class="flex flex-col justify-between gap-6 md:flex-row md:items-center">
 		<div class="space-y-4">
@@ -84,10 +86,11 @@
 		<Accordion.Root type="multiple" bind:value={openModuleIds} class="space-y-4">
 			{#each visibleModules as module, index (module.id)}
 				{@const duration = formatDuration(module.estimated_minutes)}
-				<Accordion.Item
-					value={module.id}
-					class="overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-md transition-colors hover:border-outline-variant/50"
-				>
+				<div use:viewportReveal={{ direction: 'up', delay: Math.min(index * 80, 400) }}>
+					<Accordion.Item
+						value={module.id}
+						class="overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-md transition-colors hover:border-outline-variant/50"
+					>
 					<Accordion.Trigger
 						class="cursor-pointer px-5 py-4 text-left transition-colors hover:bg-surface-container-low/40 hover:no-underline sm:px-6 sm:py-5"
 					>
@@ -151,6 +154,7 @@
 						{/if}
 					</Accordion.Content>
 				</Accordion.Item>
+				</div>
 			{/each}
 		</Accordion.Root>
 
