@@ -247,7 +247,7 @@
 					{#if saving}<LoaderCircle class="size-4 animate-spin" />{:else}<Save
 							class="size-4"
 						/>{/if}
-					{saving ? 'Menyimpan...' : 'Simpan'}
+					{saving ? 'Menyimpan...' : 'Simpan Template'}
 				</Button>
 			</div>
 		</form>

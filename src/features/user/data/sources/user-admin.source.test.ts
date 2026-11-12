@@ -9,8 +9,23 @@ describe('user administrative transport', () => {
 	it('unwraps the administrative user list', async () => {
 		const users = [{ id: 'user', email: 'user@example.test', display_name: 'User', role: 'User' }];
 		const { source, fetch } = sourceWith(Response.json({ data: users }));
-		await expect(source.getAdminUsers()).resolves.toEqual(users);
+		await expect(source.getAdminUsers()).resolves.toEqual({
+			items: users,
+			meta: expect.objectContaining({ page: 1, limit: 10, total: 1, total_pages: 1 })
+		});
 		expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/v1/admin/users', expect.any(Object));
+	});
+	it('passes pagination and search query parameters', async () => {
+		const users = [{ id: 'user', email: 'user@example.test', display_name: 'User', role: 'User' }];
+		const meta = { page: 2, limit: 20, total: 42, total_pages: 3 };
+		const { source, fetch } = sourceWith(Response.json({ data: users, meta }));
+		await expect(
+			source.getAdminUsers({ page: 2, limit: 20, search: 'john', role: 'Admin' })
+		).resolves.toEqual({ items: users, meta });
+		expect(fetch).toHaveBeenCalledExactlyOnceWith(
+			'/api/v1/admin/users?page=2&limit=20&search=john&role=Admin',
+			expect.any(Object)
+		);
 	});
 	it('encodes the user id and preserves the role update contract', async () => {
 		const { source, fetch } = sourceWith(new Response(null, { status: 204 }));

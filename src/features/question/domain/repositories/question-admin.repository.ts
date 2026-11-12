@@ -10,8 +10,11 @@ import type {
 	QuestionKanaTemplateInput,
 	QuestionKanaTemplatePreview
 } from '../entities/question-kana-template.entity';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 export interface QuestionAdminRepository {
-	getAdminContentList(): Promise<QuestionAdminRecord[]>;
+	getAdminContentList(
+		options?: PaginationQueryOptions & { skill?: string; status?: string }
+	): Promise<PaginatedResult<QuestionAdminRecord> | QuestionAdminRecord[]>;
 	getAdminContent(id: string): Promise<QuestionAdminContentDetail>;
 	saveAdminContent(
 		id: string | null,
@@ -20,7 +23,9 @@ export interface QuestionAdminRepository {
 	publishAdminContent(id: string): Promise<QuestionAdminMutationResult>;
 	removeAdminContent(id: string): Promise<void>;
 	restoreAdminContent(id: string): Promise<void>;
-	getAdminTemplates(): Promise<QuestionKanaTemplateMetadata[]>;
+	getAdminTemplates(
+		options?: PaginationQueryOptions & { script?: string }
+	): Promise<PaginatedResult<QuestionKanaTemplateMetadata> | QuestionKanaTemplateMetadata[]>;
 	getAdminTemplate(id: string): Promise<QuestionKanaTemplateDetail>;
 	previewAdminTemplate(input: QuestionKanaTemplateInput): Promise<QuestionKanaTemplatePreview>;
 	saveAdminTemplate(

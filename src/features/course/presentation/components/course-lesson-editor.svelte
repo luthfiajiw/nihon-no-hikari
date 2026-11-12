@@ -59,7 +59,7 @@
 						{ tag: tags.tagName, color: '#0f766e' },
 						{ tag: tags.attributeName, color: 'var(--color-taupe-500)' },
 						{ tag: tags.attributeValue, color: '#b91c1c' },
-						{ tag: tags.comment, color: 'var(--color-taupe-500)', fontStyle: 'italic' }
+						{ tag: tags.comment, color: 'var(--color-taupe-400)', fontStyle: 'italic' }
 					])
 				),
 				indentUnit.of('  '),
@@ -246,7 +246,8 @@
 	</Card.Root>
 	<Dialog.Root bind:open>
 		<Dialog.Content
-			class="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-0"
+			showCloseButton={false}
+			class="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none sm:max-w-none flex-col gap-0 overflow-hidden p-0"
 			onCloseAutoFocus={(event) => {
 				event.preventDefault();
 				maximizeButton?.focus();

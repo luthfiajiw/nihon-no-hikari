@@ -146,11 +146,13 @@ export function createKotobaFixture(mutations) {
 					return !existing || (!admin && !existing.is_active)
 						? json(404, { success: false, error: 'Topik tidak ditemukan.' })
 						: json(200, { success: true, data: project(existing, admin, true) });
+				const list = [...topics.values()]
+					.filter((topic) => admin || (topic.is_active && topic.is_visible))
+					.map((topic) => project(topic, admin));
 				return json(200, {
 					success: true,
-					data: [...topics.values()]
-						.filter((topic) => admin || (topic.is_active && topic.is_visible))
-						.map((topic) => project(topic, admin))
+					data: list,
+					meta: { page: 1, limit: 10, total: list.length, total_pages: 1 }
 				});
 			}
 			if (request.method === 'DELETE') {

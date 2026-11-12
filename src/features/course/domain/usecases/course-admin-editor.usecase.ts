@@ -10,7 +10,11 @@ export class GetCourseAdminEditorUseCase {
 		if (!isCourseAdminContentKind(kind)) throw new HttpError(400, 'Jenis konten tidak valid.');
 		const [catalog, levels, item] = await Promise.all([
 			kind === 'course' ? Promise.resolve({}) : this.repository.getAdminCatalog(),
-			kind === 'course' ? this.repository.getAdminLevels() : Promise.resolve([]),
+			kind === 'course'
+				? Promise.resolve(this.repository.getAdminLevels()).then((r) =>
+						Array.isArray(r) ? r : r.items
+					)
+				: Promise.resolve([]),
 			id === 'new'
 				? Promise.resolve({ data: null, draft: null })
 				: this.repository.getAdminContent(kind, id)

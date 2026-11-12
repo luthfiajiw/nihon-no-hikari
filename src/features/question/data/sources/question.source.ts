@@ -1,5 +1,11 @@
 import { requestJson } from '$lib/http/request-json';
 import type {
+	PaginatedResult,
+	PaginationMeta,
+	PaginationQueryOptions
+} from '$lib/models/pagination.model';
+import { defaultPaginationMeta } from '$lib/models/pagination.model';
+import type {
 	QuestionAdminRecord,
 	QuestionAdminContentRecord,
 	QuestionAdminContentDetail,
@@ -113,8 +119,24 @@ export class QuestionSource {
 		return `/question-sets${id ? `/${encodeURIComponent(id)}` : ''}`;
 	}
 
-	async getAdminContentList(): Promise<QuestionAdminRecord[]> {
-		return (await this.adminRequest<ApiPayload<QuestionAdminRecord[]>>(this.contentPath())).data;
+	async getAdminContentList(
+		options?: PaginationQueryOptions & { skill?: string; status?: string }
+	): Promise<PaginatedResult<QuestionAdminRecord>> {
+		const searchParams = new URLSearchParams();
+		if (options?.page) searchParams.set('page', String(options.page));
+		if (options?.limit) searchParams.set('limit', String(options.limit));
+		if (options?.search) searchParams.set('search', options.search);
+		if (options?.skill) searchParams.set('skill', options.skill);
+		if (options?.status) searchParams.set('status', options.status);
+		const qs = searchParams.toString();
+		const path = `${this.contentPath()}${qs ? `?${qs}` : ''}`;
+		const res = await this.adminRequest<ApiPayload<QuestionAdminRecord[]> & { meta?: PaginationMeta }>(
+			path
+		);
+		const items = res.data ?? [];
+		const meta =
+			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
+		return { items, meta };
 	}
 
 	getAdminContent(id: string): Promise<QuestionAdminContentDetail> {
@@ -143,8 +165,23 @@ export class QuestionSource {
 		await this.adminRequest(`${this.contentPath(id)}/restore`, { method: 'POST' });
 	}
 
-	async getAdminTemplates(): Promise<QuestionKanaTemplateMetadata[]> {
-		return (await this.adminRequest<ApiPayload<QuestionKanaTemplateMetadata[]>>('/templates')).data;
+	async getAdminTemplates(
+		options?: PaginationQueryOptions & { script?: string }
+	): Promise<PaginatedResult<QuestionKanaTemplateMetadata>> {
+		const searchParams = new URLSearchParams();
+		if (options?.page) searchParams.set('page', String(options.page));
+		if (options?.limit) searchParams.set('limit', String(options.limit));
+		if (options?.search) searchParams.set('search', options.search);
+		if (options?.script) searchParams.set('script', options.script);
+		const qs = searchParams.toString();
+		const path = `/templates${qs ? `?${qs}` : ''}`;
+		const res = await this.adminRequest<
+			ApiPayload<QuestionKanaTemplateMetadata[]> & { meta?: PaginationMeta }
+		>(path);
+		const items = res.data ?? [];
+		const meta =
+			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
+		return { items, meta };
 	}
 
 	async getAdminTemplate(id: string): Promise<QuestionKanaTemplateDetail> {

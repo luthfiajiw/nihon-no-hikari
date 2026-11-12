@@ -8,7 +8,8 @@
 		id,
 		'aria-label': ariaLabel,
 		class: className,
-		placeholder = 'Pilih opsi'
+		placeholder = 'Pilih opsi',
+		onchange
 	}: {
 		value?: string;
 		options: { value: string; label: string }[];
@@ -16,10 +17,17 @@
 		'aria-label'?: string;
 		class?: string;
 		placeholder?: string;
+		onchange?: (value: string) => void;
 	} = $props();
 </script>
 
-<Select.Root type="single" bind:value items={options} allowDeselect={false}>
+<Select.Root
+	type="single"
+	bind:value
+	onValueChange={(v) => onchange?.(v)}
+	items={options}
+	allowDeselect={false}
+>
 	<Select.Trigger {id} aria-label={ariaLabel} class={cn('w-full min-w-0 bg-background', className)}>
 		<Select.Value {placeholder} />
 	</Select.Trigger>

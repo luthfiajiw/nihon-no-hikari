@@ -11,12 +11,13 @@ import type {
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../entities/course-admin.entity';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 export interface CourseAdminRepository {
 	reorderAdminContent(kind: CourseAdminReorderKind, input: CourseAdminReorderInput): Promise<void>;
 	getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog>;
 	getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]>;
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail>;
-	getAdminLevels(): Promise<CourseAdminLevel[]>;
+	getAdminLevels(options?: PaginationQueryOptions): Promise<PaginatedResult<CourseAdminLevel> | CourseAdminLevel[]>;
 	getAdminLevel(id: string): Promise<CourseAdminLevel>;
 	createAdminLevel(input: CourseAdminLevelInput): Promise<CourseAdminLevel>;
 	updateAdminLevel(id: string, input: CourseAdminLevelInput): Promise<CourseAdminLevel>;

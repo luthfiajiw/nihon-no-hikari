@@ -236,7 +236,14 @@ const api = createServer(async (request, response) => {
 	else if (contentRoute && !contentRoute[3]) data = contentRoute[2] ? resource : collection;
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
 	response.end(
-		JSON.stringify({ success: Boolean(data), data, draft: drafts.get(data?.id) ?? null })
+		JSON.stringify({
+			success: Boolean(data),
+			data,
+			meta: Array.isArray(data)
+				? { page: 1, limit: 10, total: data.length, total_pages: 1 }
+				: undefined,
+			draft: drafts.get(data?.id) ?? null
+		})
 	);
 });
 await new Promise((resolve, reject) => {
@@ -318,7 +325,13 @@ async function submitContentWithLoading(action) {
 	});
 	try {
 		await activeButton.click();
-		await page.locator(`form[action="?/${action}"] button[aria-busy="true"]`).waitFor();
+		await page
+			.locator(
+				action === 'save'
+					? 'button[aria-busy="true"]'
+					: `form[action="?/${action}"] button[aria-busy="true"]`
+			)
+			.waitFor();
 		assert(await saveButton.isDisabled(), 'Save must be disabled during submission');
 		assert(await publishButton.isDisabled(), 'Publish must be disabled during submission');
 		assert.equal(
@@ -333,7 +346,9 @@ async function submitContentWithLoading(action) {
 		mutationGate = null;
 	}
 	await page.waitForFunction(() => {
-		const save = document.querySelector('form[action="?/save"] button[type="submit"]');
+		const save =
+			document.querySelector('button[form="course-content-form"]') ||
+			document.querySelector('form[action="?/save"] button[type="submit"]');
 		const publish = document.querySelector('form[action="?/publish"] button[type="submit"]');
 		return (
 			save &&
@@ -515,10 +530,12 @@ try {
 		'New resource form must reset its state'
 	);
 	assert.equal(
-		await page
-			.locator('form[action="?/save"]')
-			.getByRole('button', { name: /^Kursus/ })
-			.innerText(),
+		await (
+			page
+				.locator('form[action="?/save"]')
+				.getByRole('combobox', { name: /^Kursus/ })
+				.or(page.locator('form[action="?/save"]').getByRole('button', { name: /^Kursus/ }))
+		).innerText(),
 		course.title
 	);
 	assert.equal(
@@ -810,7 +827,10 @@ try {
 		'/api/v1/admin/question-sets',
 		'/api/v1/admin/lessons/preview'
 	])
-		assert(allBackendRequests.includes(path), `Expected migrated API request: ${path}`);
+		assert(
+			allBackendRequests.some((req) => req === path || req.startsWith(path + '?')),
+			`Expected migrated API request: ${path}`
+		);
 	for (const path of ['/api/v1/admin/modules/reorder', '/api/v1/admin/lessons/reorder'])
 		assert(
 			mutations.some((mutation) => mutation.method === 'POST' && mutation.path === path),

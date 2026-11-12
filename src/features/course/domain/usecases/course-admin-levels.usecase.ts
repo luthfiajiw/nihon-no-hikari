@@ -3,6 +3,8 @@ import { HttpError } from '$lib/http/http-error';
 import { integer } from '$lib/content-validation';
 import type { CourseAdminLevel, CourseAdminLevelInput } from '../entities/course-admin.entity';
 import type { CourseAdminRepository } from '../repositories/course-admin.repository';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
+import { defaultPaginationMeta } from '$lib/models/pagination.model';
 
 const levelIdSchema = z
 	.guid({ error: 'ID level tidak valid.' })
@@ -53,8 +55,15 @@ const levelInputSchema = z.object({
 export class GetCourseAdminLevelsUseCase {
 	constructor(private readonly repository: CourseAdminRepository) {}
 
-	exec(): Promise<CourseAdminLevel[]> {
-		return this.repository.getAdminLevels();
+	async exec(options?: PaginationQueryOptions): Promise<PaginatedResult<CourseAdminLevel>> {
+		const res = await this.repository.getAdminLevels(options);
+		if (Array.isArray(res)) {
+			return {
+				items: res,
+				meta: defaultPaginationMeta(res.length, options?.limit ?? 10, options?.page ?? 1)
+			};
+		}
+		return res;
 	}
 }
 

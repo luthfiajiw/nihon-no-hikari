@@ -11,7 +11,9 @@ export class GetQuestionAdminEditorUseCase {
 	async exec(id: string, parentId: string | null): Promise<QuestionAdminEditorData> {
 		const [catalog, templates, item] = await Promise.all([
 			this.courseCatalog.getCatalog(),
-			this.repository.getAdminTemplates(),
+			Promise.resolve(this.repository.getAdminTemplates()).then((r) =>
+				Array.isArray(r) ? r : r.items
+			),
 			id === 'new'
 				? Promise.resolve({ data: null, draft: null })
 				: this.repository.getAdminContent(id)

@@ -1,6 +1,7 @@
 import type { UserAdminRepository } from '../../domain/repositories/user-admin.repository';
 import type { UserProfileRepository } from '../../domain/repositories/user-profile.repository';
 import type { UserAdminRole, UserAdminRecord } from '../../domain/entities/user-admin.entity';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 import type {
 	UserProfileData,
 	UpdateProfilePayload,
@@ -16,8 +17,10 @@ import { UserSource } from '../sources/user.source';
 export class UserRepositoryImpl implements UserAdminRepository, UserProfileRepository {
 	constructor(private readonly userSource: UserSource) {}
 
-	getAdminUsers(): Promise<UserAdminRecord[]> {
-		return this.userSource.getAdminUsers();
+	getAdminUsers(
+		options?: PaginationQueryOptions & { role?: string }
+	): Promise<PaginatedResult<UserAdminRecord>> {
+		return this.userSource.getAdminUsers(options);
 	}
 
 	changeAdminRole(userId: string, role: UserAdminRole): Promise<void> {

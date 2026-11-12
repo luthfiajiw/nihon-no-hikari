@@ -1,28 +1,37 @@
 <script lang="ts">
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { kotobaRepository } from '$dependencies/kotoba.dependency';
 	import { KotobaError } from '$features/kotoba/domain/entities/kotoba-api.entity';
 	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
 	import { resolve } from '$app/paths';
-	import { BookOpen, EyeOff, Pencil, Plus, Search, Trash2 } from 'lucide-svelte';
+	import { BookOpen, EyeOff, Pencil, Plus, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { kotobaLevels } from '$features/kotoba/data/kotoba-topics';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
-	import Cover from '$features/kotoba/presentation/components/kotoba-admin-cover.svelte';
 	import { getKotobaAdminState } from '$features/kotoba/presentation/contexts/kotoba-admin-context.svelte';
 	import type { KotobaAdminTopic } from '$features/kotoba/presentation/models/kotoba-admin.model';
-	import kanjiIcon from '$lib/assets/icons/kanji.svg';
+	import type { PaginationMeta } from '$lib/models/pagination.model';
+	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
+	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
 
 	const kotoba = getKotobaAdminState();
-	let { topics: allTopics }: { topics: KotobaAdminTopic[] } = $props();
+	let {
+		topics: allTopics,
+		meta
+	}: {
+		topics: KotobaAdminTopic[];
+		meta?: PaginationMeta;
+	} = $props();
+
 	let busy = $state(false);
 	let message = $state('');
+
 	onMount(() => {
 		let refreshing = false;
 		async function refresh() {
@@ -43,6 +52,10 @@
 			window.removeEventListener('focus', refresh);
 		};
 	});
+
+	let deleting = $state<KotobaAdminTopic | null>(null);
+	let deleteOpen = $state(false);
+
 	async function removeTopic() {
 		if (!deleting || busy) return;
 		busy = true;
@@ -60,25 +73,141 @@
 			busy = false;
 		}
 	}
-	let search = $state('');
-	let level = $state('all');
-	let status = $state('all');
-	let sort = $state('order');
-	let deleting = $state<KotobaAdminTopic | null>(null);
-	let deleteOpen = $state(false);
-	const topics = $derived(
-		allTopics
-			.filter((topic) => {
-				const query = search.trim().toLocaleLowerCase('id');
-				return (
-					`${topic.title} ${topic.description}`.toLocaleLowerCase('id').includes(query) &&
-					(level === 'all' || topic.level === level) &&
-					(status === 'all' || topic.active === (status === 'active'))
-				);
-			})
-			.sort((a, b) => (sort === 'title' ? a.title.localeCompare(b.title, 'id') : a.order - b.order))
-	);
+
+	let currentLevel = $derived(page.url.searchParams.get('level') ?? 'all');
+	let currentStatus = $derived(page.url.searchParams.get('status') ?? 'all');
+	let currentSort = $derived(page.url.searchParams.get('sort') ?? 'order');
+
+	function updateFilter(key: 'level' | 'status' | 'sort', val: string) {
+		const url = new URL(page.url);
+		if (val === 'all' || (key === 'sort' && val === 'order')) {
+			url.searchParams.delete(key);
+		} else {
+			url.searchParams.set(key, val);
+		}
+		url.searchParams.delete('page');
+		goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+	}
+
+	const columns: ColumnDef<any, KotobaAdminTopic, any>[] = [
+		{
+			accessorKey: 'title',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Topik' }),
+			cell: ({ row }) => renderSnippet(titleCell, { row: row.original })
+		},
+		{
+			accessorKey: 'level',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Level' }),
+			cell: ({ row }) => renderSnippet(levelCell, { row: row.original })
+		},
+		{
+			accessorKey: 'vocabularyCount',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Kosakata' }),
+			cell: ({ row }) => renderSnippet(vocabCell, { row: row.original })
+		},
+		{
+			accessorKey: 'order',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Urutan' }),
+			cell: ({ row }) => renderSnippet(orderCell, { row: row.original })
+		},
+		{
+			accessorKey: 'active',
+			header: 'Status',
+			cell: ({ row }) => renderSnippet(statusCell, { row: row.original }),
+			enableSorting: false
+		},
+		{
+			id: 'actions',
+			header: () => renderSnippet(actionsHeaderSnippet, {}),
+			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
+			enableSorting: false
+		}
+	];
 </script>
+
+{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+	<DataTableColumnHeader {column} {title} />
+{/snippet}
+
+{#snippet actionsHeaderSnippet()}
+	<div class="text-right">Aksi</div>
+{/snippet}
+
+{#snippet titleCell({ row }: { row: KotobaAdminTopic })}
+	<div class="min-w-0 max-w-xs space-y-1 sm:max-w-md">
+		<button
+			type="button"
+			class="text-left font-semibold text-foreground hover:text-primary transition-colors truncate block w-full"
+			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
+		>
+			{row.title}
+		</button>
+		{#if row.description}
+			<p class="line-clamp-2 text-xs text-muted-foreground">{row.description}</p>
+		{/if}
+	</div>
+{/snippet}
+
+{#snippet levelCell({ row }: { row: KotobaAdminTopic })}
+	<div class="flex flex-wrap items-center gap-1.5">
+		<Badge>{row.level}</Badge>
+		<Badge variant="secondary">{row.category}</Badge>
+	</div>
+{/snippet}
+
+{#snippet vocabCell({ row }: { row: KotobaAdminTopic })}
+	<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+		<BookOpen class="size-3.5" />
+		<span>{row.vocabularyCount ?? row.vocabulary.length} kosakata</span>
+	</div>
+{/snippet}
+
+{#snippet orderCell({ row }: { row: KotobaAdminTopic })}
+	<span class="text-xs text-muted-foreground">Urutan {row.order}</span>
+{/snippet}
+
+{#snippet statusCell({ row }: { row: KotobaAdminTopic })}
+	<div class="flex flex-wrap items-center gap-1.5">
+		<Badge
+			variant="outline"
+			class={row.active
+				? 'border-emerald-300 text-emerald-700 dark:text-emerald-300'
+				: 'text-muted-foreground'}
+		>
+			{row.active ? 'Aktif' : 'Nonaktif'}
+		</Badge>
+		{#if !row.visible}
+			<span class="flex items-center gap-1 text-xs text-muted-foreground">
+				<EyeOff class="size-3" /> Disembunyikan
+			</span>
+		{/if}
+	</div>
+{/snippet}
+
+{#snippet actionsCell({ row }: { row: KotobaAdminTopic })}
+	<div class="flex items-center justify-end gap-2">
+		<Button
+			variant="outline"
+			size="sm"
+			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
+			aria-label={`Edit topik ${row.title}`}
+		>
+			<Pencil class="size-3.5" /> Edit
+		</Button>
+		<Button
+			variant="ghost"
+			size="icon"
+			class="size-8"
+			aria-label={`Hapus topik ${row.title}`}
+			onclick={() => {
+				deleting = row;
+				deleteOpen = true;
+			}}
+		>
+			<Trash2 class="size-4 text-destructive" />
+		</Button>
+	</div>
+{/snippet}
 
 <svelte:head>
 	<title>Kotoba | Admin - Gakkobit</title>
@@ -93,142 +222,72 @@
 			</Button>
 		{/snippet}
 	</ManagementPageHeader>
-	{#if message}<p class="admin-notice border-destructive text-destructive" role="alert">
+
+	{#if message}
+		<p class="admin-notice border-destructive text-destructive" role="alert">
 			{message}
-		</p>{/if}
-	{#if kotoba.notice}<p
+		</p>
+	{/if}
+	{#if kotoba.notice}
+		<p
 			class="admin-notice border-emerald-200 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
 			role="status"
 		>
 			{kotoba.notice}
-		</p>{/if}
-	<Card.Root size="sm" class="px-(--card-spacing)">
-		<div
-			class="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]"
-		>
-			<div class="relative">
-				<Search class="pointer-events-none absolute top-3 left-3 size-4 text-muted-foreground" />
-				<Input
-					type="search"
-					bind:value={search}
-					aria-label="Cari topik"
-					placeholder="Cari topik..."
-					class="h-10 pl-9"
-				/>
-			</div>
+		</p>
+	{/if}
+
+	<Card.Root size="sm" class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
+		<div class="flex items-center gap-2">
+			<span class="text-xs font-medium text-muted-foreground">Filter Level:</span>
 			<ManagementSelect
 				aria-label="Filter level JLPT"
-				bind:value={level}
+				value={currentLevel}
 				options={[
 					{ value: 'all', label: 'Semua level' },
 					...kotobaLevels.map((value) => ({ value, label: value }))
 				]}
+				class="h-9 bg-background text-muted-foreground sm:w-36"
+				onchange={(val: string) => updateFilter('level', val)}
 			/>
+		</div>
+		<div class="flex items-center gap-2">
+			<span class="text-xs font-medium text-muted-foreground">Filter Status:</span>
 			<ManagementSelect
 				aria-label="Filter status"
-				bind:value={status}
+				value={currentStatus}
 				options={[
 					{ value: 'all', label: 'Semua status' },
 					{ value: 'active', label: 'Aktif' },
 					{ value: 'inactive', label: 'Nonaktif' }
 				]}
+				class="h-9 bg-background text-muted-foreground sm:w-36"
+				onchange={(val: string) => updateFilter('status', val)}
 			/>
+		</div>
+		<div class="flex items-center gap-2">
+			<span class="text-xs font-medium text-muted-foreground">Urutkan:</span>
 			<ManagementSelect
 				aria-label="Urutkan topik"
-				bind:value={sort}
+				value={currentSort}
 				options={[
 					{ value: 'order', label: 'Urutan topik' },
 					{ value: 'title', label: 'Nama A–Z' }
 				]}
+				class="h-9 bg-background text-muted-foreground sm:w-36"
+				onchange={(val: string) => updateFilter('sort', val)}
 			/>
 		</div>
 	</Card.Root>
-	<p class="text-xs font-medium text-muted-foreground" role="status">
-		{topics.length} dari {allTopics.length} topik ditampilkan
-	</p>
-	<div class="admin-stack">
-		{#each topics as topic (topic.id)}
-			<Card.Root
-				data-topic-id={topic.id}
-				class="flex-wrap gap-4 px-(--card-spacing) sm:flex-row sm:items-center"
-			>
-				<Cover
-					media={topic.cover}
-					class="aspect-[3/1] w-full shrink-0 sm:aspect-auto sm:h-28 sm:w-40"
-				/>
-				<div class="min-w-0 flex-1 space-y-2">
-					<div class="flex flex-wrap items-center gap-2">
-						<Badge>{topic.level}</Badge><Badge variant="secondary">{topic.category}</Badge>
-						<Badge
-							variant="outline"
-							class={topic.active
-								? 'border-emerald-300 text-emerald-700 dark:text-emerald-300'
-								: 'text-muted-foreground'}
-						>
-							{topic.active ? 'Aktif' : 'Nonaktif'}
-						</Badge>
-						{#if !topic.visible}<span class="flex items-center gap-1 text-xs text-muted-foreground">
-								<EyeOff class="size-3.5" /> Disembunyikan
-							</span>{/if}
-					</div>
-					<h2 class="text-xl font-semibold tracking-tight">{topic.title}</h2>
-					<p class="line-clamp-2 text-sm text-muted-foreground">{topic.description}</p>
-					<div class="flex flex-wrap gap-4 text-xs text-muted-foreground">
-						<span class="flex items-center gap-1.5">
-							<BookOpen class="size-3.5" />{topic.vocabularyCount ?? topic.vocabulary.length} kosakata
-						</span>
-						<span>Urutan {topic.order}</span>
-					</div>
-				</div>
-				<div class="flex shrink-0 gap-2">
-					<Button
-						variant="outline"
-						onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: topic.id }))}
-						aria-label={`Edit topik ${topic.title}`}
-					>
-						<Pencil class="size-4" /> Edit
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						aria-label={`Hapus topik ${topic.title}`}
-						onclick={() => {
-							deleting = topic;
-							deleteOpen = true;
-						}}
-					>
-						<Trash2 class="size-4 text-destructive" />
-					</Button>
-				</div>
-			</Card.Root>
-		{:else}
-			<Card.Root class="admin-empty items-center">
-				<span
-					aria-hidden="true"
-					class="mr-1 size-10 shrink-0 bg-primary mask-contain mask-center mask-no-repeat group-data-[collapsible=icon]:mr-0"
-					style:mask-image={`url(${JSON.stringify(kanjiIcon)})`}
-				></span>
-				<p class="font-semibold">
-					{allTopics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
-				</p>
-				<p class="text-sm text-muted-foreground">
-					{allTopics.length
-						? 'Coba kata kunci atau filter lainnya.'
-						: 'Mulai dengan membuat topik kosakata pertama.'}
-				</p>
-				{#if allTopics.length}<Button
-						variant="outline"
-						onclick={() => {
-							search = '';
-							level = 'all';
-							status = 'all';
-						}}
-					>
-						Reset filter
-					</Button>{/if}
-			</Card.Root>
-		{/each}
-	</div>
+
+	<DataTable
+		data={allTopics}
+		{columns}
+		{meta}
+		getRowAttributes={(row) => ({ 'data-topic-id': row.id })}
+		searchPlaceholder="Cari topik..."
+		emptyMessage={allTopics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
+	/>
 </div>
 
 <Dialog.Root bind:open={deleteOpen}>

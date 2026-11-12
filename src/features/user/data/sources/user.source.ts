@@ -1,6 +1,12 @@
 import { requestJson } from '$lib/http/request-json';
 import type { UserAdminRole, UserAdminRecord } from '../../domain/entities/user-admin.entity';
 import type {
+	PaginatedResult,
+	PaginationMeta,
+	PaginationQueryOptions
+} from '$lib/models/pagination.model';
+import { defaultPaginationMeta } from '$lib/models/pagination.model';
+import type {
 	UserProfileData,
 	UpdateProfilePayload,
 	ChangePasswordPayload,
@@ -24,8 +30,23 @@ export class UserSource {
 		return requestJson<T>(this.fetcher, `/api/v1/user${path}`, options);
 	}
 
-	async getAdminUsers(): Promise<UserAdminRecord[]> {
-		return (await this.adminRequest<ApiPayload<UserAdminRecord[]>>('/users')).data;
+	async getAdminUsers(
+		options?: PaginationQueryOptions & { role?: string }
+	): Promise<PaginatedResult<UserAdminRecord>> {
+		const searchParams = new URLSearchParams();
+		if (options?.page) searchParams.set('page', String(options.page));
+		if (options?.limit) searchParams.set('limit', String(options.limit));
+		if (options?.search) searchParams.set('search', options.search);
+		if (options?.role) searchParams.set('role', options.role);
+		const qs = searchParams.toString();
+		const path = `/users${qs ? `?${qs}` : ''}`;
+		const res = await this.adminRequest<ApiPayload<UserAdminRecord[]> & { meta?: PaginationMeta }>(
+			path
+		);
+		const items = res.data ?? [];
+		const meta =
+			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
+		return { items, meta };
 	}
 
 	async changeAdminRole(userId: string, role: UserAdminRole): Promise<void> {

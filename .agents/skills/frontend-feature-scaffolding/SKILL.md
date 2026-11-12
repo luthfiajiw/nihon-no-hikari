@@ -30,6 +30,14 @@ Standard operating procedure for scaffolding and implementing feature modules in
    - **Type-safe Routing with `resolve()` (`svelte/no-navigation-without-resolve`)**: Always wrap internal route paths in `resolve()` from `$app/paths` for every `<a href={...}>` navigation link and programmatic `goto(...)` call (e.g. `href={resolve('/register')}`, `href={resolve('/pricing/[code]', { code })}`, or `href={`${resolve('/')}#section`}`). Never hardcode bare string paths like `href="/register"`.
    - **Mandatory Keyed `{#each}` Blocks (`svelte/require-each-key`)**: Every `{#each}` block **MUST** specify a unique key identifier to ensure reliable reactivity and DOM reconciliation (e.g. `{#each items as item (item.id)}` or `{#each points as point (point)}`). Never write unkeyed each blocks (`{#each items as item}`).
 
+5. **Admin Data Tables & Pagination Standards**:
+   - Use the global flexible `<DataTable />` component from `$lib/components/data-table` for all admin list tables (Levels, Kotoba topics, Question Sets, Kana Templates, User Management).
+   - Powered by `@tanstack/svelte-table` v9 with Svelte 5 reactivity (columns & data passed through getters).
+   - Features built-in debounced search (`searchPlaceholder`, `searchKey`), pagination controls with URL parameter synchronization (`syncUrl: true`), total/page count display, and sortable headers (`DataTableColumnHeader`).
+   - Standard pagination models and query helpers reside in `$lib/models/pagination.model.ts` (`PaginationMeta`, `PaginatedResult<T>`, `parsePaginationParams`, `buildPaginationQuery`).
+   - Row testing/attributes: Use `getRowAttributes={(row) => ({ 'data-topic-id': row.id })}` for custom row hooks.
+   - **Button Component Protection**: The custom button styles in `src/lib/components/ui/button/button.svelte` must never be overwritten.
+
 ---
 
 ## 2. Standard Feature Folder Structure

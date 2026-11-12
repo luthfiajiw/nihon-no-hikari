@@ -3,10 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import { Plus, Pencil } from 'lucide-svelte';
 	import type { CourseAdminLevelsData } from '$features/course/presentation/models/course-admin-view.model';
+	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
+	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import type { CourseAdminLevel } from '$features/course/domain/entities/course-admin.entity';
 
 	let { data, form }: { data: CourseAdminLevelsData; form?: ManagementFormResult } = $props();
 
@@ -14,7 +16,105 @@
 		if (value === 0) return 'Gratis';
 		return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
 	}
+
+	const columns: ColumnDef<any, CourseAdminLevel, any>[] = [
+		{
+			accessorKey: 'code',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Level' }),
+			cell: ({ row }) => renderSnippet(codeCell, { row: row.original })
+		},
+		{
+			accessorKey: 'name',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Nama' }),
+			cell: ({ row }) => renderSnippet(nameCell, { row: row.original })
+		},
+		{
+			accessorKey: 'description',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Deskripsi' }),
+			cell: ({ row }) => renderSnippet(descriptionCell, { row: row.original })
+		},
+		{
+			accessorKey: 'price',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Harga' }),
+			cell: ({ row }) => renderSnippet(priceCell, { row: row.original })
+		},
+		{
+			id: 'points',
+			header: 'Poin Kartu',
+			cell: ({ row }) => renderSnippet(pointsCell, { row: row.original }),
+			enableSorting: false
+		},
+		{
+			accessorKey: 'order_index',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Urutan' }),
+			cell: ({ row }) => renderSnippet(orderCell, { row: row.original })
+		},
+		{
+			id: 'actions',
+			header: () => renderSnippet(actionsHeaderSnippet, {}),
+			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
+			enableSorting: false
+		}
+	];
 </script>
+
+{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+	<DataTableColumnHeader {column} {title} />
+{/snippet}
+
+{#snippet actionsHeaderSnippet()}
+	<div class="text-right">Aksi</div>
+{/snippet}
+
+{#snippet codeCell({ row }: { row: CourseAdminLevel })}
+	<span
+		class="inline-flex items-center justify-center rounded-lg bg-surface-container-highest px-2.5 py-1 text-xs font-bold text-on-surface"
+	>
+		{row.code}
+	</span>
+{/snippet}
+
+{#snippet nameCell({ row }: { row: CourseAdminLevel })}
+	<span class="font-medium text-foreground">{row.name}</span>
+{/snippet}
+
+{#snippet descriptionCell({ row }: { row: CourseAdminLevel })}
+	<span class="max-w-xs truncate text-muted-foreground block">
+		{row.description || '-'}
+	</span>
+{/snippet}
+
+{#snippet priceCell({ row }: { row: CourseAdminLevel })}
+	<span class="font-semibold text-foreground">
+		{formatRupiah(row.price)}
+	</span>
+{/snippet}
+
+{#snippet pointsCell({ row }: { row: CourseAdminLevel })}
+	<span class="text-muted-foreground">
+		{row.points?.length ?? 0} poin
+	</span>
+{/snippet}
+
+{#snippet orderCell({ row }: { row: CourseAdminLevel })}
+	<span class="text-muted-foreground">
+		{row.order_index}
+	</span>
+{/snippet}
+
+{#snippet actionsCell({ row }: { row: CourseAdminLevel })}
+	<div class="flex justify-end">
+		<Button
+			variant="outline"
+			size="sm"
+			class="gap-1.5"
+			aria-label={`Edit ${row.code}`}
+			onclick={() => goto(resolve('/(protected)/admin/levels/[id]', { id: row.id }))}
+		>
+			<Pencil class="size-3.5" /> Edit
+		</Button>
+	</div>
+{/snippet}
 
 <svelte:head>
 	<title>Level & Harga | Admin - Gakkobit</title>
@@ -38,57 +138,12 @@
 	{#if form?.message}
 		<p class="admin-notice" role="status">{form.message}</p>
 	{/if}
-	<Card.Root class="gap-0 py-0">
-		<div class="overflow-x-auto">
-			<table class="w-full text-left text-sm">
-				<thead class="border-b bg-muted text-muted-foreground">
-					<tr>
-						<th class="admin-row">Level</th>
-						<th class="admin-row">Nama</th>
-						<th class="admin-row">Deskripsi</th>
-						<th class="admin-row">Harga</th>
-						<th class="admin-row">Poin Kartu</th>
-						<th class="admin-row">Urutan</th>
-						<th class="admin-row text-right">Aksi</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each data.levels as level (level.id)}
-						<tr class="border-b last:border-0 hover:bg-muted/40 transition-colors">
-							<td class="admin-row font-bold">
-								<span
-									class="inline-flex items-center justify-center rounded-lg bg-surface-container-highest px-2.5 py-1 text-xs font-bold text-on-surface"
-								>
-									{level.code}
-								</span>
-							</td>
-							<td class="admin-row font-medium">{level.name}</td>
-							<td class="admin-row max-w-xs truncate text-muted-foreground">
-								{level.description || '-'}
-							</td>
-							<td class="admin-row font-semibold text-foreground">
-								{formatRupiah(level.price)}
-							</td>
-							<td class="admin-row text-muted-foreground">
-								{level.points?.length ?? 0} poin
-							</td>
-							<td class="admin-row text-muted-foreground">{level.order_index}</td>
-							<td class="admin-row text-right">
-								<Button
-									variant="outline"
-									size="sm"
-									class="gap-1.5"
-									aria-label={`Edit ${level.code}`}
-									onclick={() =>
-										goto(resolve('/(protected)/admin/levels/[id]', { id: level.id }))}
-								>
-									<Pencil class="size-3.5" /> Edit
-								</Button>
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	</Card.Root>
+
+	<DataTable
+		data={data.levels}
+		{columns}
+		meta={data.meta}
+		searchPlaceholder="Cari level (kode, nama, deskripsi)..."
+		emptyMessage="Tidak ada level yang ditemukan."
+	/>
 </div>

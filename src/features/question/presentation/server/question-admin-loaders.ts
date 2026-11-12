@@ -4,8 +4,16 @@ import {
 	getQuestionAdminEditorUseCase
 } from '$dependencies/question.dependency';
 import { managementLoad } from '$lib/server/management-load';
-export async function loadQuestionAdminSets() {
-	return { sets: await managementLoad(() => getQuestionAdminSetsUseCase.exec()) };
+import { parsePaginationParams } from '$lib/models/pagination.model';
+
+export async function loadQuestionAdminSets(event: RequestEvent) {
+	const params = parsePaginationParams(event.url);
+	const skill = event.url.searchParams.get('skill') || undefined;
+	const status = event.url.searchParams.get('status') || undefined;
+	const result = await managementLoad(() =>
+		getQuestionAdminSetsUseCase.exec({ ...params, skill, status })
+	);
+	return { sets: result.items, meta: result.meta };
 }
 export function loadQuestionAdminEditor(event: RequestEvent) {
 	return managementLoad(() =>

@@ -18,6 +18,10 @@ The course catalog is a read model containing courses, modules, lessons and ques
 
 Routes keep the existing `/admin` URLs and delegate to the owning feature. Content editors have concrete course/module/lesson/question_set route entrypoints; the dynamic kind route only redirects unsupported resources. The dashboard is local to its route and reads the course catalog. Shared management components, styles, HTTP transport and presentation error adapters live under `src/lib` and contain no domain write dispatch.
 
+## Data tables and pagination
+
+All administrative tables use the shared `<DataTable />` component from `$lib/components/data-table` built with `@tanstack/svelte-table` v9, shadcn-svelte table, and pagination components. Tables include integrated debounced search, sortable headers, and URL-synchronized pagination. Administrative loaders parse pagination via `parsePaginationParams(event.url)` and pass `PaginationQueryOptions` to domain repositories, receiving `PaginatedResult<T>` with `PaginationMeta`. Existing custom button styling in `src/lib/components/ui/button/button.svelte` must remain intact.
+
 ## Naming
 
 New or relocated feature files start with their owning domain and use kebab-case: `course-admin-loaders.ts`, `question-admin-editor-view.svelte`, `kotoba-admin.model.ts`. Existing files outside the refactor keep their established names. Tests use the corresponding responsibility name and `.test.ts` or `.svelte.test.ts` suffix.

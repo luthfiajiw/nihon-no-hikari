@@ -8,15 +8,20 @@ import {
 	type QuestionKanaTemplateInput
 } from '$features/question/domain/entities/question-kana-template.entity';
 
+import { parsePaginationParams } from '$lib/models/pagination.model';
+
 function accessError(cause: HttpError): never {
 	if (cause.status === 401) redirect(303, resolve('/signin'));
 	if (cause.status === 403) redirect(303, resolve('/dashboard'));
 	error(cause.status, cause.message);
 }
 
-export async function loadQuestionKanaTemplates() {
+export async function loadQuestionKanaTemplates(event: RequestEvent) {
 	try {
-		return { templates: await questionKanaTemplatesUseCase.list() };
+		const params = parsePaginationParams(event.url);
+		const script = event.url.searchParams.get('script') || undefined;
+		const result = await questionKanaTemplatesUseCase.list({ ...params, script });
+		return { templates: result.items, meta: result.meta };
 	} catch (cause) {
 		if (cause instanceof HttpError) accessError(cause);
 		throw cause;

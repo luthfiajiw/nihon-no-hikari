@@ -1,4 +1,5 @@
 import type { QuestionAdminRepository } from '../../domain/repositories/question-admin.repository';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 import type {
 	QuestionAdminRecord,
 	QuestionAdminContentRecord,
@@ -42,8 +43,10 @@ export class QuestionRepositoryImpl implements QuestionRepository, QuestionAdmin
 	abandonAttempt(questionSetId: string, attemptId: string): Promise<void> {
 		return this.questionSource.abandonAttempt(questionSetId, attemptId);
 	}
-	getAdminContentList(): Promise<QuestionAdminRecord[]> {
-		return this.questionSource.getAdminContentList();
+	getAdminContentList(
+		options?: PaginationQueryOptions & { skill?: string; status?: string }
+	): Promise<PaginatedResult<QuestionAdminRecord>> {
+		return this.questionSource.getAdminContentList(options);
 	}
 	getAdminContent(id: string): Promise<QuestionAdminContentDetail> {
 		return this.questionSource.getAdminContent(id);
@@ -63,8 +66,10 @@ export class QuestionRepositoryImpl implements QuestionRepository, QuestionAdmin
 	restoreAdminContent(id: string): Promise<void> {
 		return this.questionSource.restoreAdminContent(id);
 	}
-	getAdminTemplates(): Promise<QuestionKanaTemplateMetadata[]> {
-		return this.questionSource.getAdminTemplates();
+	getAdminTemplates(
+		options?: PaginationQueryOptions & { script?: string }
+	): Promise<PaginatedResult<QuestionKanaTemplateMetadata>> {
+		return this.questionSource.getAdminTemplates(options);
 	}
 	getAdminTemplate(id: string): Promise<QuestionKanaTemplateDetail> {
 		return this.questionSource.getAdminTemplate(id);

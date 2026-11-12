@@ -4,18 +4,21 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { ClipboardCheck, Plus, Search, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
+	import { Plus, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import StatusBadge from '$lib/components/content-status-badge.svelte';
-	import { matchesContent } from '$lib/content-status';
 	import type { QuestionAdminSetsData } from '$features/question/presentation/models/question-admin-view.model';
+	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
+	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import type { QuestionAdminRecord } from '$features/question/domain/entities/question-admin.entity';
+
 	let { data }: { data: QuestionAdminSetsData } = $props();
-	let search = $derived(page.url.searchParams.get('q') ?? '');
-	let status = $state('all');
-	let skill = $state('all');
+
+	let currentSkill = $derived(page.url.searchParams.get('skill') ?? 'all');
+	let currentStatus = $derived(page.url.searchParams.get('status') ?? 'all');
+
 	const skillOptions = [
 		{ value: 'all', label: 'Semua skill' },
 		{ value: 'reading', label: 'Reading' },
@@ -27,12 +30,114 @@
 		{ value: 'draft', label: 'Draft' },
 		{ value: 'archived', label: 'Arsip' }
 	];
-	const sets = $derived(
-		data.sets.filter(
-			(set) => matchesContent(set, search, status) && (skill === 'all' || set.skill === skill)
-		)
-	);
+
+	function updateFilter(key: 'skill' | 'status', value: string) {
+		const url = new URL(page.url);
+		if (value === 'all') {
+			url.searchParams.delete(key);
+		} else {
+			url.searchParams.set(key, value);
+		}
+		url.searchParams.delete('page');
+		goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+	}
+
+	const columns: ColumnDef<any, QuestionAdminRecord, any>[] = [
+		{
+			accessorKey: 'title',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Question Set' }),
+			cell: ({ row }) => renderSnippet(titleCell, { row: row.original })
+		},
+		{
+			accessorKey: 'skill',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Skill' }),
+			cell: ({ row }) => renderSnippet(skillCell, { row: row.original })
+		},
+		{
+			id: 'status',
+			header: 'Status',
+			cell: ({ row }) => renderSnippet(statusCell, { row: row.original }),
+			enableSorting: false
+		},
+		{
+			accessorKey: 'version',
+			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Versi' }),
+			cell: ({ row }) => renderSnippet(versionCell, { row: row.original })
+		},
+		{
+			id: 'actions',
+			header: () => renderSnippet(actionsHeaderSnippet, {}),
+			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
+			enableSorting: false
+		}
+	];
 </script>
+
+{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+	<DataTableColumnHeader {column} {title} />
+{/snippet}
+
+{#snippet actionsHeaderSnippet()}
+	<div class="text-right">Aksi</div>
+{/snippet}
+
+{#snippet titleCell({ row }: { row: QuestionAdminRecord })}
+	<button
+		type="button"
+		class="group flex w-full items-center gap-3 text-left transition-colors"
+		onclick={() => goto(resolve(`/admin/content/question_set/${row.id}` as Pathname))}
+	>
+		<div
+			class="flex size-9 shrink-0 items-center justify-center rounded-lg {row.skill === 'writing'
+				? 'bg-rose-50 text-rose-500'
+				: 'bg-primary/10 text-primary'}"
+		>
+			{#if row.skill === 'writing'}
+				<PenLine class="size-4" />
+			{:else}
+				<BookOpen class="size-4" />
+			{/if}
+		</div>
+		<div class="min-w-0 flex-1">
+			<span class="block truncate text-sm font-semibold text-foreground group-hover:text-primary">
+				{row.title}
+			</span>
+			<span class="block text-xs text-muted-foreground">
+				{row.kind === 'final_exam' ? 'Ujian module' : 'Latihan lesson'}
+			</span>
+		</div>
+	</button>
+{/snippet}
+
+{#snippet skillCell({ row }: { row: QuestionAdminRecord })}
+	<span class="capitalize text-sm font-medium text-muted-foreground">
+		{row.skill === 'writing' ? 'Writing' : row.skill === 'reading' ? 'Reading' : 'Gabungan'}
+	</span>
+{/snippet}
+
+{#snippet statusCell({ row }: { row: QuestionAdminRecord })}
+	<StatusBadge item={row} />
+{/snippet}
+
+{#snippet versionCell({ row }: { row: QuestionAdminRecord })}
+	<span class="text-xs text-muted-foreground">
+		v{row.version ?? 1}
+	</span>
+{/snippet}
+
+{#snippet actionsCell({ row }: { row: QuestionAdminRecord })}
+	<div class="flex justify-end">
+		<Button
+			variant="ghost"
+			size="icon"
+			class="size-8"
+			onclick={() => goto(resolve(`/admin/content/question_set/${row.id}` as Pathname))}
+		>
+			<ArrowUpRight class="size-4 text-muted-foreground" />
+			<span class="sr-only">Buka</span>
+		</Button>
+	</div>
+{/snippet}
 
 <svelte:head>
 	<title>Question Sets | Admin - Gakkobit</title>
@@ -50,82 +155,35 @@
 			</Button>
 		{/snippet}
 	</ManagementPageHeader>
+
 	<Card.Root size="sm" class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
-		<div class="relative min-w-48 flex-1">
-			<Search class="absolute top-2.5 left-3 size-4 text-muted-foreground/70" />
-			<Input
-				bind:value={search}
-				aria-label="Cari question set"
-				placeholder="Cari question set..."
-				class="h-9 pl-9"
+		<div class="flex items-center gap-2">
+			<span class="text-xs font-medium text-muted-foreground">Filter Skill:</span>
+			<ManagementSelect
+				value={currentSkill}
+				options={skillOptions}
+				aria-label="Filter skill"
+				class="h-9 bg-background text-muted-foreground sm:w-40"
+				onchange={(val: string) => updateFilter('skill', val)}
 			/>
 		</div>
-		<ManagementSelect
-			bind:value={skill}
-			options={skillOptions}
-			aria-label="Filter skill"
-			class="h-9 bg-background text-muted-foreground sm:w-40"
-		/>
-		<ManagementSelect
-			bind:value={status}
-			options={statusOptions}
-			aria-label="Filter status"
-			class="h-9 bg-background text-muted-foreground sm:w-40"
-		/>
-	</Card.Root>
-	<Card.Root class="gap-0 py-0">
-		<div
-			class="admin-row flex justify-between border-b bg-muted/70 text-xs font-medium text-muted-foreground"
-		>
-			<span>{sets.length} question set</span>
-			<span>Kelola soal & pengaturan</span>
+		<div class="flex items-center gap-2">
+			<span class="text-xs font-medium text-muted-foreground">Filter Status:</span>
+			<ManagementSelect
+				value={currentStatus}
+				options={statusOptions}
+				aria-label="Filter status"
+				class="h-9 bg-background text-muted-foreground sm:w-40"
+				onchange={(val: string) => updateFilter('status', val)}
+			/>
 		</div>
-		{#each sets as set (set.id)}
-			<button
-				type="button"
-				onclick={() => goto(resolve(`/admin/content/question_set/${set.id}` as Pathname))}
-				class="group admin-row flex w-full items-center gap-4 border-b border-border text-left transition-colors last:border-0 hover:bg-taupe-50/40 dark:hover:bg-taupe-950/40"
-			>
-				<div
-					class="flex size-11 shrink-0 items-center justify-center rounded-xl {set.skill ===
-					'writing'
-						? 'bg-rose-50 text-rose-500'
-						: 'bg-taupe-50 text-taupe-500'}"
-				>
-					{#if set.skill === 'writing'}
-						<PenLine class="size-5" />
-					{:else}
-						<BookOpen class="size-5" />
-					{/if}
-				</div>
-				<div class="min-w-0 flex-1">
-					<h2 class="truncate text-sm font-semibold text-foreground group-hover:text-taupe-500">
-						{set.title}
-					</h2>
-					<p class="mt-1 text-xs text-muted-foreground">
-						{set.kind === 'final_exam' ? 'Ujian module' : 'Latihan lesson'} · {set.skill ===
-						'writing'
-							? 'Writing'
-							: set.skill === 'reading'
-								? 'Reading'
-								: 'Gabungan'} · Versi {set.version ?? 1}
-					</p>
-				</div>
-				<StatusBadge item={set} />
-				<ArrowUpRight class="size-4 shrink-0 text-muted-foreground/70 group-hover:text-taupe-500" />
-			</button>
-		{:else}
-			<div class="admin-empty">
-				<ClipboardCheck class="mx-auto mb-4 size-10 text-muted-foreground/50" />
-				<h2 class="font-semibold">
-					{data.sets.length ? 'Question set tidak ditemukan' : 'Belum ada question set'}
-				</h2>
-				<p class="mt-2 text-sm text-muted-foreground">
-					{data.sets.length
-						? 'Coba kata kunci atau filter lainnya.'
-						: 'Buat latihan reading atau writing untuk mulai menyusun soal.'}
-				</p>
-			</div>
-		{/each}
 	</Card.Root>
+
+	<DataTable
+		data={data.sets}
+		{columns}
+		meta={data.meta}
+		searchPlaceholder="Cari question set..."
+		emptyMessage="Tidak ada question set yang ditemukan."
+	/>
 </div>

@@ -58,7 +58,8 @@ export function createKanaTemplateFixture() {
 							romaji: item.romaji,
 							source_version: item.source_version,
 							stroke_count: item.stroke_count
-						}))
+						})),
+						meta: { page: 1, limit: 10, total: templates.length, total_pages: 1 }
 					});
 					return;
 				}
@@ -174,7 +175,7 @@ export async function testKanaTemplates({
 	await canvas.locator('polyline').waitFor();
 	await page.getByRole('status').filter({ hasText: 'Semua goresan selesai' }).waitFor();
 	fixture.failSave();
-	await page.getByRole('button', { name: 'Simpan Template', exact: true }).click();
+	await page.getByRole('button', { name: /^Simpan/ }).click();
 	await page.getByRole('status').filter({ hasText: 'Fixture: template gagal disimpan.' }).waitFor();
 	assert.equal(await page.getByLabel('Romaji', { exact: true }).inputValue(), 'i');
 	assert.equal(
@@ -182,7 +183,7 @@ export async function testKanaTemplates({
 		'03044.svg',
 		'Failed save must retain selected file'
 	);
-	await page.getByRole('button', { name: 'Simpan Template', exact: true }).click();
+	await page.getByRole('button', { name: /^Simpan/ }).click();
 	await page.waitForURL(/\/admin\/kana-templates\/(?!new)[^/]+$/);
 	const created = fixture.templates.find((item) => item.character === 'い');
 	assert(created);
@@ -190,7 +191,7 @@ export async function testKanaTemplates({
 	await page.reload({ waitUntil: 'networkidle' });
 	await page.getByRole('img', { name: 'Urutan goresan い' }).waitFor();
 	await page.getByLabel('Romaji', { exact: true }).fill('ii');
-	await page.getByRole('button', { name: 'Simpan Template', exact: true }).click();
+	await page.getByRole('button', { name: /^Simpan/ }).click();
 	await page.getByRole('status').filter({ hasText: 'Template kana berhasil disimpan.' }).waitFor();
 	await page.waitForLoadState('networkidle');
 	assert.equal(fixture.writes.at(-1).method, 'PATCH');
@@ -220,7 +221,7 @@ export async function testKanaTemplates({
 			(response) =>
 				response.request().method() === 'POST' && new URL(response.url()).pathname === editPath
 		),
-		page.getByRole('button', { name: 'Simpan Template', exact: true }).click()
+		page.getByRole('button', { name: /^Simpan/ }).click()
 	]);
 	await page.getByRole('status').filter({ hasText: 'Template kana berhasil disimpan.' }).waitFor();
 	await page.waitForLoadState('networkidle');
@@ -240,7 +241,11 @@ export async function testKanaTemplates({
 	await page.goto(`${origin}/admin/content/question_set/new?parent=${lessonID}`, {
 		waitUntil: 'networkidle'
 	});
-	await page.getByRole('button', { name: /^Skill/ }).click();
+	await (
+		page
+			.getByRole('combobox', { name: /^Skill/ })
+			.or(page.getByRole('button', { name: /^Skill/ }))
+	).click();
 	await page.getByRole('option', { name: 'Writing', exact: true }).click();
 	await page.getByRole('button', { name: 'Tambah Soal', exact: true }).click();
 	await page.getByLabel('Template kana', { exact: true }).click();

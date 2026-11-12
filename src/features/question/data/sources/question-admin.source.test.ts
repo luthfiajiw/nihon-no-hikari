@@ -30,8 +30,14 @@ const contentOperations: {
 		name: 'list',
 		method: 'GET',
 		suffix: '',
-		response: { data: [{ id: contentId, title: 'Live' }] },
-		expected: [{ id: contentId, title: 'Live' }],
+		response: {
+			data: [{ id: contentId, title: 'Live' }],
+			meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+		},
+		expected: {
+			items: [{ id: contentId, title: 'Live' }],
+			meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+		},
 		run: (source) => source.getAdminContentList()
 	},
 	{

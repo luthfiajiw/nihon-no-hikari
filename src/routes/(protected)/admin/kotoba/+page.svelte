@@ -4,4 +4,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<KotobaAdminView topics={data.topics} />
+<KotobaAdminView topics={data.topics} meta={data.meta} />

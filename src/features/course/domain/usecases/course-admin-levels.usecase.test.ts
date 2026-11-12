@@ -63,8 +63,8 @@ describe('GetCourseAdminLevelsUseCase', () => {
 		const repo = fixture();
 		const result = await new GetCourseAdminLevelsUseCase(repo).exec();
 		expect(repo.getAdminLevels).toHaveBeenCalledOnce();
-		expect(result).toHaveLength(1);
-		expect(result[0].code).toBe('N5');
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0].code).toBe('N5');
 	});
 });
 

@@ -1,4 +1,5 @@
 import type { CourseAdminRepository } from '../../domain/repositories/course-admin.repository';
+import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 import type {
 	CourseAdminReorderKind,
 	CourseAdminReorderInput,
@@ -76,8 +77,10 @@ export class CourseRepositoryImpl implements CourseRepository, CourseAdminReposi
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
 		return this.courseSource.getAdminContent(kind, id);
 	}
-	getAdminLevels(): Promise<CourseAdminLevel[]> {
-		return this.courseSource.getAdminLevels();
+	getAdminLevels(
+		options?: PaginationQueryOptions
+	): Promise<PaginatedResult<CourseAdminLevel>> {
+		return this.courseSource.getAdminLevels(options);
 	}
 	getAdminLevel(id: string): Promise<CourseAdminLevel> {
 		return this.courseSource.getAdminLevel(id);

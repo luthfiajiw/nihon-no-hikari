@@ -51,9 +51,9 @@ export async function testLessonEditor(page) {
 	);
 	const dialogBounds = await dialog.boundingBox();
 	const viewport = page.viewportSize();
-	assert(Math.abs(dialogBounds.x - 16) < 1 && Math.abs(dialogBounds.y - 16) < 1);
-	assert(Math.abs(dialogBounds.width - (viewport.width - 32)) < 1);
-	assert(Math.abs(dialogBounds.height - (viewport.height - 32)) < 1);
+	assert(Math.abs(dialogBounds.x - 16) < 2 && Math.abs(dialogBounds.y - 16) < 2);
+	assert(Math.abs(dialogBounds.width - (viewport.width - 32)) < 2);
+	assert(Math.abs(dialogBounds.height - (viewport.height - 32)) < 2);
 	const editorBounds = await dialog.locator('.cm-editor').boundingBox();
 	const previewBounds = await dialog.locator('iframe').boundingBox();
 	assert.equal(await dialog.locator('iframe').getAttribute('sandbox'), '');

@@ -1,5 +1,11 @@
 import { requestJson } from '$lib/http/request-json';
 import type {
+	PaginatedResult,
+	PaginationMeta,
+	PaginationQueryOptions
+} from '$lib/models/pagination.model';
+import { defaultPaginationMeta } from '$lib/models/pagination.model';
+import type {
 	CourseAdminReorderKind,
 	CourseAdminReorderInput,
 	CourseAdminCatalog,
@@ -200,8 +206,22 @@ export class CourseSource {
 		return this.adminRequest(this.contentPath(kind, id));
 	}
 
-	async getAdminLevels(): Promise<CourseAdminLevel[]> {
-		return (await this.adminRequest<ApiPayload<CourseAdminLevel[]>>('/levels')).data;
+	async getAdminLevels(
+		options?: PaginationQueryOptions
+	): Promise<PaginatedResult<CourseAdminLevel>> {
+		const searchParams = new URLSearchParams();
+		if (options?.page) searchParams.set('page', String(options.page));
+		if (options?.limit) searchParams.set('limit', String(options.limit));
+		if (options?.search) searchParams.set('search', options.search);
+		const qs = searchParams.toString();
+		const path = `/levels${qs ? `?${qs}` : ''}`;
+		const res = await this.adminRequest<ApiPayload<CourseAdminLevel[]> & { meta?: PaginationMeta }>(
+			path
+		);
+		const items = res.data ?? [];
+		const meta =
+			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
+		return { items, meta };
 	}
 
 	async getAdminLevel(id: string): Promise<CourseAdminLevel> {
