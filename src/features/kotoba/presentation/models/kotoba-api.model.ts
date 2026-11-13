@@ -13,7 +13,7 @@ export function topicSummary(record: KotobaTopicRecord): KotobaTopic {
 		exerciseCount: record.exercise_count,
 		createdAt: Date.parse(record.created_at),
 		coverUrl: record.cover_url,
-		mediaExpiresAt: record.media_urls_expires_at
+		mediaExpiresAt: record.media_urls_expires_at ?? undefined
 	};
 }
 export function topicDetail(record: KotobaTopicRecord): KotobaTopicDetail {
@@ -23,7 +23,7 @@ export function topicDetail(record: KotobaTopicRecord): KotobaTopicDetail {
 		level: record.level,
 		description: record.description,
 		coverUrl: record.cover_url,
-		mediaExpiresAt: record.media_urls_expires_at,
+		mediaExpiresAt: record.media_urls_expires_at ?? undefined,
 		vocabulary: (record.vocabulary ?? []).map((word) => ({
 			id: word.id,
 			kanji: word.kanji,
@@ -37,10 +37,8 @@ export function topicDetail(record: KotobaTopicRecord): KotobaTopicDetail {
 		}))
 	};
 }
-export function mediaNeedsRefresh(expiresAt?: string): boolean {
-	return (
-		!expiresAt ||
-		!Number.isFinite(Date.parse(expiresAt)) ||
-		Date.parse(expiresAt) - Date.now() < 60_000
-	);
+export function mediaNeedsRefresh(expiresAt?: string | null): boolean {
+	if (!expiresAt) return false;
+	const parsed = Date.parse(expiresAt);
+	return Number.isFinite(parsed) && parsed - Date.now() < 60_000;
 }

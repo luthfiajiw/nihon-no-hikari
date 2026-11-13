@@ -5,7 +5,7 @@ export interface KotobaMediaRecord {
 	id: string;
 	kind: 'cover' | 'audio';
 	url: string;
-	url_expires_at?: string;
+	url_expires_at?: string | null;
 	mime_type: string;
 	size_bytes: number;
 }
@@ -25,7 +25,7 @@ export interface KotobaTopicRecord {
 	is_visible?: boolean;
 	cover_media_id?: string;
 	cover_url: string;
-	media_urls_expires_at?: string;
+	media_urls_expires_at?: string | null;
 	version?: number;
 	vocabulary_count: number;
 	exercise_count: number;

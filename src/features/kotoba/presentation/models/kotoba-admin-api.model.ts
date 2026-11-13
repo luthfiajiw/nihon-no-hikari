@@ -22,7 +22,7 @@ export function kotobaAdminTopic(record: KotobaTopicRecord): KotobaAdminTopic {
 			? {
 					mediaId: record.cover_media_id,
 					url: record.cover_url,
-					expiresAt: record.media_urls_expires_at,
+					expiresAt: record.media_urls_expires_at ?? undefined,
 					file: null
 				}
 			: null,
@@ -40,7 +40,7 @@ export function kotobaAdminTopic(record: KotobaTopicRecord): KotobaAdminTopic {
 				? {
 						mediaId: word.audio_media_id,
 						url: word.audio_url ?? '',
-						expiresAt: record.media_urls_expires_at,
+						expiresAt: record.media_urls_expires_at ?? undefined,
 						file: null
 					}
 				: null
@@ -92,7 +92,11 @@ export async function saveKotobaAdminTopic(
 			return;
 		}
 		const result = await repository.upload(kind, media.file);
-		Object.assign(media, { mediaId: result.id, url: result.url, expiresAt: result.url_expires_at });
+		Object.assign(media, {
+			mediaId: result.id,
+			url: result.url,
+			expiresAt: result.url_expires_at ?? undefined
+		});
 		files.set(media.file, media);
 	}
 	progress('Mengunggah cover...');

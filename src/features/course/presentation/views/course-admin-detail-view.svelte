@@ -28,7 +28,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import StatusBadge from '$lib/components/content-status-badge.svelte';
-	import courseImage from '$lib/assets/images/n5-course-bg.png';
 	import type { CourseAdminDetailData } from '$features/course/presentation/models/course-admin-view.model';
 	import type {
 		CourseAdminRecord,
@@ -238,13 +237,6 @@
 		description="Susun module dan lesson untuk kursus ini."
 	/>
 	<Card.Root class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
-		<div class="shrink-0">
-			<img
-				src={data.course.thumbnail_url || courseImage}
-				alt=""
-				class="h-24 w-40 rounded-xl object-cover"
-			/>
-		</div>
 		<div class="min-w-0 flex-1">
 			<StatusBadge item={data.course} />
 			<h2 class="mt-2 text-xl font-bold tracking-tight sm:text-2xl">{data.course.title}</h2>
