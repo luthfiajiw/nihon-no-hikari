@@ -4,7 +4,8 @@ import type { UserAdminRecord } from '$features/user/domain/entities/user-admin.
 import UserAdminCells from './user-admin-cells.svelte';
 
 export function createUserAdminColumns(
-	currentUserId?: string
+	currentUserId?: string,
+	onDelete?: (user: UserAdminRecord) => void
 ): DataTableColumnDef<UserAdminRecord>[] {
 	return [
 		{
@@ -29,7 +30,8 @@ export function createUserAdminColumns(
 				renderComponent(UserAdminCells, {
 					cell: 'actions',
 					row: row.original,
-					currentUserId
+					currentUserId,
+					onDelete
 				}),
 			enableSorting: false
 		}

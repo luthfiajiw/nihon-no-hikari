@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { MoreVertical, Pencil } from 'lucide-svelte';
+	import { MoreVertical, Pencil, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import type { CourseAdminLevel } from '$features/course/domain/entities/course-admin.entity';
@@ -9,8 +9,13 @@
 	type Props =
 		| { cell: 'actions-header' }
 		| {
-				cell: 'code' | 'name' | 'description' | 'price' | 'points' | 'order' | 'actions';
+				cell: 'code' | 'name' | 'description' | 'price' | 'points' | 'order';
 				row: CourseAdminLevel;
+		  }
+		| {
+				cell: 'actions';
+				row: CourseAdminLevel;
+				onDelete: (level: CourseAdminLevel) => void;
 		  };
 
 	let props: Props = $props();
@@ -70,6 +75,17 @@
 					>
 						<Pencil />
 						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						variant="destructive"
+						aria-label={`Hapus level ${props.row.code}`}
+						onclick={() => props.onDelete(props.row)}
+					>
+						<Trash2 />
+						Hapus
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>

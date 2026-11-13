@@ -159,4 +159,13 @@ describe('question administrative transport', () => {
 			})
 		);
 	});
+
+	it('encodes template id and sends DELETE for admin template deletion', async () => {
+		const { source, fetch } = sourceWith(new Response(null, { status: 204 }));
+		await expect(source.deleteAdminTemplate('tpl/1')).resolves.toBeUndefined();
+		expect(fetch).toHaveBeenCalledExactlyOnceWith(
+			'/api/v1/admin/templates/tpl%2F1',
+			expect.objectContaining({ method: 'DELETE' })
+		);
+	});
 });

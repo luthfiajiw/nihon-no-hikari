@@ -53,7 +53,9 @@ export function createKanaTemplateFixture() {
 					let filtered = [...templates];
 					const script = url.searchParams.get('script');
 					if (script && script !== 'all') {
-						filtered = filtered.filter((item) => item.script?.toLowerCase() === script.toLowerCase());
+						filtered = filtered.filter(
+							(item) => item.script?.toLowerCase() === script.toLowerCase()
+						);
 					}
 					const search = url.searchParams.get('search');
 					if (search) {
@@ -88,6 +90,18 @@ export function createKanaTemplateFixture() {
 					record ? 200 : 404,
 					record ? { data: record } : { error: 'Template tidak ditemukan.' }
 				);
+				return;
+			}
+			if (request.method === 'DELETE') {
+				const index = templates.findIndex((item) => item.id === id);
+				if (index === -1) {
+					reply(404, { error: 'Template tidak ditemukan.' });
+					return;
+				}
+				templates.splice(index, 1);
+				writes.push({ method: 'DELETE', id });
+				response.writeHead(204);
+				response.end();
 				return;
 			}
 			let body = '';
@@ -159,7 +173,9 @@ export async function testKanaTemplates({
 	assert.equal(await page.title(), 'Template Kana | Admin - Gakkobit');
 	await page.getByRole('cell', { name: 'あ', exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Aksi template あ stroke-data-v1', exact: true }).click();
-	await page.getByRole('menuitem', { name: 'Edit template あ stroke-data-v1', exact: true }).click();
+	await page
+		.getByRole('menuitem', { name: 'Edit template あ stroke-data-v1', exact: true })
+		.click();
 	await page.getByRole('heading', { name: 'Edit Template Kana', exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Kembali ke template kana', exact: true }).click();
 	await page.getByRole('heading', { name: 'Template Kana', exact: true }).waitFor();
@@ -270,11 +286,10 @@ export async function testKanaTemplates({
 	await page.goto(`${origin}/admin/content/question_set/new?parent=${lessonID}`, {
 		waitUntil: 'networkidle'
 	});
-	await (
-		page
-			.getByRole('combobox', { name: /^Skill/ })
-			.or(page.getByRole('button', { name: /^Skill/ }))
-	).click();
+	await page
+		.getByRole('combobox', { name: /^Skill/ })
+		.or(page.getByRole('button', { name: /^Skill/ }))
+		.click();
 	await page.getByRole('option', { name: 'Writing', exact: true }).click();
 	await page.getByRole('button', { name: 'Tambah Soal', exact: true }).click();
 	await page.getByLabel('Template kana', { exact: true }).click();
@@ -284,5 +299,26 @@ export async function testKanaTemplates({
 		payload.questions[0].stroke_template_id,
 		created.id,
 		'New template is selectable in writing questions'
+	);
+	await page.goto(`${origin}/admin/kana-templates`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: 'Aksi template あ stroke-data-v1', exact: true }).click();
+	await page
+		.getByRole('menuitem', { name: 'Hapus template あ stroke-data-v1', exact: true })
+		.click();
+	await page
+		.getByRole('dialog')
+		.getByRole('button', { name: 'Hapus Template', exact: true })
+		.click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: 'Template “あ” (stroke-data-v1) berhasil dihapus.' })
+		.waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(
+		await page
+			.getByRole('button', { name: 'Aksi template あ stroke-data-v1', exact: true })
+			.count(),
+		0,
+		'Deleted kana template must disappear from table'
 	);
 }

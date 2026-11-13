@@ -102,6 +102,7 @@ const managedUser = {
 	display_name: 'Haru Member',
 	role: 'User'
 };
+const usersList = [managedUser];
 const fixtureLevel = {
 	id: course.level_id,
 	code: 'N5',
@@ -111,6 +112,7 @@ const fixtureLevel = {
 	price: 0,
 	points: ['Modul Hiragana lengkap']
 };
+const levelsList = [fixtureLevel];
 const drafts = new Map();
 let mutationGate = null;
 let failNextMutation = false;
@@ -159,8 +161,12 @@ const api = createServer(async (request, response) => {
 		url.pathname.match(/^\/api\/v1\/admin\/(modules|lessons)\/reorder$/);
 	const roleChange =
 		request.method === 'PATCH' && url.pathname === `/api/v1/admin/users/${managedUser.id}/role`;
+	const userDelete =
+		request.method === 'DELETE' && url.pathname.match(/^\/api\/v1\/admin\/users\/([^/]+)$/);
 	const levelPriceChange =
 		request.method === 'PATCH' && url.pathname === `/api/v1/admin/levels/${fixtureLevel.id}`;
+	const levelDelete =
+		request.method === 'DELETE' && url.pathname.match(/^\/api\/v1\/admin\/levels\/([^/]+)$/);
 	if (request.method !== 'GET') {
 		let body = '';
 		for await (const chunk of request) body += chunk;
@@ -171,7 +177,15 @@ const api = createServer(async (request, response) => {
 				(resource &&
 					((request.method === 'POST' && contentRoute[3]) ||
 						(!contentRoute[3] && ['PATCH', 'DELETE'].includes(request.method)))));
-		if (!preview && !reorder && !roleChange && !levelPriceChange && !contentMutation) {
+		if (
+			!preview &&
+			!reorder &&
+			!roleChange &&
+			!userDelete &&
+			!levelPriceChange &&
+			!levelDelete &&
+			!contentMutation
+		) {
 			response.writeHead(404, { 'Content-Type': 'application/json' });
 			response.end(JSON.stringify({ error: 'Fixture: endpoint tidak ditemukan.' }));
 			return;
@@ -203,7 +217,18 @@ const api = createServer(async (request, response) => {
 				if (draft?.[parentField] === payload.parent_id) draft.order_index = item.order_index;
 			}
 		} else if (roleChange) managedUser.role = payload.role;
-		else if (levelPriceChange) {
+		else if (userDelete) {
+			const idx = usersList.findIndex((u) => u.id === decodeURIComponent(userDelete[1]));
+			if (idx === -1) {
+				response.writeHead(404, { 'Content-Type': 'application/json' });
+				response.end(JSON.stringify({ error: 'Pengguna tidak ditemukan.' }));
+				return;
+			}
+			usersList.splice(idx, 1);
+			response.writeHead(204);
+			response.end();
+			return;
+		} else if (levelPriceChange) {
 			if (payload.price !== undefined) fixtureLevel.price = payload.price;
 			if (payload.points !== undefined) fixtureLevel.points = payload.points;
 			if (payload.name !== undefined) fixtureLevel.name = payload.name;
@@ -211,6 +236,17 @@ const api = createServer(async (request, response) => {
 			if (payload.description !== undefined) fixtureLevel.description = payload.description;
 			if (payload.order_index !== undefined) fixtureLevel.order_index = payload.order_index;
 			result = { success: true, data: fixtureLevel };
+		} else if (levelDelete) {
+			const idx = levelsList.findIndex((l) => l.id === decodeURIComponent(levelDelete[1]));
+			if (idx === -1) {
+				response.writeHead(404, { 'Content-Type': 'application/json' });
+				response.end(JSON.stringify({ error: 'Level tidak ditemukan.' }));
+				return;
+			}
+			levelsList.splice(idx, 1);
+			response.writeHead(204);
+			response.end();
+			return;
 		} else if (contentRoute[3] === 'publish') {
 			Object.assign(resource, drafts.get(resource.id) ?? {}, { is_published: true });
 			drafts.delete(resource.id);
@@ -231,7 +267,7 @@ const api = createServer(async (request, response) => {
 	let meta;
 	if (url.pathname === '/api/v1/admin/me') data = { role: 'Admin' };
 	else if (url.pathname === '/api/v1/admin/users') {
-		let users = [managedUser];
+		let users = [...usersList];
 		const role = url.searchParams.get('role');
 		if (role && role !== 'all') {
 			users = users.filter((u) => u.role?.toLowerCase() === role.toLowerCase());
@@ -239,8 +275,8 @@ const api = createServer(async (request, response) => {
 		const search = url.searchParams.get('search');
 		if (search) {
 			const q = search.toLowerCase();
-			users = users.filter((u) =>
-				u.display_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+			users = users.filter(
+				(u) => u.display_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
 			);
 		}
 		const paginated = paginate(users, url);
@@ -260,7 +296,7 @@ const api = createServer(async (request, response) => {
 			question_sets: [set]
 		};
 	else if (url.pathname === '/api/v1/admin/levels') {
-		let levels = [fixtureLevel];
+		let levels = [...levelsList];
 		const priceType = url.searchParams.get('price_type');
 		if (priceType && priceType !== 'all') {
 			if (priceType === 'free') levels = levels.filter((l) => l.price === 0);
@@ -269,8 +305,8 @@ const api = createServer(async (request, response) => {
 		const search = url.searchParams.get('search');
 		if (search) {
 			const q = search.toLowerCase();
-			levels = levels.filter((l) =>
-				l.name?.toLowerCase().includes(q) || l.code?.toLowerCase().includes(q)
+			levels = levels.filter(
+				(l) => l.name?.toLowerCase().includes(q) || l.code?.toLowerCase().includes(q)
 			);
 		}
 		const paginated = paginate(levels, url);
@@ -292,7 +328,8 @@ const api = createServer(async (request, response) => {
 				const status = url.searchParams.get('status');
 				if (status && status !== 'all') {
 					if (status === 'published') items = items.filter((c) => c.is_published && !c.archived_at);
-					else if (status === 'draft') items = items.filter((c) => !c.is_published && !c.archived_at);
+					else if (status === 'draft')
+						items = items.filter((c) => !c.is_published && !c.archived_at);
 					else if (status === 'archived') items = items.filter((c) => Boolean(c.archived_at));
 				}
 				const search = url.searchParams.get('search');
@@ -314,7 +351,8 @@ const api = createServer(async (request, response) => {
 				const status = url.searchParams.get('status');
 				if (status && status !== 'all') {
 					if (status === 'published') items = items.filter((q) => q.is_published && !q.archived_at);
-					else if (status === 'draft') items = items.filter((q) => !q.is_published && !q.archived_at);
+					else if (status === 'draft')
+						items = items.filter((q) => !q.is_published && !q.archived_at);
 					else if (status === 'archived') items = items.filter((q) => Boolean(q.archived_at));
 				}
 				const search = url.searchParams.get('search');
@@ -333,9 +371,11 @@ const api = createServer(async (request, response) => {
 		JSON.stringify({
 			success: Boolean(data),
 			data,
-			meta: meta ?? (Array.isArray(data)
-				? { page: 1, limit: 10, total: data.length, total_pages: 1 }
-				: undefined),
+			meta:
+				meta ??
+				(Array.isArray(data)
+					? { page: 1, limit: 10, total: data.length, total_pages: 1 }
+					: undefined),
 			draft: drafts.get(data?.id) ?? null
 		})
 	);
@@ -624,7 +664,10 @@ try {
 	await clickAdminNavigation('Question Sets');
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Question Sets | Admin - Gakkobit');
-	await page.getByRole('button', { name: /Aksi question set/i }).first().click();
+	await page
+		.getByRole('button', { name: /Aksi question set/i })
+		.first()
+		.click();
 	await page.getByRole('menuitem', { name: /Edit question set/i }).click();
 	await page.getByRole('heading', { name: 'Edit Question Set' }).waitFor();
 	assert.equal(await page.getByLabel('Judul set').inputValue(), set.title);
@@ -649,12 +692,11 @@ try {
 		'New resource form must reset its state'
 	);
 	assert.equal(
-		await (
-			page
-				.locator('form[action="?/save"]')
-				.getByRole('combobox', { name: /^Kursus/ })
-				.or(page.locator('form[action="?/save"]').getByRole('button', { name: /^Kursus/ }))
-		).innerText(),
+		await page
+			.locator('form[action="?/save"]')
+			.getByRole('combobox', { name: /^Kursus/ })
+			.or(page.locator('form[action="?/save"]').getByRole('button', { name: /^Kursus/ }))
+			.innerText(),
 		course.title
 	);
 	assert.equal(
@@ -681,7 +723,9 @@ try {
 	await page.waitForLoadState('networkidle');
 	assert.equal(course.archived_at, null);
 	await page.goto(`${origin}/admin/users`, { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: `Aksi pengguna ${managedUser.display_name}`, exact: true }).click();
+	await page
+		.getByRole('button', { name: `Aksi pengguna ${managedUser.display_name}`, exact: true })
+		.click();
 	await page.getByRole('menuitem', { name: 'Jadikan Admin', exact: true }).click();
 	await page
 		.getByRole('status')
@@ -702,10 +746,7 @@ try {
 	await page.getByRole('button', { name: 'Tambah Poin' }).click();
 	await page.getByPlaceholder('Poin manfaat 2').fill('Simulasi Ujian JLPT N5');
 	await page.getByRole('button', { name: 'Simpan Level' }).click();
-	await page
-		.getByRole('status')
-		.filter({ hasText: 'Level berhasil disimpan.' })
-		.waitFor();
+	await page.getByRole('status').filter({ hasText: 'Level berhasil disimpan.' }).waitFor();
 	assert.equal(fixtureLevel.price, 149000);
 	assert.deepEqual(fixtureLevel.points, ['Modul Hiragana lengkap', 'Simulasi Ujian JLPT N5']);
 	// One module prerequisite: hidden for entry content, search, replace, reload, publish and clear.
@@ -933,6 +974,71 @@ try {
 		lessonID: lessons[0].id
 	});
 	assert.deepEqual(errors, [], 'Kana templates must not produce browser errors');
+	await page.goto(`${origin}/admin/levels`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: `Aksi level ${fixtureLevel.code}`, exact: true }).click();
+	await page
+		.getByRole('menuitem', { name: `Hapus level ${fixtureLevel.code}`, exact: true })
+		.click();
+	await page.getByRole('dialog').getByRole('button', { name: 'Hapus Level', exact: true }).click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: `Level “${fixtureLevel.code}” berhasil dihapus.` })
+		.waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(
+		await page
+			.getByRole('button', { name: `Aksi level ${fixtureLevel.code}`, exact: true })
+			.count(),
+		0,
+		'Deleted level must disappear from table'
+	);
+	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: `Aksi kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('menuitem', { name: `Hapus kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('dialog').getByRole('button', { name: 'Hapus Kursus', exact: true }).click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: `Kursus “${course.title}” berhasil dihapus.` })
+		.waitFor();
+	await page.waitForLoadState('networkidle');
+	await page.goto(`${origin}/admin/question-sets`, { waitUntil: 'networkidle' });
+	await page.getByRole('button', { name: `Aksi question set ${set.title}`, exact: true }).click();
+	await page
+		.getByRole('menuitem', { name: `Hapus question set ${set.title}`, exact: true })
+		.click();
+	await page
+		.getByRole('dialog')
+		.getByRole('button', { name: 'Hapus Question Set', exact: true })
+		.click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: `Question set “${set.title}” berhasil dihapus.` })
+		.waitFor();
+	await page.waitForLoadState('networkidle');
+	await page.goto(`${origin}/admin/users`, { waitUntil: 'networkidle' });
+	await page
+		.getByRole('button', { name: `Aksi pengguna ${managedUser.display_name}`, exact: true })
+		.click();
+	await page
+		.getByRole('menuitem', { name: `Hapus pengguna ${managedUser.display_name}`, exact: true })
+		.click();
+	await page
+		.getByRole('dialog')
+		.getByRole('button', { name: 'Hapus Pengguna', exact: true })
+		.click();
+	await page
+		.getByRole('status')
+		.filter({ hasText: `Pengguna “${managedUser.display_name}” berhasil dihapus.` })
+		.waitFor();
+	await page.waitForLoadState('networkidle');
+	assert.equal(
+		await page
+			.getByRole('button', { name: `Aksi pengguna ${managedUser.display_name}`, exact: true })
+			.count(),
+		0,
+		'Deleted user must disappear from table'
+	);
+	assert.deepEqual(errors, [], 'Admin table delete flows must not produce browser errors');
 	await page.goto(`${origin}/admin/content/unsupported/new`, { waitUntil: 'networkidle' });
 	assert.equal(new URL(page.url()).pathname, '/admin', 'Unknown content kinds must redirect');
 	assert(

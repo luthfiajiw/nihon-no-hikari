@@ -12,6 +12,7 @@ function fixture() {
 		getAdminTemplate: vi.fn(),
 		previewAdminTemplate: vi.fn(),
 		saveAdminTemplate: vi.fn(),
+		deleteAdminTemplate: vi.fn().mockResolvedValue(undefined),
 		saveAdminContent: vi.fn().mockResolvedValue({ id: 'created' }),
 		publishAdminContent: vi.fn().mockResolvedValue({ id: 'published-version' }),
 		removeAdminContent: vi.fn().mockResolvedValue(undefined),

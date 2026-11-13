@@ -131,9 +131,9 @@ export class QuestionSource {
 		if (options?.status) searchParams.set('status', options.status);
 		const qs = searchParams.toString();
 		const path = `${this.contentPath()}${qs ? `?${qs}` : ''}`;
-		const res = await this.adminRequest<ApiPayload<QuestionAdminRecord[]> & { meta?: PaginationMeta }>(
-			path
-		);
+		const res = await this.adminRequest<
+			ApiPayload<QuestionAdminRecord[]> & { meta?: PaginationMeta }
+		>(path);
 		const items = res.data ?? [];
 		const meta =
 			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
@@ -217,5 +217,11 @@ export class QuestionSource {
 				}
 			)
 		).data;
+	}
+
+	async deleteAdminTemplate(id: string): Promise<void> {
+		await this.adminRequest(`/templates/${encodeURIComponent(id)}`, {
+			method: 'DELETE'
+		});
 	}
 }

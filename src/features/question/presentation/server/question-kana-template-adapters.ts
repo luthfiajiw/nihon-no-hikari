@@ -1,5 +1,12 @@
 import { HttpError } from '$lib/http/http-error';
-import { error, fail, json, redirect, type RequestEvent } from '@sveltejs/kit';
+import {
+	error,
+	fail,
+	json,
+	redirect,
+	type RequestEvent,
+	type ServerLoadEvent
+} from '@sveltejs/kit';
 import { resolve } from '$app/paths';
 import { questionKanaTemplatesUseCase } from '$dependencies/question.dependency';
 
@@ -16,7 +23,8 @@ function accessError(cause: HttpError): never {
 	error(cause.status, cause.message);
 }
 
-export async function loadQuestionKanaTemplates(event: RequestEvent) {
+export async function loadQuestionKanaTemplates(event: ServerLoadEvent) {
+	event.depends('question:kana-templates');
 	try {
 		const params = parsePaginationParams(event.url);
 		const script = event.url.searchParams.get('script') || undefined;

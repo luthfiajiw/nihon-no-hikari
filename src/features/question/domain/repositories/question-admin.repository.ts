@@ -32,4 +32,5 @@ export interface QuestionAdminRepository {
 		id: string | null,
 		input: QuestionKanaTemplateInput
 	): Promise<QuestionKanaTemplateDetail>;
+	deleteAdminTemplate(id: string): Promise<void>;
 }

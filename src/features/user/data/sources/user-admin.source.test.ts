@@ -35,6 +35,14 @@ describe('user administrative transport', () => {
 			expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ role: 'Admin' }) })
 		);
 	});
+	it('encodes the user id and sends DELETE when removing an admin user', async () => {
+		const { source, fetch } = sourceWith(new Response(null, { status: 204 }));
+		await expect(source.deleteAdminUser('user/1')).resolves.toBeUndefined();
+		expect(fetch).toHaveBeenCalledExactlyOnceWith(
+			'/api/v1/admin/users/user%2F1',
+			expect.objectContaining({ method: 'DELETE' })
+		);
+	});
 	it('preserves the status when an error response is not JSON', async () => {
 		const { source } = sourceWith(new Response('Bad gateway', { status: 502 }));
 		await expect(source.getAdminUsers()).rejects.toMatchObject({

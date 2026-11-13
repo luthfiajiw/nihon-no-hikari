@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { MoreVertical, Pencil } from 'lucide-svelte';
+	import { MoreVertical, Pencil, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
 
 	type Props =
 		| { cell: 'actions-header' }
-		| { cell: 'character' | 'script' | 'actions'; row: QuestionKanaTemplateMetadata };
+		| { cell: 'character' | 'script'; row: QuestionKanaTemplateMetadata }
+		| {
+				cell: 'actions';
+				row: QuestionKanaTemplateMetadata;
+				onDelete: (template: QuestionKanaTemplateMetadata) => void;
+		  };
 
 	let props: Props = $props();
 </script>
@@ -43,6 +48,17 @@
 					>
 						<Pencil />
 						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						variant="destructive"
+						aria-label={`Hapus template ${props.row.character} ${props.row.source_version}`}
+						onclick={() => props.onDelete(props.row)}
+					>
+						<Trash2 />
+						Hapus
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>

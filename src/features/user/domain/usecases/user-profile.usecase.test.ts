@@ -33,6 +33,7 @@ function mockRepo() {
 	return {
 		getAdminUsers: vi.fn(),
 		changeAdminRole: vi.fn(),
+		deleteAdminUser: vi.fn(),
 		getProfile: vi.fn().mockResolvedValue(mockProfile),
 		updateProfile: vi.fn().mockResolvedValue(mockUser),
 		changePassword: vi.fn().mockResolvedValue(undefined),

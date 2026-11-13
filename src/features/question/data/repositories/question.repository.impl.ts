@@ -83,4 +83,7 @@ export class QuestionRepositoryImpl implements QuestionRepository, QuestionAdmin
 	): Promise<QuestionKanaTemplateDetail> {
 		return this.questionSource.saveAdminTemplate(id, input);
 	}
+	deleteAdminTemplate(id: string): Promise<void> {
+		return this.questionSource.deleteAdminTemplate(id);
+	}
 }

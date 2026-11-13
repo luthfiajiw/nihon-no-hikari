@@ -3,8 +3,10 @@ import { DataTableColumnHeader, type DataTableColumnDef } from '$lib/components/
 import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
 import QuestionAdminKanaTemplatesCells from './question-admin-kana-templates-cells.svelte';
 
-export const questionAdminKanaTemplatesColumns: DataTableColumnDef<QuestionKanaTemplateMetadata>[] =
-	[
+export function createQuestionAdminKanaTemplatesColumns(
+	onDelete: (template: QuestionKanaTemplateMetadata) => void
+): DataTableColumnDef<QuestionKanaTemplateMetadata>[] {
+	return [
 		{
 			accessorKey: 'character',
 			header: ({ column }) => renderComponent(DataTableColumnHeader, { column, title: 'Karakter' }),
@@ -37,7 +39,12 @@ export const questionAdminKanaTemplatesColumns: DataTableColumnDef<QuestionKanaT
 			id: 'actions',
 			header: () => renderComponent(QuestionAdminKanaTemplatesCells, { cell: 'actions-header' }),
 			cell: ({ row }) =>
-				renderComponent(QuestionAdminKanaTemplatesCells, { cell: 'actions', row: row.original }),
+				renderComponent(QuestionAdminKanaTemplatesCells, {
+					cell: 'actions',
+					row: row.original,
+					onDelete
+				}),
 			enableSorting: false
 		}
 	];
+}

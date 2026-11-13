@@ -1,4 +1,4 @@
-import type { RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent, ServerLoadEvent } from '@sveltejs/kit';
 import {
 	getCourseAdminCatalogUseCase,
 	getCourseAdminContentListUseCase,
@@ -13,7 +13,8 @@ import { parsePaginationParams } from '$lib/models/pagination.model';
 export async function loadCourseAdminDashboard() {
 	return { catalog: await managementLoad(() => getCourseAdminCatalogUseCase.exec()) };
 }
-export async function loadCourseAdminCourses(event: RequestEvent) {
+export async function loadCourseAdminCourses(event: ServerLoadEvent) {
+	event.depends('course:courses');
 	const params = parsePaginationParams(event.url);
 	const status = event.url.searchParams.get('status') || undefined;
 	const level = event.url.searchParams.get('level') || undefined;
@@ -22,7 +23,8 @@ export async function loadCourseAdminCourses(event: RequestEvent) {
 	);
 	return { courses: result.items, meta: result.meta };
 }
-export async function loadCourseAdminLevels(event: RequestEvent) {
+export async function loadCourseAdminLevels(event: ServerLoadEvent) {
+	event.depends('course:levels');
 	const params = parsePaginationParams(event.url);
 	const price_type = event.url.searchParams.get('price_type') || undefined;
 	const result = await managementLoad(() =>
@@ -39,8 +41,6 @@ export function loadCourseAdminEditor(event: RequestEvent, kind: CourseAdminCont
 	);
 }
 export async function loadCourseAdminLevelEditor(event: RequestEvent) {
-	const level = await managementLoad(() =>
-		getCourseAdminLevelEditorUseCase.exec(event.params.id!)
-	);
+	const level = await managementLoad(() => getCourseAdminLevelEditorUseCase.exec(event.params.id!));
 	return { level, id: event.params.id! };
 }

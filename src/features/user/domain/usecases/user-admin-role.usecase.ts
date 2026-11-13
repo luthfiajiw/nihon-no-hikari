@@ -12,3 +12,11 @@ export class ChangeUserAdminRoleUseCase {
 		await this.repository.changeAdminRole(userId, role);
 	}
 }
+
+export class DeleteUserAdminUseCase {
+	constructor(private readonly repository: UserAdminRepository) {}
+
+	async exec(userId: string): Promise<void> {
+		await this.repository.deleteAdminUser(userId);
+	}
+}

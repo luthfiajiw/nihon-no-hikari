@@ -2,14 +2,19 @@
 	import type { Pathname } from '$app/types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { MoreVertical, Pencil } from 'lucide-svelte';
+	import { MoreVertical, Pencil, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import type { QuestionAdminRecord } from '$features/question/domain/entities/question-admin.entity';
 
 	type Props =
 		| { cell: 'actions-header' }
-		| { cell: 'title' | 'skill' | 'version' | 'actions'; row: QuestionAdminRecord };
+		| { cell: 'title' | 'skill' | 'version'; row: QuestionAdminRecord }
+		| {
+				cell: 'actions';
+				row: QuestionAdminRecord;
+				onDelete: (set: QuestionAdminRecord) => void;
+		  };
 
 	let props: Props = $props();
 </script>
@@ -66,6 +71,17 @@
 					>
 						<Pencil />
 						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						variant="destructive"
+						aria-label={`Hapus question set ${props.row.title}`}
+						onclick={() => props.onDelete(props.row)}
+					>
+						<Trash2 />
+						Hapus
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>

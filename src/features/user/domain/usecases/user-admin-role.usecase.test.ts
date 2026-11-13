@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ChangeUserAdminRoleUseCase } from './user-admin-role.usecase';
+import { ChangeUserAdminRoleUseCase, DeleteUserAdminUseCase } from './user-admin-role.usecase';
 function fixture() {
-	return { getAdminUsers: vi.fn(), changeAdminRole: vi.fn().mockResolvedValue(undefined) };
+	return {
+		getAdminUsers: vi.fn(),
+		changeAdminRole: vi.fn().mockResolvedValue(undefined),
+		deleteAdminUser: vi.fn().mockResolvedValue(undefined)
+	};
 }
 describe('user role authorization', () => {
 	const userId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -21,5 +25,10 @@ describe('user role authorization', () => {
 			'User'
 		);
 		expect(repository.changeAdminRole).toHaveBeenCalledWith(userId, 'User');
+	});
+	it('deletes an admin user', async () => {
+		const repository = fixture();
+		await new DeleteUserAdminUseCase(repository).exec(userId);
+		expect(repository.deleteAdminUser).toHaveBeenCalledWith(userId);
 	});
 });

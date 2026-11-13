@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { MoreVertical, Shield } from 'lucide-svelte';
+	import { MoreVertical, Shield, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
@@ -8,7 +8,12 @@
 	type Props =
 		| { cell: 'actions-header' }
 		| { cell: 'name' | 'email' | 'role'; row: UserAdminRecord }
-		| { cell: 'actions'; row: UserAdminRecord; currentUserId?: string };
+		| {
+				cell: 'actions';
+				row: UserAdminRecord;
+				currentUserId?: string;
+				onDelete?: (user: UserAdminRecord) => void;
+		  };
 
 	let props: Props = $props();
 	let formEl: HTMLFormElement | undefined = $state();
@@ -61,6 +66,19 @@
 						</DropdownMenu.Item>
 					{/if}
 				</DropdownMenu.Group>
+				{#if props.row.id !== props.currentUserId && props.onDelete}
+					<DropdownMenu.Separator />
+					<DropdownMenu.Group>
+						<DropdownMenu.Item
+							variant="destructive"
+							aria-label={`Hapus pengguna ${props.row.display_name}`}
+							onclick={() => props.onDelete?.(props.row)}
+						>
+							<Trash2 />
+							Hapus
+						</DropdownMenu.Item>
+					</DropdownMenu.Group>
+				{/if}
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 	</div>

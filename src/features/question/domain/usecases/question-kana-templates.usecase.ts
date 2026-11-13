@@ -29,4 +29,7 @@ export class QuestionKanaTemplatesUseCase {
 	save(id: string | null, input: QuestionKanaTemplateInput) {
 		return this.repository.saveAdminTemplate(id, input);
 	}
+	remove(id: string) {
+		return this.repository.deleteAdminTemplate(id);
+	}
 }

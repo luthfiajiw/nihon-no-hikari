@@ -2,7 +2,7 @@
 	import type { Pathname } from '$app/types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { FileText, Layers, MoreVertical, Pencil } from 'lucide-svelte';
+	import { FileText, Layers, MoreVertical, Pencil, Trash2 } from 'lucide-svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -11,8 +11,13 @@
 	type Props =
 		| { cell: 'actions-header' }
 		| {
-				cell: 'title' | 'level' | 'counts' | 'order' | 'actions';
+				cell: 'title' | 'level' | 'counts' | 'order';
 				row: CourseAdminRecord;
+		  }
+		| {
+				cell: 'actions';
+				row: CourseAdminRecord;
+				onDelete: (course: CourseAdminRecord) => void;
 		  };
 
 	let props: Props = $props();
@@ -84,6 +89,17 @@
 					>
 						<Pencil />
 						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						variant="destructive"
+						aria-label={`Hapus kursus ${props.row.title}`}
+						onclick={() => props.onDelete(props.row)}
+					>
+						<Trash2 />
+						Hapus
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>

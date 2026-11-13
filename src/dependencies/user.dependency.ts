@@ -1,4 +1,7 @@
-import { ChangeUserAdminRoleUseCase } from '$features/user/domain/usecases/user-admin-role.usecase';
+import {
+	ChangeUserAdminRoleUseCase,
+	DeleteUserAdminUseCase
+} from '$features/user/domain/usecases/user-admin-role.usecase';
 import { GetUserAdminListUseCase } from '$features/user/domain/usecases/user-admin-list.usecase';
 import { GetUserProfileUseCase } from '$features/user/domain/usecases/get-user-profile.usecase';
 import { UpdateUserProfileUseCase } from '$features/user/domain/usecases/update-user-profile.usecase';
@@ -16,6 +19,7 @@ const userRepository = new UserRepositoryImpl(new UserSource(requestFetch));
 
 export const getUserAdminListUseCase = new GetUserAdminListUseCase(userRepository);
 export const changeUserAdminRoleUseCase = new ChangeUserAdminRoleUseCase(userRepository);
+export const deleteUserAdminUseCase = new DeleteUserAdminUseCase(userRepository);
 
 export const getUserProfileUseCase = new GetUserProfileUseCase(userRepository);
 export const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);

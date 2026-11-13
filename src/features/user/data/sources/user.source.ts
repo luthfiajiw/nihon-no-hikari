@@ -56,6 +56,12 @@ export class UserSource {
 		});
 	}
 
+	async deleteAdminUser(userId: string): Promise<void> {
+		await this.adminRequest(`/users/${encodeURIComponent(userId)}`, {
+			method: 'DELETE'
+		});
+	}
+
 	async getProfile(): Promise<UserProfileData> {
 		return (await this.userRequest<ApiPayload<UserProfileData>>('/profile')).data;
 	}

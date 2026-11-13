@@ -4,6 +4,7 @@ import { parsePaginationParams } from '$lib/models/pagination.model';
 import type { ServerLoadEvent } from '@sveltejs/kit';
 
 export async function loadUserAdminList(event?: ServerLoadEvent) {
+	event?.depends('user:admin-list');
 	const params = event?.url ? parsePaginationParams(event.url) : undefined;
 	const role = event?.url?.searchParams.get('role') || undefined;
 	const result = await managementLoad(() => getUserAdminListUseCase.exec({ ...params, role }));

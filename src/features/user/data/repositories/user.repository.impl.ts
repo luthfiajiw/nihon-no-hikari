@@ -27,6 +27,10 @@ export class UserRepositoryImpl implements UserAdminRepository, UserProfileRepos
 		return this.userSource.changeAdminRole(userId, role);
 	}
 
+	deleteAdminUser(userId: string): Promise<void> {
+		return this.userSource.deleteAdminUser(userId);
+	}
+
 	getProfile(): Promise<UserProfileData> {
 		return this.userSource.getProfile();
 	}
@@ -43,9 +47,7 @@ export class UserRepositoryImpl implements UserAdminRepository, UserProfileRepos
 		return this.userSource.requestLinkGoogleCode();
 	}
 
-	verifyLinkGoogleCode(
-		payload: VerifyLinkGoogleCodePayload
-	): Promise<VerifyLinkGoogleCodeResult> {
+	verifyLinkGoogleCode(payload: VerifyLinkGoogleCodePayload): Promise<VerifyLinkGoogleCodeResult> {
 		return this.userSource.verifyLinkGoogleCode(payload);
 	}
 

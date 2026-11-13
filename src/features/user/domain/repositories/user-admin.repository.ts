@@ -2,6 +2,9 @@ import type { UserAdminRole, UserAdminRecord } from '../entities/user-admin.enti
 import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 
 export interface UserAdminRepository {
-	getAdminUsers(options?: PaginationQueryOptions & { role?: string }): Promise<PaginatedResult<UserAdminRecord>>;
+	getAdminUsers(
+		options?: PaginationQueryOptions & { role?: string }
+	): Promise<PaginatedResult<UserAdminRecord>>;
 	changeAdminRole(userId: string, role: UserAdminRole): Promise<void>;
+	deleteAdminUser(userId: string): Promise<void>;
 }

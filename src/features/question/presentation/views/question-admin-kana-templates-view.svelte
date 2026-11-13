@@ -1,17 +1,53 @@
 <script lang="ts">
 	import type { ResolvedPathname } from '$app/types';
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { questionKanaTemplatesUseCase } from '$dependencies/question.dependency';
+	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
+	import { HttpError } from '$lib/http/http-error';
 	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Plus } from 'lucide-svelte';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import type { QuestionKanaTemplatesData } from '$features/question/presentation/models/question-admin-view.model';
 	import { DataTable } from '$lib/components/data-table';
-	import { questionAdminKanaTemplatesColumns as columns } from '$features/question/presentation/components/question-admin-kana-templates-columns';
+	import { createQuestionAdminKanaTemplatesColumns } from '$features/question/presentation/components/question-admin-kana-templates-columns';
 
 	let { data }: { data: QuestionKanaTemplatesData } = $props();
+
+	let busy = $state(false);
+	let message = $state('');
+	let notice = $state('');
+	let deleting = $state<QuestionKanaTemplateMetadata | null>(null);
+	let deleteOpen = $state(false);
+
+	async function removeTemplate() {
+		if (!deleting || busy) return;
+		busy = true;
+		message = '';
+		notice = '';
+		try {
+			await questionKanaTemplatesUseCase.remove(deleting.id);
+			notice = `Template “${deleting.character}” (${deleting.source_version}) berhasil dihapus.`;
+			deleteOpen = false;
+			deleting = null;
+			await invalidate('question:kana-templates');
+		} catch (cause) {
+			message = cause instanceof Error ? cause.message : 'Gagal menghapus template kana.';
+			deleteOpen = false;
+			deleting = null;
+			if (cause instanceof HttpError && cause.status === 401) await goto(resolve('/signin'));
+		} finally {
+			busy = false;
+		}
+	}
+
+	const columns = createQuestionAdminKanaTemplatesColumns((template) => {
+		deleting = template;
+		deleteOpen = true;
+	});
 
 	const currentScript = $derived(page.url.searchParams.get('script') ?? 'all');
 
@@ -41,6 +77,20 @@
 		title="Template Kana"
 		description="Panduan goresan hiragana dan katakana untuk latihan menulis."
 	/>
+
+	{#if message}
+		<p class="admin-notice border-destructive text-destructive" role="alert">
+			{message}
+		</p>
+	{/if}
+	{#if notice}
+		<p
+			class="admin-notice border-emerald-200 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
+			role="status"
+		>
+			{notice}
+		</p>
+	{/if}
 
 	<DataTable
 		data={data.templates}
@@ -75,3 +125,20 @@
 		{/snippet}
 	</DataTable>
 </div>
+
+<Dialog.Root bind:open={deleteOpen}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>Hapus template kana?</Dialog.Title>
+			<Dialog.Description>
+				Template “{deleting?.character}” ({deleting?.source_version}) akan dihapus.
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer>
+			<Button variant="outline" disabled={busy} onclick={() => (deleteOpen = false)}>Batal</Button>
+			<Button variant="destructive" disabled={busy} onclick={removeTemplate}>
+				{busy ? 'Menghapus...' : 'Hapus Template'}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
