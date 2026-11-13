@@ -2,18 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
-	import { Pencil, Plus } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import type { QuestionKanaTemplatesData } from '$features/question/presentation/models/question-admin-view.model';
-	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
-	import {
-		DataTable,
-		DataTableColumnHeader,
-		type DataTableColumn,
-		type DataTableColumnDef
-	} from '$lib/components/data-table';
-	import { renderSnippet } from '@tanstack/svelte-table';
+	import { DataTable } from '$lib/components/data-table';
+	import { questionAdminKanaTemplatesColumns as columns } from '$features/question/presentation/components/question-admin-kana-templates-columns';
 
 	let { data }: { data: QuestionKanaTemplatesData } = $props();
 
@@ -22,73 +16,7 @@
 	const filteredTemplates = $derived(
 		data.templates.filter((item) => script === 'all' || item.script === script)
 	);
-
-	const columns: DataTableColumnDef<QuestionKanaTemplateMetadata>[] = [
-		{
-			accessorKey: 'character',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Karakter' }),
-			cell: ({ row }) => renderSnippet(characterCell, { row: row.original })
-		},
-		{
-			accessorKey: 'script',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Script' }),
-			cell: ({ row }) => renderSnippet(scriptCell, { row: row.original })
-		},
-		{
-			accessorKey: 'romaji',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Romaji' })
-		},
-		{
-			accessorKey: 'source_version',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Versi sumber' })
-		},
-		{
-			accessorKey: 'stroke_count',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Goresan' })
-		},
-		{
-			id: 'actions',
-			header: () => renderSnippet(actionsHeaderSnippet, {}),
-			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
-			enableSorting: false
-		}
-	];
 </script>
-
-{#snippet headerSnippet({
-	column,
-	title
-}: {
-	column: DataTableColumn<QuestionKanaTemplateMetadata>;
-	title: string;
-})}
-	<DataTableColumnHeader {column} {title} />
-{/snippet}
-
-{#snippet actionsHeaderSnippet()}
-	<div class="text-right">Aksi</div>
-{/snippet}
-
-{#snippet characterCell({ row }: { row: QuestionKanaTemplateMetadata })}
-	<span class="text-3xl font-medium">{row.character}</span>
-{/snippet}
-
-{#snippet scriptCell({ row }: { row: QuestionKanaTemplateMetadata })}
-	<span class="capitalize">{row.script}</span>
-{/snippet}
-
-{#snippet actionsCell({ row }: { row: QuestionKanaTemplateMetadata })}
-	<div class="flex justify-end">
-		<Button
-			variant="outline"
-			size="icon"
-			aria-label={`Edit template ${row.character} ${row.source_version}`}
-			onclick={() => goto(resolve('/(protected)/admin/kana-templates/[id]', { id: row.id }))}
-		>
-			<Pencil class="size-4" />
-		</Button>
-	</div>
-{/snippet}
 
 <svelte:head>
 	<title>Template Kana | Admin - Gakkobit</title>

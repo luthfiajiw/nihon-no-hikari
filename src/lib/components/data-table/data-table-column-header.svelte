@@ -1,4 +1,4 @@
-<script lang="ts" generics="TData extends RowData, TValue = unknown">
+<script lang="ts">
 	import type { RowData } from '@tanstack/svelte-table';
 	import type { DataTableColumn } from './index';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
@@ -7,12 +7,17 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 
+	type SortableColumn = Pick<
+		DataTableColumn<RowData, unknown>,
+		'getCanSort' | 'getToggleSortingHandler' | 'getIsSorted'
+	>;
+
 	let {
 		column,
 		title,
 		class: className
 	}: {
-		column: DataTableColumn<TData, TValue>;
+		column: SortableColumn;
 		title: string;
 		class?: string;
 	} = $props();

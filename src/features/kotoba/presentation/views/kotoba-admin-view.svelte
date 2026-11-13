@@ -7,24 +7,17 @@
 	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
-	import { BookOpen, EyeOff, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { kotobaLevels } from '$features/kotoba/data/kotoba-topics';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import { getKotobaAdminState } from '$features/kotoba/presentation/contexts/kotoba-admin-context.svelte';
 	import type { KotobaAdminTopic } from '$features/kotoba/presentation/models/kotoba-admin.model';
 	import type { PaginationMeta } from '$lib/models/pagination.model';
-	import {
-		DataTable,
-		DataTableColumnHeader,
-		type DataTableColumn,
-		type DataTableColumnDef
-	} from '$lib/components/data-table';
-	import { renderSnippet } from '@tanstack/svelte-table';
+	import { DataTable } from '$lib/components/data-table';
+	import { createKotobaAdminColumns } from '$features/kotoba/presentation/components/kotoba-admin-columns';
 
 	const kotoba = getKotobaAdminState();
 	let {
@@ -99,150 +92,11 @@
 		});
 	}
 
-	const columns: DataTableColumnDef<KotobaAdminTopic>[] = [
-		{
-			accessorKey: 'title',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Topik' }),
-			cell: ({ row }) => renderSnippet(titleCell, { row: row.original })
-		},
-		{
-			accessorKey: 'level',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Level' }),
-			cell: ({ row }) => renderSnippet(levelCell, { row: row.original })
-		},
-		{
-			accessorKey: 'vocabularyCount',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Kosakata' }),
-			cell: ({ row }) => renderSnippet(vocabCell, { row: row.original })
-		},
-		{
-			accessorKey: 'order',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Urutan' }),
-			cell: ({ row }) => renderSnippet(orderCell, { row: row.original })
-		},
-		{
-			accessorKey: 'active',
-			header: 'Status',
-			cell: ({ row }) => renderSnippet(statusCell, { row: row.original }),
-			enableSorting: false
-		},
-		{
-			id: 'actions',
-			header: () => renderSnippet(actionsHeaderSnippet, {}),
-			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
-			enableSorting: false
-		}
-	];
+	const columns = createKotobaAdminColumns((topic) => {
+		deleting = topic;
+		deleteOpen = true;
+	});
 </script>
-
-{#snippet headerSnippet({
-	column,
-	title
-}: {
-	column: DataTableColumn<KotobaAdminTopic>;
-	title: string;
-})}
-	<DataTableColumnHeader {column} {title} />
-{/snippet}
-
-{#snippet actionsHeaderSnippet()}
-	<div class="text-right">Aksi</div>
-{/snippet}
-
-{#snippet titleCell({ row }: { row: KotobaAdminTopic })}
-	<div class="max-w-xs min-w-0 space-y-1 sm:max-w-md">
-		<button
-			type="button"
-			class="block w-full truncate text-left font-semibold text-foreground transition-colors hover:text-primary"
-			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
-		>
-			{row.title}
-		</button>
-		{#if row.description}
-			<p class="line-clamp-2 text-xs text-muted-foreground">{row.description}</p>
-		{/if}
-	</div>
-{/snippet}
-
-{#snippet levelCell({ row }: { row: KotobaAdminTopic })}
-	<div class="flex flex-wrap items-center gap-1.5">
-		<Badge>{row.level}</Badge>
-		<Badge variant="secondary">{row.category}</Badge>
-	</div>
-{/snippet}
-
-{#snippet vocabCell({ row }: { row: KotobaAdminTopic })}
-	<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
-		<BookOpen class="size-3.5" />
-		<span>{row.vocabularyCount ?? row.vocabulary.length} kosakata</span>
-	</div>
-{/snippet}
-
-{#snippet orderCell({ row }: { row: KotobaAdminTopic })}
-	<span class="text-xs text-muted-foreground">Urutan {row.order}</span>
-{/snippet}
-
-{#snippet statusCell({ row }: { row: KotobaAdminTopic })}
-	<div class="flex flex-wrap items-center gap-1.5">
-		<Badge
-			variant="outline"
-			class={row.active
-				? 'border-emerald-300 text-emerald-700 dark:text-emerald-300'
-				: 'text-muted-foreground'}
-		>
-			{row.active ? 'Aktif' : 'Nonaktif'}
-		</Badge>
-		{#if !row.visible}
-			<span class="flex items-center gap-1 text-xs text-muted-foreground">
-				<EyeOff class="size-3" /> Disembunyikan
-			</span>
-		{/if}
-	</div>
-{/snippet}
-
-{#snippet actionsCell({ row }: { row: KotobaAdminTopic })}
-	<div class="flex items-center justify-end">
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger>
-				{#snippet child({ props })}
-					<Button
-						variant="outline"
-						size="icon-sm"
-						aria-label={`Aksi topik ${row.title}`}
-						{...props}
-					>
-						<MoreVertical />
-					</Button>
-				{/snippet}
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Content align="end" class="w-40">
-				<DropdownMenu.Group>
-					<DropdownMenu.Item
-						aria-label={`Edit topik ${row.title}`}
-						onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
-					>
-						<Pencil />
-						Edit
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
-					<DropdownMenu.Item
-						variant="destructive"
-						aria-label={`Hapus topik ${row.title}`}
-						onclick={() => {
-							deleting = row;
-							deleteOpen = true;
-						}}
-					>
-						<Trash2 />
-						Hapus
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
-	</div>
-{/snippet}
 
 <svelte:head>
 	<title>Kotoba | Admin - Gakkobit</title>

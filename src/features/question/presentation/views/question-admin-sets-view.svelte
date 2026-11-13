@@ -1,22 +1,15 @@
 <script lang="ts">
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
-	import type { Pathname, ResolvedPathname } from '$app/types';
+	import type { ResolvedPathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Plus, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import ManagementSelect from '$lib/components/management-select.svelte';
-	import StatusBadge from '$lib/components/content-status-badge.svelte';
 	import type { QuestionAdminSetsData } from '$features/question/presentation/models/question-admin-view.model';
-	import {
-		DataTable,
-		DataTableColumnHeader,
-		type DataTableColumn,
-		type DataTableColumnDef
-	} from '$lib/components/data-table';
-	import { renderSnippet } from '@tanstack/svelte-table';
-	import type { QuestionAdminRecord } from '$features/question/domain/entities/question-admin.entity';
+	import { DataTable } from '$lib/components/data-table';
+	import { questionAdminSetsColumns as columns } from '$features/question/presentation/components/question-admin-sets-columns';
 
 	let { data }: { data: QuestionAdminSetsData } = $props();
 
@@ -49,109 +42,7 @@
 			replaceState: true
 		});
 	}
-
-	const columns: DataTableColumnDef<QuestionAdminRecord>[] = [
-		{
-			accessorKey: 'title',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Question Set' }),
-			cell: ({ row }) => renderSnippet(titleCell, { row: row.original })
-		},
-		{
-			accessorKey: 'skill',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Skill' }),
-			cell: ({ row }) => renderSnippet(skillCell, { row: row.original })
-		},
-		{
-			id: 'status',
-			header: 'Status',
-			cell: ({ row }) => renderSnippet(statusCell, { row: row.original }),
-			enableSorting: false
-		},
-		{
-			accessorKey: 'version',
-			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Versi' }),
-			cell: ({ row }) => renderSnippet(versionCell, { row: row.original })
-		},
-		{
-			id: 'actions',
-			header: () => renderSnippet(actionsHeaderSnippet, {}),
-			cell: ({ row }) => renderSnippet(actionsCell, { row: row.original }),
-			enableSorting: false
-		}
-	];
 </script>
-
-{#snippet headerSnippet({
-	column,
-	title
-}: {
-	column: DataTableColumn<QuestionAdminRecord>;
-	title: string;
-})}
-	<DataTableColumnHeader {column} {title} />
-{/snippet}
-
-{#snippet actionsHeaderSnippet()}
-	<div class="text-right">Aksi</div>
-{/snippet}
-
-{#snippet titleCell({ row }: { row: QuestionAdminRecord })}
-	<button
-		type="button"
-		class="group flex w-full items-center gap-3 text-left transition-colors"
-		onclick={() => goto(resolve(`/admin/content/question_set/${row.id}` as Pathname))}
-	>
-		<div
-			class="flex size-9 shrink-0 items-center justify-center rounded-lg {row.skill === 'writing'
-				? 'bg-rose-50 text-rose-500'
-				: 'bg-primary/10 text-primary'}"
-		>
-			{#if row.skill === 'writing'}
-				<PenLine class="size-4" />
-			{:else}
-				<BookOpen class="size-4" />
-			{/if}
-		</div>
-		<div class="min-w-0 flex-1">
-			<span class="block truncate text-sm font-semibold text-foreground group-hover:text-primary">
-				{row.title}
-			</span>
-			<span class="block text-xs text-muted-foreground">
-				{row.kind === 'final_exam' ? 'Ujian module' : 'Latihan lesson'}
-			</span>
-		</div>
-	</button>
-{/snippet}
-
-{#snippet skillCell({ row }: { row: QuestionAdminRecord })}
-	<span class="text-sm font-medium text-muted-foreground capitalize">
-		{row.skill === 'writing' ? 'Writing' : row.skill === 'reading' ? 'Reading' : 'Gabungan'}
-	</span>
-{/snippet}
-
-{#snippet statusCell({ row }: { row: QuestionAdminRecord })}
-	<StatusBadge item={row} />
-{/snippet}
-
-{#snippet versionCell({ row }: { row: QuestionAdminRecord })}
-	<span class="text-xs text-muted-foreground">
-		v{row.version ?? 1}
-	</span>
-{/snippet}
-
-{#snippet actionsCell({ row }: { row: QuestionAdminRecord })}
-	<div class="flex justify-end">
-		<Button
-			variant="ghost"
-			size="icon"
-			class="size-8"
-			onclick={() => goto(resolve(`/admin/content/question_set/${row.id}` as Pathname))}
-		>
-			<ArrowUpRight class="size-4 text-muted-foreground" />
-			<span class="sr-only">Buka</span>
-		</Button>
-	</div>
-{/snippet}
 
 <svelte:head>
 	<title>Question Sets | Admin - Gakkobit</title>
