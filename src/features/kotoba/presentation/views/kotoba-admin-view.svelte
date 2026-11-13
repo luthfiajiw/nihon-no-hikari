@@ -74,10 +74,11 @@
 	}
 
 	let currentLevel = $derived(page.url.searchParams.get('level') ?? 'all');
+	let currentCategory = $derived(page.url.searchParams.get('category') ?? 'all');
 	let currentStatus = $derived(page.url.searchParams.get('status') ?? 'all');
 	let currentSort = $derived(page.url.searchParams.get('sort') ?? 'order');
 
-	function updateFilter(key: 'level' | 'status' | 'sort', val: string) {
+	function updateFilter(key: 'level' | 'category' | 'status' | 'sort', val: string) {
 		const url = new URL(page.url);
 		if (val === 'all' || (key === 'sort' && val === 'order')) {
 			url.searchParams.delete(key);
@@ -103,7 +104,7 @@
 	<meta name="description" content="Kelola topik dan kosakata bahasa Jepang." />
 </svelte:head>
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<ManagementPageHeader title="Kotoba" description="Kelola topik dan susun kosakata untuk siswa." />
 
 	{#if message}
@@ -140,6 +141,18 @@
 						]}
 						class="h-9 bg-background text-muted-foreground sm:w-36"
 						onchange={(val: string) => updateFilter('level', val)}
+					/>
+					<ManagementSelect
+						aria-label="Filter kategori"
+						value={currentCategory}
+						options={[
+							{ value: 'all', label: 'Semua kategori' },
+							{ value: 'Dasar', label: 'Dasar' },
+							{ value: 'Populer', label: 'Populer' },
+							{ value: 'Pemula', label: 'Pemula' }
+						]}
+						class="h-9 bg-background text-muted-foreground sm:w-40"
+						onchange={(val: string) => updateFilter('category', val)}
 					/>
 					<ManagementSelect
 						aria-label="Filter status"

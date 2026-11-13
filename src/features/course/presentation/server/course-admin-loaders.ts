@@ -13,12 +13,21 @@ import { parsePaginationParams } from '$lib/models/pagination.model';
 export async function loadCourseAdminDashboard() {
 	return { catalog: await managementLoad(() => getCourseAdminCatalogUseCase.exec()) };
 }
-export async function loadCourseAdminCourses() {
-	return { courses: await managementLoad(() => getCourseAdminContentListUseCase.exec('course')) };
+export async function loadCourseAdminCourses(event: RequestEvent) {
+	const params = parsePaginationParams(event.url);
+	const status = event.url.searchParams.get('status') || undefined;
+	const level = event.url.searchParams.get('level') || undefined;
+	const result = await managementLoad(() =>
+		getCourseAdminContentListUseCase.exec('course', { ...params, status, level })
+	);
+	return { courses: result.items, meta: result.meta };
 }
 export async function loadCourseAdminLevels(event: RequestEvent) {
 	const params = parsePaginationParams(event.url);
-	const result = await managementLoad(() => getCourseAdminLevelsUseCase.exec(params));
+	const price_type = event.url.searchParams.get('price_type') || undefined;
+	const result = await managementLoad(() =>
+		getCourseAdminLevelsUseCase.exec({ ...params, price_type })
+	);
 	return { levels: result.items, meta: result.meta };
 }
 export function loadCourseAdminDetail(event: RequestEvent) {

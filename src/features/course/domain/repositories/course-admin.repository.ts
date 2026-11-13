@@ -8,16 +8,23 @@ import type {
 	CourseAdminContentRecord,
 	CourseAdminLevel,
 	CourseAdminLevelInput,
+	CourseAdminLevelsQueryOptions,
+	CourseAdminListQueryOptions,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../entities/course-admin.entity';
-import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
+import type { PaginatedResult } from '$lib/models/pagination.model';
 export interface CourseAdminRepository {
 	reorderAdminContent(kind: CourseAdminReorderKind, input: CourseAdminReorderInput): Promise<void>;
 	getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog>;
-	getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]>;
+	getAdminContentList(
+		kind: CourseAdminContentKind,
+		options?: CourseAdminListQueryOptions
+	): Promise<PaginatedResult<CourseAdminRecord> | CourseAdminRecord[]>;
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail>;
-	getAdminLevels(options?: PaginationQueryOptions): Promise<PaginatedResult<CourseAdminLevel> | CourseAdminLevel[]>;
+	getAdminLevels(
+		options?: CourseAdminLevelsQueryOptions
+	): Promise<PaginatedResult<CourseAdminLevel> | CourseAdminLevel[]>;
 	getAdminLevel(id: string): Promise<CourseAdminLevel>;
 	createAdminLevel(input: CourseAdminLevelInput): Promise<CourseAdminLevel>;
 	updateAdminLevel(id: string, input: CourseAdminLevelInput): Promise<CourseAdminLevel>;

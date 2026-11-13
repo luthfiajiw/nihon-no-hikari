@@ -13,10 +13,17 @@ export default defineConfig({
 			'microsoft-cognitiveservices-speech-sdk',
 			'bits-ui',
 			'@tanstack/svelte-form',
+			'@tanstack/svelte-table',
 			'lucide-svelte',
 			'svelte-dnd-action',
 			'tailwind-merge',
-			'tailwind-variants'
+			'tailwind-variants',
+			'codemirror',
+			'@codemirror/commands',
+			'@codemirror/lang-html',
+			'@codemirror/language',
+			'@codemirror/view',
+			'@lezer/highlight'
 		],
 		// Compile icon subpaths on demand without rebuilding the shared Svelte bundle.
 		exclude: ['@lucide/svelte']

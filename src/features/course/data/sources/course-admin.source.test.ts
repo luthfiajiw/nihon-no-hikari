@@ -31,8 +31,14 @@ const contentOperations: {
 		name: 'list',
 		method: 'GET',
 		suffix: '',
-		response: { data: [{ id: contentId, title: 'Live' }] },
-		expected: [{ id: contentId, title: 'Live' }],
+		response: {
+			data: [{ id: contentId, title: 'Live' }],
+			meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+		},
+		expected: {
+			items: [{ id: contentId, title: 'Live' }],
+			meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+		},
 		run: (source, kind) => source.getAdminContentList(kind)
 	},
 	{
@@ -164,5 +170,35 @@ describe('course administrative transport', () => {
 	it('allows an empty successful delete response', async () => {
 		const { source } = sourceWith(new Response(null, { status: 204 }));
 		await expect(source.removeAdminContent('course', 'course')).resolves.toBeUndefined();
+	});
+	it('forwards status and level query options in admin content list', async () => {
+		const { source, fetch } = sourceWith(
+			Response.json({
+				data: [{ id: contentId, title: 'Live' }],
+				meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+			})
+		);
+		await source.getAdminContentList('course', { status: 'published', level: 'N5' });
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/admin/courses?status=published&level=N5',
+			expect.objectContaining({
+				headers: expect.objectContaining({ Accept: 'application/json' })
+			})
+		);
+	});
+	it('forwards price_type query option in admin levels list', async () => {
+		const { source, fetch } = sourceWith(
+			Response.json({
+				data: [{ id: 'level-1', code: 'N5', name: 'N5', order_index: 0, price: 0, points: [] }],
+				meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+			})
+		);
+		await source.getAdminLevels({ price_type: 'free' });
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/admin/levels?price_type=free',
+			expect.objectContaining({
+				headers: expect.objectContaining({ Accept: 'application/json' })
+			})
+		);
 	});
 });

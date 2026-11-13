@@ -200,7 +200,7 @@
 		</p>{/if}
 {/snippet}
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<Button
 		variant="outline"
 		size="icon"
@@ -213,7 +213,7 @@
 		title={id === 'new' ? 'Buat Topik Kotoba' : 'Edit Topik Kotoba'}
 		description="Susun informasi topik dan kosakata beserta audio pengucapannya."
 	/>
-	<form bind:this={formElement} onsubmit={save} novalidate class="admin-page">
+	<form bind:this={formElement} onsubmit={save} novalidate class="flex flex-col space-y-6">
 		{#if message}<div class="admin-notice border-destructive text-destructive" role="alert">
 				{message}
 				{#if conflict}<p class="mt-2">

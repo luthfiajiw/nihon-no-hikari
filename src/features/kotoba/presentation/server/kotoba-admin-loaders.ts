@@ -19,12 +19,14 @@ export function loadKotobaAdminTopics(event: ServerLoadEvent) {
 	event.depends('kotoba:topics');
 	const params = parsePaginationParams(event.url);
 	const level = event.url.searchParams.get('level') || undefined;
+	const category = event.url.searchParams.get('category') || undefined;
 	const status = event.url.searchParams.get('status') || undefined;
 	const sort = event.url.searchParams.get('sort') || undefined;
 	return kotobaLoad(async () => {
 		const result = await kotobaRepository.listPaginated(true, {
 			...params,
 			level,
+			category,
 			status,
 			sort
 		});

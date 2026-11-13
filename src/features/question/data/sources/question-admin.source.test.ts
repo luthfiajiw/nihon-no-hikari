@@ -144,4 +144,19 @@ describe('question administrative transport', () => {
 			expect.objectContaining({ method: 'POST', body: JSON.stringify(input) })
 		);
 	});
+	it('forwards kind filter option in query parameters', async () => {
+		const { source, fetch } = sourceWith(
+			Response.json({
+				data: [{ id: contentId, title: 'Live' }],
+				meta: { page: 1, limit: 10, total: 1, total_pages: 1 }
+			})
+		);
+		await source.getAdminContentList({ kind: 'practice' });
+		expect(fetch).toHaveBeenCalledWith(
+			'/api/v1/admin/question-sets?kind=practice',
+			expect.objectContaining({
+				headers: expect.objectContaining({ Accept: 'application/json' })
+			})
+		);
+	});
 });

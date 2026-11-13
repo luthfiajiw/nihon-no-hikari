@@ -1,13 +1,24 @@
+import type { PaginationQueryOptions } from '$lib/models/pagination.model';
+
 export type CourseAdminContentKind = 'course' | 'module' | 'lesson';
 export type CourseAdminContentAction = 'save' | 'publish' | 'remove' | 'restore';
 export type CourseAdminReorderKind = 'module' | 'lesson';
 export type CourseAdminReorderInput = { parent_id: string; ordered_ids: string[] };
+export type CourseAdminListQueryOptions = PaginationQueryOptions & {
+	status?: string;
+	level?: string;
+};
+export type CourseAdminLevelsQueryOptions = PaginationQueryOptions & {
+	price_type?: string;
+};
 export type CourseAdminRecord = {
 	id: string;
 	title: string;
 	slug?: string;
 	description?: string | null;
 	thumbnail_url?: string | null;
+	level_id?: string | null;
+	level_code?: string | null;
 	is_published?: boolean;
 	archived_at?: string | null;
 	order_index?: number;

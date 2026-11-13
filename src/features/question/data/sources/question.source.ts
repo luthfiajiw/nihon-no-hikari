@@ -120,13 +120,14 @@ export class QuestionSource {
 	}
 
 	async getAdminContentList(
-		options?: PaginationQueryOptions & { skill?: string; status?: string }
+		options?: PaginationQueryOptions & { skill?: string; kind?: string; status?: string }
 	): Promise<PaginatedResult<QuestionAdminRecord>> {
 		const searchParams = new URLSearchParams();
 		if (options?.page) searchParams.set('page', String(options.page));
 		if (options?.limit) searchParams.set('limit', String(options.limit));
 		if (options?.search) searchParams.set('search', options.search);
 		if (options?.skill) searchParams.set('skill', options.skill);
+		if (options?.kind && options.kind !== 'all') searchParams.set('kind', options.kind);
 		if (options?.status) searchParams.set('status', options.status);
 		const qs = searchParams.toString();
 		const path = `${this.contentPath()}${qs ? `?${qs}` : ''}`;

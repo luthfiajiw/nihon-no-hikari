@@ -9,7 +9,12 @@ export interface KotobaRepository {
 	list(admin: boolean): Promise<KotobaTopicRecord[]>;
 	listPaginated(
 		admin: boolean,
-		options?: PaginationQueryOptions & { level?: string; status?: string; sort?: string }
+		options?: PaginationQueryOptions & {
+			level?: string;
+			category?: string;
+			status?: string;
+			sort?: string;
+		}
 	): Promise<PaginatedResult<KotobaTopicRecord>>;
 	detail(id: string, admin: boolean): Promise<KotobaTopicRecord>;
 	save(id: string | null, input: KotobaTopicInput): Promise<KotobaTopicRecord>;

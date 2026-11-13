@@ -21,7 +21,8 @@ import { testKotoba, createKotobaFixture } from './admin-kotoba.mjs';
 const course = {
 	id: '11111111-1111-4111-8111-111111111111',
 	level_id: '55555555-5555-4555-8555-555555555555',
-	title: 'Bahasa Jepang Dasar N5',
+	level_code: 'N5',
+	title: 'Japanese Starter',
 	slug: 'n5-dasar',
 	description: 'Bangun fondasi bahasa Jepang melalui huruf, kosakata, dan tata bahasa.',
 	is_published: true,
@@ -98,7 +99,7 @@ const transportViolations = [];
 const managedUser = {
 	id: '77777777-7777-4777-8777-777777777777',
 	email: 'student@example.test',
-	display_name: 'Siswa Fixture',
+	display_name: 'Haru Member',
 	role: 'User'
 };
 const fixtureLevel = {
@@ -116,6 +117,17 @@ let failNextMutation = false;
 const kanaFixture = createKanaTemplateFixture();
 const kotobaFixture = createKotobaFixture(mutations);
 const contentCollections = { courses: [course], modules, lessons, 'question-sets': [set] };
+function paginate(items, url) {
+	const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+	const limit = Math.max(1, Number(url.searchParams.get('limit')) || 10);
+	const total = items.length;
+	const total_pages = Math.ceil(total / limit) || 1;
+	const data = items.slice((page - 1) * limit, page * limit);
+	return {
+		data,
+		meta: { page, limit, total, total_pages }
+	};
+}
 const api = createServer(async (request, response) => {
 	const url = new URL(request.url, `http://127.0.0.1:${apiPort}`);
 	if (url.pathname.startsWith('/storage/')) {
@@ -216,9 +228,25 @@ const api = createServer(async (request, response) => {
 		return;
 	}
 	let data;
+	let meta;
 	if (url.pathname === '/api/v1/admin/me') data = { role: 'Admin' };
-	else if (url.pathname === '/api/v1/admin/users') data = [managedUser];
-	else if (url.pathname === '/api/v1/admin/catalog')
+	else if (url.pathname === '/api/v1/admin/users') {
+		let users = [managedUser];
+		const role = url.searchParams.get('role');
+		if (role && role !== 'all') {
+			users = users.filter((u) => u.role?.toLowerCase() === role.toLowerCase());
+		}
+		const search = url.searchParams.get('search');
+		if (search) {
+			const q = search.toLowerCase();
+			users = users.filter((u) =>
+				u.display_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+			);
+		}
+		const paginated = paginate(users, url);
+		data = paginated.data;
+		meta = paginated.meta;
+	} else if (url.pathname === '/api/v1/admin/catalog')
 		data = {
 			courses: [course],
 			modules: [...modules].sort((a, b) => a.order_index - b.order_index),
@@ -231,17 +259,83 @@ const api = createServer(async (request, response) => {
 				}),
 			question_sets: [set]
 		};
-	else if (url.pathname === '/api/v1/admin/levels') data = [fixtureLevel];
-	else if (url.pathname === `/api/v1/admin/levels/${fixtureLevel.id}`) data = fixtureLevel;
-	else if (contentRoute && !contentRoute[3]) data = contentRoute[2] ? resource : collection;
+	else if (url.pathname === '/api/v1/admin/levels') {
+		let levels = [fixtureLevel];
+		const priceType = url.searchParams.get('price_type');
+		if (priceType && priceType !== 'all') {
+			if (priceType === 'free') levels = levels.filter((l) => l.price === 0);
+			else if (priceType === 'paid') levels = levels.filter((l) => l.price > 0);
+		}
+		const search = url.searchParams.get('search');
+		if (search) {
+			const q = search.toLowerCase();
+			levels = levels.filter((l) =>
+				l.name?.toLowerCase().includes(q) || l.code?.toLowerCase().includes(q)
+			);
+		}
+		const paginated = paginate(levels, url);
+		data = paginated.data;
+		meta = paginated.meta;
+	} else if (url.pathname === `/api/v1/admin/levels/${fixtureLevel.id}`) data = fixtureLevel;
+	else if (contentRoute && !contentRoute[3]) {
+		if (contentRoute[2]) {
+			data = resource;
+		} else {
+			let items = collection ? [...collection] : [];
+			if (contentRoute[1] === 'courses') {
+				const level = url.searchParams.get('level');
+				if (level && level !== 'all') {
+					items = items.filter(
+						(c) => c.level_id === level || c.level_code?.toLowerCase() === level.toLowerCase()
+					);
+				}
+				const status = url.searchParams.get('status');
+				if (status && status !== 'all') {
+					if (status === 'published') items = items.filter((c) => c.is_published && !c.archived_at);
+					else if (status === 'draft') items = items.filter((c) => !c.is_published && !c.archived_at);
+					else if (status === 'archived') items = items.filter((c) => Boolean(c.archived_at));
+				}
+				const search = url.searchParams.get('search');
+				if (search) {
+					const q = search.toLowerCase();
+					items = items.filter(
+						(c) => c.title?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q)
+					);
+				}
+			} else if (contentRoute[1] === 'question-sets') {
+				const kind = url.searchParams.get('kind');
+				if (kind && kind !== 'all') {
+					items = items.filter((q) => q.kind === kind);
+				}
+				const skill = url.searchParams.get('skill');
+				if (skill && skill !== 'all') {
+					items = items.filter((q) => q.skill === skill);
+				}
+				const status = url.searchParams.get('status');
+				if (status && status !== 'all') {
+					if (status === 'published') items = items.filter((q) => q.is_published && !q.archived_at);
+					else if (status === 'draft') items = items.filter((q) => !q.is_published && !q.archived_at);
+					else if (status === 'archived') items = items.filter((q) => Boolean(q.archived_at));
+				}
+				const search = url.searchParams.get('search');
+				if (search) {
+					const q = search.toLowerCase();
+					items = items.filter((q) => q.title?.toLowerCase().includes(q));
+				}
+			}
+			const paginated = paginate(items, url);
+			data = paginated.data;
+			meta = paginated.meta;
+		}
+	}
 	response.writeHead(data ? 200 : 404, { 'Content-Type': 'application/json' });
 	response.end(
 		JSON.stringify({
 			success: Boolean(data),
 			data,
-			meta: Array.isArray(data)
+			meta: meta ?? (Array.isArray(data)
 				? { page: 1, limit: 10, total: data.length, total_pages: 1 }
-				: undefined,
+				: undefined),
 			draft: drafts.get(data?.id) ?? null
 		})
 	);
@@ -431,7 +525,7 @@ try {
 		200,
 		`Admin list must load; upstream requests: ${backendRequests.join(', ')}`
 	);
-	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	await page.getByText(course.title).waitFor();
 	await mkdir(screenshotDir, { recursive: true });
 	await testKotoba({
 		page,
@@ -442,16 +536,39 @@ try {
 	});
 	assert.deepEqual(errors, [], 'Kotoba must not produce browser errors');
 	await clickAdminNavigation('Kursus & Materi');
-	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	await page.getByText(course.title).waitFor();
 	assert.equal(await page.title(), 'Kursus & Materi | Admin - Gakkobit');
 	assert.equal(
 		await page.locator('a[href]').count(),
 		0,
 		'Admin must use clickable buttons for navigation'
 	);
-	await page.getByRole('button', { name: 'Draft', exact: true }).click();
-	await page.getByText('Kursus tidak ditemukan', { exact: true }).waitFor();
-	await page.getByRole('button', { name: 'Semua', exact: true }).click();
+	await page
+		.getByRole('combobox', { name: /Filter status/i })
+		.or(page.getByLabel('Filter status'))
+		.first()
+		.click();
+	await page.getByRole('option', { name: 'Draft', exact: true }).click();
+	await page.getByText('Tidak ada kursus yang ditemukan.', { exact: true }).waitFor();
+	assert(await page.getByRole('heading', { name: 'Kursus & Materi' }).isVisible());
+	await page
+		.getByRole('combobox', { name: /Filter status/i })
+		.or(page.getByLabel('Filter status'))
+		.first()
+		.click();
+	await page.getByRole('option', { name: 'Semua status', exact: true }).click();
+	await page.getByText(course.title).waitFor();
+	const searchInput = page.getByPlaceholder('Cari kursus...');
+	await searchInput.fill('NonexistentCourseXYZ');
+	await page.getByText('Tidak ada kursus yang ditemukan.', { exact: true }).waitFor();
+	await searchInput.fill('');
+	await page.getByText(course.title).waitFor();
+	await page.getByRole('button', { name: `Aksi kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('menuitem', { name: `Edit kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('heading', { name: 'Edit Kursus', exact: true }).waitFor();
+	assert.equal(await page.getByLabel('Judul', { exact: true }).inputValue(), course.title);
+	await clickAdminNavigation('Kursus & Materi');
+	await page.getByText(course.title).waitFor();
 	await page.evaluate(() => {
 		window.__adminNavigationMarker = 'hydrated';
 	});
@@ -466,8 +583,8 @@ try {
 	);
 	await mkdir(screenshotDir, { recursive: true });
 	await page.screenshot({ path: join(screenshotDir, 'courses.png'), fullPage: true });
-	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).focus();
-	await page.keyboard.press('Enter');
+	await page.getByRole('button', { name: `Aksi kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('menuitem', { name: `Lihat materi ${course.title}`, exact: true }).click();
 	await page.waitForURL(`**/admin/courses/${course.id}`);
 	await page.getByText('Baris A (あ)', { exact: true }).waitFor();
 	assert.equal(await page.title(), `${course.title} | Admin - Gakkobit`);
@@ -507,7 +624,8 @@ try {
 	await clickAdminNavigation('Question Sets');
 	await page.getByRole('heading', { name: 'Question Sets', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Question Sets | Admin - Gakkobit');
-	await page.getByRole('button', { name: /Membaca Hiragana/ }).click();
+	await page.getByRole('button', { name: /Aksi question set/i }).first().click();
+	await page.getByRole('menuitem', { name: /Edit question set/i }).click();
 	await page.getByRole('heading', { name: 'Edit Question Set' }).waitFor();
 	assert.equal(await page.getByLabel('Judul set').inputValue(), set.title);
 	await page.goto(`${origin}/admin/content/course/new`, { waitUntil: 'networkidle' });
@@ -521,7 +639,8 @@ try {
 	assert.equal(payload.title, 'Kursus baru');
 	assert(!('module_id' in payload), 'Course payload must omit unrelated UUID fields');
 	await clickAdminNavigation('Kursus & Materi');
-	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).click();
+	await page.getByRole('button', { name: `Aksi kursus ${course.title}`, exact: true }).click();
+	await page.getByRole('menuitem', { name: `Lihat materi ${course.title}`, exact: true }).click();
 	await page.getByRole('button', { name: 'Tambah Module', exact: true }).click();
 	await page.getByRole('heading', { name: 'Buat Module' }).waitFor();
 	assert.equal(
@@ -562,7 +681,8 @@ try {
 	await page.waitForLoadState('networkidle');
 	assert.equal(course.archived_at, null);
 	await page.goto(`${origin}/admin/users`, { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: 'Jadikan Admin', exact: true }).click();
+	await page.getByRole('button', { name: `Aksi pengguna ${managedUser.display_name}`, exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Jadikan Admin', exact: true }).click();
 	await page
 		.getByRole('status')
 		.filter({ hasText: 'Role pengguna berhasil diperbarui.' })
@@ -573,7 +693,8 @@ try {
 	await clickAdminNavigation('Level & Harga');
 	await page.getByRole('heading', { name: 'Level & Harga', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Level & Harga | Admin - Gakkobit');
-	await page.getByRole('button', { name: 'Edit N5', exact: true }).click();
+	await page.getByRole('button', { name: 'Aksi level N5', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Edit N5', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Level N5', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Edit Level N5 | Admin - Gakkobit');
 	const priceInput = page.getByRole('spinbutton', { name: 'Harga Paket (Rp)' });
@@ -748,7 +869,7 @@ try {
 	await page.waitForURL('**/admin/courses');
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto(`${origin}/admin/courses`, { waitUntil: 'networkidle' });
-	await page.getByRole('button', { name: 'Lihat Materi', exact: true }).waitFor();
+	await page.getByText(course.title).waitFor();
 	assert(
 		await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
 		'Mobile layout must not overflow horizontally'
@@ -759,7 +880,7 @@ try {
 	);
 	assert.equal(
 		await page
-			.locator('.admin-page')
+			.locator('.admin-shell .space-y-6')
 			.first()
 			.evaluate((element) => getComputedStyle(element.firstElementChild).marginBottom),
 		'24px'

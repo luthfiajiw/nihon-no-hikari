@@ -1,16 +1,22 @@
 <script lang="ts">
+	import { MoreVertical, Shield } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
 	import type { UserAdminRecord } from '$features/user/domain/entities/user-admin.entity';
 
 	type Props =
+		| { cell: 'actions-header' }
 		| { cell: 'name' | 'email' | 'role'; row: UserAdminRecord }
 		| { cell: 'actions'; row: UserAdminRecord; currentUserId?: string };
 
 	let props: Props = $props();
+	let formEl: HTMLFormElement | undefined = $state();
 </script>
 
-{#if props.cell === 'name'}
+{#if props.cell === 'actions-header'}
+	<div class="text-right">Aksi</div>
+{:else if props.cell === 'name'}
 	<span class="font-medium text-foreground">{props.row.display_name}</span>
 {:else if props.cell === 'email'}
 	<span class="text-muted-foreground">{props.row.email}</span>
@@ -24,15 +30,38 @@
 		{props.row.role}
 	</span>
 {:else if props.cell === 'actions'}
-	{#if props.row.id === props.currentUserId}
-		<span class="text-xs font-medium text-muted-foreground">Akun Anda</span>
-	{:else}
-		<form method="POST" action="?/changeRole" class="flex items-center gap-2">
-			<Input type="hidden" name="userId" value={props.row.id} />
-			<Input type="hidden" name="role" value={props.row.role === 'Admin' ? 'User' : 'Admin'} />
-			<Button type="submit" variant="outline" size="sm">
-				{props.row.role === 'Admin' ? 'Jadikan User' : 'Jadikan Admin'}
-			</Button>
-		</form>
-	{/if}
+	<div class="flex items-center justify-end">
+		{#if props.row.id !== props.currentUserId}
+			<form method="POST" action="?/changeRole" bind:this={formEl} class="hidden">
+				<Input type="hidden" name="userId" value={props.row.id} />
+				<Input type="hidden" name="role" value={props.row.role === 'Admin' ? 'User' : 'Admin'} />
+			</form>
+		{/if}
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props: triggerProps })}
+					<Button
+						variant="outline"
+						size="icon-sm"
+						aria-label={`Aksi pengguna ${props.row.display_name}`}
+						{...triggerProps}
+					>
+						<MoreVertical />
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" class="w-44">
+				<DropdownMenu.Group>
+					{#if props.row.id === props.currentUserId}
+						<DropdownMenu.Item disabled>Akun Anda</DropdownMenu.Item>
+					{:else}
+						<DropdownMenu.Item onclick={() => formEl?.requestSubmit()}>
+							<Shield />
+							{props.row.role === 'Admin' ? 'Jadikan User' : 'Jadikan Admin'}
+						</DropdownMenu.Item>
+					{/if}
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+	</div>
 {/if}

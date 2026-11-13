@@ -45,7 +45,7 @@
 	<meta name="description" content="Ringkasan pengelolaan konten dan pengguna Gakkobit." />
 </svelte:head>
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<ManagementPageHeader
 		title="Ringkasan Admin"
 		description="Ruang kerja untuk materi dan penilaian siswa."

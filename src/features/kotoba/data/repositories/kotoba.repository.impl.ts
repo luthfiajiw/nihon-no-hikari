@@ -50,13 +50,21 @@ export class KotobaRepositoryImpl implements KotobaRepository {
 
 	async listPaginated(
 		admin: boolean,
-		options?: PaginationQueryOptions & { level?: string; status?: string; sort?: string }
+		options?: PaginationQueryOptions & {
+			level?: string;
+			category?: string;
+			status?: string;
+			sort?: string;
+		}
 	): Promise<PaginatedResult<KotobaTopicRecord>> {
 		const searchParams = new URLSearchParams();
 		if (options?.page) searchParams.set('page', String(options.page));
 		if (options?.limit) searchParams.set('limit', String(options.limit));
 		if (options?.search) searchParams.set('search', options.search);
 		if (options?.level && options.level !== 'all') searchParams.set('level', options.level);
+		if (options?.category && options.category !== 'all') {
+			searchParams.set('category', options.category);
+		}
 		if (options?.status && options.status !== 'all') searchParams.set('status', options.status);
 		if (options?.sort) searchParams.set('sort', options.sort);
 		const qs = searchParams.toString();

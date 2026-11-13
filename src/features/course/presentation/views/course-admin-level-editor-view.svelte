@@ -96,25 +96,26 @@
 
 <svelte:head>
 	<title>{pageTitle} | Admin - Gakkobit</title>
-	<meta name="description" content="Kelola informasi level JLPT, harga, dan poin manfaat kartu harga." />
+	<meta
+		name="description"
+		content="Kelola informasi level JLPT, harga, dan poin manfaat kartu harga."
+	/>
 </svelte:head>
 
-<div class="admin-page space-y-6">
-	<div class="flex items-center gap-4">
-		<Button
-			variant="outline"
-			size="icon"
-			type="button"
-			aria-label="Kembali ke daftar level"
-			onclick={() => goto(resolve('/(protected)/admin/levels'))}
-		>
-			<ArrowLeft class="size-4" />
-		</Button>
-		<ManagementPageHeader
-			title={pageTitle}
-			description="Atur rincian level, harga paket, dan poin-poin yang ditampilkan pada kartu paket belajar."
-		/>
-	</div>
+<div class="flex flex-col space-y-6">
+	<Button
+		variant="outline"
+		size="icon"
+		type="button"
+		aria-label="Kembali ke daftar level"
+		onclick={() => goto(resolve('/(protected)/admin/levels'))}
+	>
+		<ArrowLeft class="size-4" />
+	</Button>
+	<ManagementPageHeader
+		title={pageTitle}
+		description="Atur rincian level, harga paket, dan poin-poin yang ditampilkan pada kartu paket belajar."
+	/>
 
 	{#if form?.message}
 		<p
@@ -133,19 +134,13 @@
 		data-slot="card"
 		data-size="default"
 	>
-		<div class={Card.cardVariants({ class: 'admin-page block px-(--card-spacing) space-y-6' })}>
+		<div class={Card.cardVariants({ class: 'block space-y-6 px-(--card-spacing)' })}>
 			<input type="hidden" name="payload" value={payloadString} />
 
 			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 				<label class="block text-sm font-medium">
 					Kode Level (e.g. N5, N4)
-					<Input
-						bind:value={code}
-						required
-						maxlength={8}
-						placeholder="N5"
-						class="mt-2 h-10"
-					/>
+					<Input bind:value={code} required maxlength={8} placeholder="N5" class="mt-2 h-10" />
 				</label>
 				<label class="block text-sm font-medium">
 					Nama Level
@@ -161,12 +156,7 @@
 
 			<label class="block text-sm font-medium">
 				Tag Kartu (Opsional)
-				<Input
-					bind:value={tag}
-					maxlength={40}
-					placeholder="Favorit Pemula"
-					class="mt-2 h-10"
-				/>
+				<Input bind:value={tag} maxlength={40} placeholder="Favorit Pemula" class="mt-2 h-10" />
 				<span class="mt-1 block text-xs text-muted-foreground">
 					Badge kecil yang ditampilkan di pojok atas kartu harga (misal: Favorit Pemula, Populer).
 				</span>
@@ -189,13 +179,7 @@
 				</label>
 				<label class="block text-sm font-medium">
 					Urutan Tampilan
-					<Input
-						type="number"
-						bind:value={orderIndex}
-						required
-						min={0}
-						class="mt-2 h-10"
-					/>
+					<Input type="number" bind:value={orderIndex} required min={0} class="mt-2 h-10" />
 				</label>
 			</div>
 
@@ -215,16 +199,11 @@
 					<div>
 						<h3 class="text-sm font-semibold text-foreground">Poin Manfaat Kartu Harga</h3>
 						<p class="text-xs text-muted-foreground">
-							Daftar checklist yang ditampilkan pada kartu paket di landing page dan halaman rincian.
+							Daftar checklist yang ditampilkan pada kartu paket di landing page dan halaman
+							rincian.
 						</p>
 					</div>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						onclick={addPoint}
-						class="gap-1.5"
-					>
+					<Button type="button" variant="outline" size="sm" onclick={addPoint} class="gap-1.5">
 						<Plus class="size-3.5" /> Tambah Poin
 					</Button>
 				</div>
@@ -233,14 +212,15 @@
 					<div
 						class="rounded-lg border border-dashed border-border/70 p-6 text-center text-sm text-muted-foreground"
 					>
-						Belum ada poin manfaat. Klik <strong>Tambah Poin</strong> untuk menambahkan manfaat kartu.
+						Belum ada poin manfaat. Klik <strong>Tambah Poin</strong>
+						 untuk menambahkan manfaat kartu.
 					</div>
 				{:else}
 					<div class="space-y-2.5">
 						{#each points as item, index (index)}
 							<div class="flex items-center gap-2">
 								<input
-									class="level-point-input flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+									class="level-point-input flex h-10 w-full flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 									bind:value={item.text}
 									placeholder={`Poin manfaat ${index + 1}`}
 									maxlength={200}
@@ -277,16 +257,16 @@
 		{#if !isNew}
 			<div class="flex items-center gap-3">
 				{#if !confirmDelete}
-					<Button
-						type="button"
-						variant="destructive"
-						onclick={() => (confirmDelete = true)}
-					>
+					<Button type="button" variant="destructive" onclick={() => (confirmDelete = true)}>
 						Hapus Level
 					</Button>
 				{:else}
-					<div class="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2">
-						<span class="text-xs text-destructive font-medium">Yakin ingin menghapus level ini?</span>
+					<div
+						class="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2"
+					>
+						<span class="text-xs font-medium text-destructive">
+							Yakin ingin menghapus level ini?
+						</span>
 						<form method="POST" action="?/remove" use:enhance={submitForm('remove')}>
 							<Button
 								type="submit"
@@ -298,12 +278,7 @@
 								Ya, Hapus
 							</Button>
 						</form>
-						<Button
-							type="button"
-							size="sm"
-							variant="ghost"
-							onclick={() => (confirmDelete = false)}
-						>
+						<Button type="button" size="sm" variant="ghost" onclick={() => (confirmDelete = false)}>
 							Batal
 						</Button>
 					</div>

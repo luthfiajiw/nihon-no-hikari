@@ -229,7 +229,7 @@
 	<meta name="description" content={`Kelola module dan lesson kursus ${data.course.title}.`} />
 </svelte:head>
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
 		<ArrowLeftIcon />
 	</Button>

@@ -66,6 +66,12 @@ describe('GetCourseAdminLevelsUseCase', () => {
 		expect(result.items).toHaveLength(1);
 		expect(result.items[0].code).toBe('N5');
 	});
+
+	it('forwards price_type option to repository', async () => {
+		const repo = fixture();
+		await new GetCourseAdminLevelsUseCase(repo).exec({ price_type: 'paid' });
+		expect(repo.getAdminLevels).toHaveBeenCalledWith({ price_type: 'paid' });
+	});
 });
 
 describe('UpdateCourseAdminLevelPriceUseCase', () => {

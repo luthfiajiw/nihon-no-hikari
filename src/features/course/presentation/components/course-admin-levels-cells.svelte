@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Pencil } from 'lucide-svelte';
+	import { MoreVertical, Pencil } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import type { CourseAdminLevel } from '$features/course/domain/entities/course-admin.entity';
 
 	type Props =
@@ -47,15 +48,31 @@
 		{props.row.order_index}
 	</span>
 {:else if props.cell === 'actions'}
-	<div class="flex justify-end">
-		<Button
-			variant="outline"
-			size="sm"
-			class="gap-1.5"
-			aria-label={`Edit ${props.row.code}`}
-			onclick={() => goto(resolve('/(protected)/admin/levels/[id]', { id: props.row.id }))}
-		>
-			<Pencil class="size-3.5" /> Edit
-		</Button>
+	<div class="flex items-center justify-end">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props: triggerProps })}
+					<Button
+						variant="outline"
+						size="icon-sm"
+						aria-label={`Aksi level ${props.row.code}`}
+						{...triggerProps}
+					>
+						<MoreVertical />
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" class="w-40">
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						aria-label={`Edit ${props.row.code}`}
+						onclick={() => goto(resolve('/(protected)/admin/levels/[id]', { id: props.row.id }))}
+					>
+						<Pencil />
+						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 	</div>
 {/if}

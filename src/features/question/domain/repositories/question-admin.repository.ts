@@ -13,7 +13,7 @@ import type {
 import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
 export interface QuestionAdminRepository {
 	getAdminContentList(
-		options?: PaginationQueryOptions & { skill?: string; status?: string }
+		options?: PaginationQueryOptions & { skill?: string; kind?: string; status?: string }
 	): Promise<PaginatedResult<QuestionAdminRecord> | QuestionAdminRecord[]>;
 	getAdminContent(id: string): Promise<QuestionAdminContentDetail>;
 	saveAdminContent(

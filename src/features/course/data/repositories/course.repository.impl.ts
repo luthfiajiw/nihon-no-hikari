@@ -1,5 +1,5 @@
 import type { CourseAdminRepository } from '../../domain/repositories/course-admin.repository';
-import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
+import type { PaginatedResult } from '$lib/models/pagination.model';
 import type {
 	CourseAdminReorderKind,
 	CourseAdminReorderInput,
@@ -10,6 +10,8 @@ import type {
 	CourseAdminContentRecord,
 	CourseAdminLevel,
 	CourseAdminLevelInput,
+	CourseAdminLevelsQueryOptions,
+	CourseAdminListQueryOptions,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../../domain/entities/course-admin.entity';
@@ -71,14 +73,17 @@ export class CourseRepositoryImpl implements CourseRepository, CourseAdminReposi
 	getAdminCatalog(courseId?: string): Promise<CourseAdminCatalog> {
 		return this.courseSource.getAdminCatalog(courseId);
 	}
-	getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]> {
-		return this.courseSource.getAdminContentList(kind);
+	getAdminContentList(
+		kind: CourseAdminContentKind,
+		options?: CourseAdminListQueryOptions
+	): Promise<PaginatedResult<CourseAdminRecord>> {
+		return this.courseSource.getAdminContentList(kind, options);
 	}
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
 		return this.courseSource.getAdminContent(kind, id);
 	}
 	getAdminLevels(
-		options?: PaginationQueryOptions
+		options?: CourseAdminLevelsQueryOptions
 	): Promise<PaginatedResult<CourseAdminLevel>> {
 		return this.courseSource.getAdminLevels(options);
 	}

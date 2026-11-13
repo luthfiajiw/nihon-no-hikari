@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { HttpError } from '$lib/http/http-error';
 import { integer } from '$lib/content-validation';
-import type { CourseAdminLevel, CourseAdminLevelInput } from '../entities/course-admin.entity';
+import type {
+	CourseAdminLevel,
+	CourseAdminLevelInput,
+	CourseAdminLevelsQueryOptions
+} from '../entities/course-admin.entity';
 import type { CourseAdminRepository } from '../repositories/course-admin.repository';
-import type { PaginatedResult, PaginationQueryOptions } from '$lib/models/pagination.model';
+import type { PaginatedResult } from '$lib/models/pagination.model';
 import { defaultPaginationMeta } from '$lib/models/pagination.model';
 
 const levelIdSchema = z
@@ -55,7 +59,7 @@ const levelInputSchema = z.object({
 export class GetCourseAdminLevelsUseCase {
 	constructor(private readonly repository: CourseAdminRepository) {}
 
-	async exec(options?: PaginationQueryOptions): Promise<PaginatedResult<CourseAdminLevel>> {
+	async exec(options?: CourseAdminLevelsQueryOptions): Promise<PaginatedResult<CourseAdminLevel>> {
 		const res = await this.repository.getAdminLevels(options);
 		if (Array.isArray(res)) {
 			return {

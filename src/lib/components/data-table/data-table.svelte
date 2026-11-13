@@ -2,12 +2,13 @@
 	import { createTable, FlexRender, type RowData, type SortingState } from '@tanstack/svelte-table';
 	import type { ResolvedPathname } from '$app/types';
 	import { dataTableFeatures, type DataTableColumnDef } from './index';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as Table from '$lib/components/ui/table';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import type { PaginationMeta } from '$lib/models/pagination.model';
@@ -26,7 +27,8 @@
 		class: className,
 		tableClass,
 		showSearch = true,
-		showPagination = true
+		showPagination = true,
+		loading
 	}: {
 		data: TData[];
 		columns: DataTableColumnDef<TData>[];
@@ -40,7 +42,17 @@
 		tableClass?: string;
 		showSearch?: boolean;
 		showPagination?: boolean;
+		loading?: boolean;
 	} = $props();
+
+	const isTableLoading = $derived(
+		loading ??
+			Boolean(
+				navigating.to &&
+					navigating.from &&
+					navigating.from.url.pathname === navigating.to.url.pathname
+			)
+	);
 
 	let sorting = $state<SortingState>([]);
 
@@ -143,7 +155,7 @@
 <div class={cn('flex flex-col gap-4', className)}>
 	<div class="flex items-center gap-2">
 		{#if showSearch}
-			<div class="flex w-full items-center justify-between gap-4">
+			<div class="flex items-center justify-between gap-4">
 				<div class="relative max-w-md flex-1">
 					<SearchIcon
 						class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
@@ -177,8 +189,24 @@
 	</div>
 
 	<div
-		class="rounded-lg border-2 border-taupe-950 bg-card shadow-[4px_4px_0_var(--color-taupe-800)]"
+		class="relative rounded-lg border-2 border-taupe-950 bg-card shadow-[4px_4px_0_var(--color-taupe-800)]"
+		aria-busy={isTableLoading}
 	>
+		{#if isTableLoading}
+			<div
+				data-testid="data-table-loading"
+				role="status"
+				aria-live="polite"
+				class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/70 backdrop-blur-[1px]"
+			>
+				<div
+					class="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-medium text-foreground shadow-sm"
+				>
+					<LoaderCircle class="size-4 animate-spin text-primary" />
+					<span>Memuat data...</span>
+				</div>
+			</div>
+		{/if}
 		<Table.Root class={tableClass}>
 			<Table.Header>
 				{#each table.getHeaderGroups() as group (group.id)}

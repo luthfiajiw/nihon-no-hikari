@@ -6,7 +6,7 @@ import type { QuestionAdminRecord } from '../entities/question-admin.entity';
 export class GetQuestionAdminSetsUseCase {
 	constructor(private readonly repository: QuestionAdminRepository) {}
 	async exec(
-		options?: PaginationQueryOptions & { skill?: string; status?: string }
+		options?: PaginationQueryOptions & { skill?: string; kind?: string; status?: string }
 	): Promise<PaginatedResult<QuestionAdminRecord>> {
 		const res = await this.repository.getAdminContentList(options);
 		if (Array.isArray(res)) {

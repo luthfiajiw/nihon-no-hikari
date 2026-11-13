@@ -2,8 +2,9 @@
 	import type { Pathname } from '$app/types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
+	import { MoreVertical, Pencil } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import type { QuestionAdminRecord } from '$features/question/domain/entities/question-admin.entity';
 
 	type Props =
@@ -21,18 +22,6 @@
 		class="group flex w-full items-center gap-3 text-left transition-colors"
 		onclick={() => goto(resolve(`/admin/content/question_set/${props.row.id}` as Pathname))}
 	>
-		<div
-			class="flex size-9 shrink-0 items-center justify-center rounded-lg {props.row.skill ===
-			'writing'
-				? 'bg-rose-50 text-rose-500'
-				: 'bg-primary/10 text-primary'}"
-		>
-			{#if props.row.skill === 'writing'}
-				<PenLine class="size-4" />
-			{:else}
-				<BookOpen class="size-4" />
-			{/if}
-		</div>
 		<div class="min-w-0 flex-1">
 			<span class="block truncate text-sm font-semibold text-foreground group-hover:text-primary">
 				{props.row.title}
@@ -55,15 +44,31 @@
 		v{props.row.version ?? 1}
 	</span>
 {:else if props.cell === 'actions'}
-	<div class="flex justify-end">
-		<Button
-			variant="ghost"
-			size="icon"
-			class="size-8"
-			onclick={() => goto(resolve(`/admin/content/question_set/${props.row.id}` as Pathname))}
-		>
-			<ArrowUpRight class="size-4 text-muted-foreground" />
-			<span class="sr-only">Buka</span>
-		</Button>
+	<div class="flex items-center justify-end">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props: triggerProps })}
+					<Button
+						variant="outline"
+						size="icon-sm"
+						aria-label={`Aksi question set ${props.row.title}`}
+						{...triggerProps}
+					>
+						<MoreVertical />
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" class="w-40">
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						aria-label={`Edit question set ${props.row.title}`}
+						onclick={() => goto(resolve(`/admin/content/question_set/${props.row.id}` as Pathname))}
+					>
+						<Pencil />
+						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 	</div>
 {/if}

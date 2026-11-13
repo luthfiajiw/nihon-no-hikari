@@ -14,12 +14,18 @@
 	let { data }: { data: QuestionAdminSetsData } = $props();
 
 	let currentSkill = $derived(page.url.searchParams.get('skill') ?? 'all');
+	let currentKind = $derived(page.url.searchParams.get('kind') ?? 'all');
 	let currentStatus = $derived(page.url.searchParams.get('status') ?? 'all');
 
 	const skillOptions = [
 		{ value: 'all', label: 'Semua skill' },
 		{ value: 'reading', label: 'Reading' },
 		{ value: 'writing', label: 'Writing' }
+	];
+	const kindOptions = [
+		{ value: 'all', label: 'Semua jenis' },
+		{ value: 'practice', label: 'Latihan lesson' },
+		{ value: 'final_exam', label: 'Ujian module' }
 	];
 	const statusOptions = [
 		{ value: 'all', label: 'Semua status' },
@@ -28,7 +34,7 @@
 		{ value: 'archived', label: 'Arsip' }
 	];
 
-	function updateFilter(key: 'skill' | 'status', value: string) {
+	function updateFilter(key: 'skill' | 'kind' | 'status', value: string) {
 		const url = new URL(page.url);
 		if (value === 'all') {
 			url.searchParams.delete(key);
@@ -49,7 +55,7 @@
 	<meta name="description" content="Kelola latihan dan ujian Gakkobit." />
 </svelte:head>
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<ManagementPageHeader
 		title="Question Sets"
 		description="Kelola latihan lesson dan ujian akhir module."
@@ -71,6 +77,13 @@
 						aria-label="Filter skill"
 						class="h-9 bg-background text-muted-foreground sm:w-40"
 						onchange={(val: string) => updateFilter('skill', val)}
+					/>
+					<ManagementSelect
+						value={currentKind}
+						options={kindOptions}
+						aria-label="Filter jenis"
+						class="h-9 bg-background text-muted-foreground sm:w-40"
+						onchange={(val: string) => updateFilter('kind', val)}
 					/>
 					<ManagementSelect
 						value={currentStatus}

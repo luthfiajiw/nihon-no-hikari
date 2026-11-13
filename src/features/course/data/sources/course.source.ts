@@ -1,8 +1,7 @@
 import { requestJson } from '$lib/http/request-json';
 import type {
 	PaginatedResult,
-	PaginationMeta,
-	PaginationQueryOptions
+	PaginationMeta
 } from '$lib/models/pagination.model';
 import { defaultPaginationMeta } from '$lib/models/pagination.model';
 import type {
@@ -15,6 +14,8 @@ import type {
 	CourseAdminContentRecord,
 	CourseAdminLevel,
 	CourseAdminLevelInput,
+	CourseAdminLevelsQueryOptions,
+	CourseAdminListQueryOptions,
 	CourseAdminMutationResult,
 	CourseAdminLessonContent
 } from '../../domain/entities/course-admin.entity';
@@ -198,8 +199,25 @@ export class CourseSource {
 		return payload.data;
 	}
 
-	async getAdminContentList(kind: CourseAdminContentKind): Promise<CourseAdminRecord[]> {
-		return (await this.adminRequest<ApiPayload<CourseAdminRecord[]>>(this.contentPath(kind))).data;
+	async getAdminContentList(
+		kind: CourseAdminContentKind,
+		options?: CourseAdminListQueryOptions
+	): Promise<PaginatedResult<CourseAdminRecord>> {
+		const searchParams = new URLSearchParams();
+		if (options?.page) searchParams.set('page', String(options.page));
+		if (options?.limit) searchParams.set('limit', String(options.limit));
+		if (options?.search) searchParams.set('search', options.search);
+		if (options?.status && options.status !== 'all') searchParams.set('status', options.status);
+		if (options?.level && options.level !== 'all') searchParams.set('level', options.level);
+		const qs = searchParams.toString();
+		const path = `${this.contentPath(kind)}${qs ? `?${qs}` : ''}`;
+		const res = await this.adminRequest<ApiPayload<CourseAdminRecord[]> & { meta?: PaginationMeta }>(
+			path
+		);
+		const items = res.data ?? [];
+		const meta =
+			res.meta ?? defaultPaginationMeta(items.length, options?.limit ?? 10, options?.page ?? 1);
+		return { items, meta };
 	}
 
 	getAdminContent(kind: CourseAdminContentKind, id: string): Promise<CourseAdminContentDetail> {
@@ -207,12 +225,15 @@ export class CourseSource {
 	}
 
 	async getAdminLevels(
-		options?: PaginationQueryOptions
+		options?: CourseAdminLevelsQueryOptions
 	): Promise<PaginatedResult<CourseAdminLevel>> {
 		const searchParams = new URLSearchParams();
 		if (options?.page) searchParams.set('page', String(options.page));
 		if (options?.limit) searchParams.set('limit', String(options.limit));
 		if (options?.search) searchParams.set('search', options.search);
+		if (options?.price_type && options.price_type !== 'all') {
+			searchParams.set('price_type', options.price_type);
+		}
 		const qs = searchParams.toString();
 		const path = `/levels${qs ? `?${qs}` : ''}`;
 		const res = await this.adminRequest<ApiPayload<CourseAdminLevel[]> & { meta?: PaginationMeta }>(

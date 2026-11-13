@@ -44,7 +44,7 @@ export class QuestionRepositoryImpl implements QuestionRepository, QuestionAdmin
 		return this.questionSource.abandonAttempt(questionSetId, attemptId);
 	}
 	getAdminContentList(
-		options?: PaginationQueryOptions & { skill?: string; status?: string }
+		options?: PaginationQueryOptions & { skill?: string; kind?: string; status?: string }
 	): Promise<PaginatedResult<QuestionAdminRecord>> {
 		return this.questionSource.getAdminContentList(options);
 	}

@@ -24,7 +24,7 @@ export function createUserAdminColumns(
 		},
 		{
 			id: 'actions',
-			header: 'Aksi',
+			header: () => renderComponent(UserAdminCells, { cell: 'actions-header' }),
 			cell: ({ row }) =>
 				renderComponent(UserAdminCells, {
 					cell: 'actions',

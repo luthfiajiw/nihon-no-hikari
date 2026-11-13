@@ -70,7 +70,7 @@
 	}
 </script>
 
-<div class="admin-page">
+<div class="flex flex-col space-y-6">
 	<Button variant="outline" size="icon" type="button" onclick={() => window.history.back()}>
 		<ArrowLeft />
 	</Button>
@@ -98,7 +98,7 @@
 		data-slot="card"
 		data-size="default"
 	>
-		<div class={Card.cardVariants({ class: 'admin-page block px-(--card-spacing)' })}>
+		<div class={Card.cardVariants({ class: 'block space-y-6 px-(--card-spacing)' })}>
 			<Input type="hidden" name="payload" value={payload()} />
 			<div class="admin-fields">
 				<label class="block text-sm font-medium">

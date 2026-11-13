@@ -29,7 +29,7 @@ export function createKanaTemplateFixture() {
 			script: 'hiragana',
 			character: 'あ',
 			romaji: 'a',
-			source_version: 'seed',
+			source_version: 'stroke-data-v1',
 			stroke_count: 1,
 			stroke_data: structuredClone(strokeData)
 		}
@@ -50,8 +50,28 @@ export function createKanaTemplateFixture() {
 			const id = url.pathname.split('/templates')[1].slice(1);
 			if (request.method === 'GET') {
 				if (!id) {
+					let filtered = [...templates];
+					const script = url.searchParams.get('script');
+					if (script && script !== 'all') {
+						filtered = filtered.filter((item) => item.script?.toLowerCase() === script.toLowerCase());
+					}
+					const search = url.searchParams.get('search');
+					if (search) {
+						const q = search.toLowerCase();
+						filtered = filtered.filter(
+							(item) =>
+								item.character?.toLowerCase().includes(q) ||
+								item.romaji?.toLowerCase().includes(q) ||
+								item.source_version?.toLowerCase().includes(q)
+						);
+					}
+					const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+					const limit = Math.max(1, Number(url.searchParams.get('limit')) || 10);
+					const total = filtered.length;
+					const total_pages = Math.ceil(total / limit) || 1;
+					const paginated = filtered.slice((page - 1) * limit, page * limit);
 					reply(200, {
-						data: templates.map((item) => ({
+						data: paginated.map((item) => ({
 							id: item.id,
 							script: item.script,
 							character: item.character,
@@ -59,7 +79,7 @@ export function createKanaTemplateFixture() {
 							source_version: item.source_version,
 							stroke_count: item.stroke_count
 						})),
-						meta: { page: 1, limit: 10, total: templates.length, total_pages: 1 }
+						meta: { page, limit, total, total_pages }
 					});
 					return;
 				}
@@ -138,7 +158,16 @@ export async function testKanaTemplates({
 	await page.getByRole('heading', { name: 'Template Kana', exact: true }).waitFor();
 	assert.equal(await page.title(), 'Template Kana | Admin - Gakkobit');
 	await page.getByRole('cell', { name: 'あ', exact: true }).waitFor();
-	await page.getByLabel('Filter', { exact: true }).click();
+	await page.getByRole('button', { name: 'Aksi template あ stroke-data-v1', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Edit template あ stroke-data-v1', exact: true }).click();
+	await page.getByRole('heading', { name: 'Edit Template Kana', exact: true }).waitFor();
+	await page.getByRole('button', { name: 'Kembali ke template kana', exact: true }).click();
+	await page.getByRole('heading', { name: 'Template Kana', exact: true }).waitFor();
+	await page
+		.getByRole('combobox', { name: /Filter/i })
+		.or(page.getByLabel('Filter script'))
+		.first()
+		.click();
 	await page.getByRole('option', { name: 'Katakana', exact: true }).click();
 	await page.getByText('Template tidak ditemukan.', { exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Tambah Template', exact: true }).click();

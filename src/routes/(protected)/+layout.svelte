@@ -41,6 +41,16 @@
 			page.route.id?.startsWith('/(protected)/practice') === true
 	);
 	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
+	const isSamePageNavigation = $derived(
+		Boolean(
+			navigating.to &&
+				navigating.from &&
+				navigating.from.url.pathname === navigating.to.url.pathname
+		)
+	);
+	const showAdminPageSkeleton = $derived(
+		Boolean(isAdminRoute && navigating.to && !isSamePageNavigation)
+	);
 	const assessmentData = $derived(page.data as Partial<AssessmentPageData>);
 	const activeAssessmentAttempt = $derived.by(() => {
 		const response = attemptResponse;
@@ -261,7 +271,7 @@
 				aria-busy={Boolean(navigating.to)}
 				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)] dark:bg-muted"
 			>
-				{#if isAdminRoute && navigating.to}
+				{#if showAdminPageSkeleton}
 					<div class="mx-auto max-w-7xl space-y-6 p-6 md:p-8" role="status" aria-live="polite">
 						<p class="flex items-center gap-2 text-sm text-taupe-500">
 							<LoaderCircle class="size-4 animate-spin motion-reduce:animate-none" /> Membuka halaman…
@@ -273,7 +283,7 @@
 					</div>
 				{/if}
 				{#if isAdminRoute}
-					<div class:hidden={Boolean(navigating.to)}>
+					<div class:hidden={showAdminPageSkeleton}>
 						{@render children?.()}
 					</div>
 				{:else}
