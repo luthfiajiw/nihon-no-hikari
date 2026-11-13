@@ -1,17 +1,21 @@
 <script lang="ts">
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
-	import type { Pathname } from '$app/types';
+	import type { Pathname, ResolvedPathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Plus, ArrowUpRight, BookOpen, PenLine } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import StatusBadge from '$lib/components/content-status-badge.svelte';
 	import type { QuestionAdminSetsData } from '$features/question/presentation/models/question-admin-view.model';
-	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
-	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import {
+		DataTable,
+		DataTableColumnHeader,
+		type DataTableColumn,
+		type DataTableColumnDef
+	} from '$lib/components/data-table';
+	import { renderSnippet } from '@tanstack/svelte-table';
 	import type { QuestionAdminRecord } from '$features/question/domain/entities/question-admin.entity';
 
 	let { data }: { data: QuestionAdminSetsData } = $props();
@@ -39,10 +43,14 @@
 			url.searchParams.set(key, value);
 		}
 		url.searchParams.delete('page');
-		goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+		goto(`${resolve('/(protected)/admin/question-sets')}${url.search}` as ResolvedPathname, {
+			keepFocus: true,
+			noScroll: true,
+			replaceState: true
+		});
 	}
 
-	const columns: ColumnDef<any, QuestionAdminRecord, any>[] = [
+	const columns: DataTableColumnDef<QuestionAdminRecord>[] = [
 		{
 			accessorKey: 'title',
 			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Question Set' }),
@@ -73,7 +81,13 @@
 	];
 </script>
 
-{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+{#snippet headerSnippet({
+	column,
+	title
+}: {
+	column: DataTableColumn<QuestionAdminRecord>;
+	title: string;
+})}
 	<DataTableColumnHeader {column} {title} />
 {/snippet}
 
@@ -110,7 +124,7 @@
 {/snippet}
 
 {#snippet skillCell({ row }: { row: QuestionAdminRecord })}
-	<span class="capitalize text-sm font-medium text-muted-foreground">
+	<span class="text-sm font-medium text-muted-foreground capitalize">
 		{row.skill === 'writing' ? 'Writing' : row.skill === 'reading' ? 'Reading' : 'Gabungan'}
 	</span>
 {/snippet}
@@ -148,36 +162,7 @@
 	<ManagementPageHeader
 		title="Question Sets"
 		description="Kelola latihan lesson dan ujian akhir module."
-	>
-		{#snippet actions()}
-			<Button onclick={() => goto(resolve('/admin/content/question_set/new'))} class="px-4">
-				<Plus class="size-4" /> Buat Question Set
-			</Button>
-		{/snippet}
-	</ManagementPageHeader>
-
-	<Card.Root size="sm" class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
-		<div class="flex items-center gap-2">
-			<span class="text-xs font-medium text-muted-foreground">Filter Skill:</span>
-			<ManagementSelect
-				value={currentSkill}
-				options={skillOptions}
-				aria-label="Filter skill"
-				class="h-9 bg-background text-muted-foreground sm:w-40"
-				onchange={(val: string) => updateFilter('skill', val)}
-			/>
-		</div>
-		<div class="flex items-center gap-2">
-			<span class="text-xs font-medium text-muted-foreground">Filter Status:</span>
-			<ManagementSelect
-				value={currentStatus}
-				options={statusOptions}
-				aria-label="Filter status"
-				class="h-9 bg-background text-muted-foreground sm:w-40"
-				onchange={(val: string) => updateFilter('status', val)}
-			/>
-		</div>
-	</Card.Root>
+	/>
 
 	<DataTable
 		data={data.sets}
@@ -185,5 +170,30 @@
 		meta={data.meta}
 		searchPlaceholder="Cari question set..."
 		emptyMessage="Tidak ada question set yang ditemukan."
-	/>
+	>
+		{#snippet headerActions()}
+			<div class="flex w-full items-center justify-between">
+				<div class="flex items-center gap-2">
+					<ManagementSelect
+						value={currentSkill}
+						options={skillOptions}
+						aria-label="Filter skill"
+						class="h-9 bg-background text-muted-foreground sm:w-40"
+						onchange={(val: string) => updateFilter('skill', val)}
+					/>
+					<ManagementSelect
+						value={currentStatus}
+						options={statusOptions}
+						aria-label="Filter status"
+						class="h-9 bg-background text-muted-foreground sm:w-40"
+						onchange={(val: string) => updateFilter('status', val)}
+					/>
+				</div>
+
+				<Button onclick={() => goto(resolve('/admin/content/question_set/new'))} class="px-4">
+					<Plus class="size-4" /> Buat Question Set
+				</Button>
+			</div>
+		{/snippet}
+	</DataTable>
 </div>

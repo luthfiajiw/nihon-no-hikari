@@ -6,8 +6,13 @@
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import { Plus, Pencil } from 'lucide-svelte';
 	import type { CourseAdminLevelsData } from '$features/course/presentation/models/course-admin-view.model';
-	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
-	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import {
+		DataTable,
+		DataTableColumnHeader,
+		type DataTableColumn,
+		type DataTableColumnDef
+	} from '$lib/components/data-table';
+	import { renderSnippet } from '@tanstack/svelte-table';
 	import type { CourseAdminLevel } from '$features/course/domain/entities/course-admin.entity';
 
 	let { data, form }: { data: CourseAdminLevelsData; form?: ManagementFormResult } = $props();
@@ -17,7 +22,7 @@
 		return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
 	}
 
-	const columns: ColumnDef<any, CourseAdminLevel, any>[] = [
+	const columns: DataTableColumnDef<CourseAdminLevel>[] = [
 		{
 			accessorKey: 'code',
 			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Level' }),
@@ -58,7 +63,13 @@
 	];
 </script>
 
-{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+{#snippet headerSnippet({
+	column,
+	title
+}: {
+	column: DataTableColumn<CourseAdminLevel>;
+	title: string;
+})}
 	<DataTableColumnHeader {column} {title} />
 {/snippet}
 
@@ -79,7 +90,7 @@
 {/snippet}
 
 {#snippet descriptionCell({ row }: { row: CourseAdminLevel })}
-	<span class="max-w-xs truncate text-muted-foreground block">
+	<span class="block max-w-xs truncate text-muted-foreground">
 		{row.description || '-'}
 	</span>
 {/snippet}
@@ -118,23 +129,17 @@
 
 <svelte:head>
 	<title>Level & Harga | Admin - Gakkobit</title>
-	<meta name="description" content="Atur harga paket sekali bayar untuk setiap level JLPT (N5–N1)." />
+	<meta
+		name="description"
+		content="Atur harga paket sekali bayar untuk setiap level JLPT (N5–N1)."
+	/>
 </svelte:head>
 
 <div class="admin-page">
 	<ManagementPageHeader
 		title="Level & Harga"
 		description="Atur harga paket sekali bayar dan poin manfaat untuk setiap level JLPT (N5–N1)."
-	>
-		{#snippet actions()}
-			<Button
-				onclick={() => goto(resolve('/(protected)/admin/levels/[id]', { id: 'new' }))}
-				class="gap-2 px-4"
-			>
-				<Plus class="size-4" /> Buat Level
-			</Button>
-		{/snippet}
-	</ManagementPageHeader>
+	/>
 	{#if form?.message}
 		<p class="admin-notice" role="status">{form.message}</p>
 	{/if}
@@ -145,5 +150,16 @@
 		meta={data.meta}
 		searchPlaceholder="Cari level (kode, nama, deskripsi)..."
 		emptyMessage="Tidak ada level yang ditemukan."
-	/>
+	>
+		{#snippet headerActions()}
+			<div class="flex w-full justify-end">
+				<Button
+					onclick={() => goto(resolve('/(protected)/admin/levels/[id]', { id: 'new' }))}
+					class="gap-2 px-4"
+				>
+					<Plus class="size-4" /> Buat Level
+				</Button>
+			</div>
+		{/snippet}
+	</DataTable>
 </div>

@@ -1,5 +1,6 @@
-<script lang="ts">
-	import type { Column } from '@tanstack/svelte-table';
+<script lang="ts" generics="TData extends RowData, TValue = unknown">
+	import type { RowData } from '@tanstack/svelte-table';
+	import type { DataTableColumn } from './index';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
@@ -11,7 +12,7 @@
 		title,
 		class: className
 	}: {
-		column: Column<any, any>;
+		column: DataTableColumn<TData, TValue>;
 		title: string;
 		class?: string;
 	} = $props();

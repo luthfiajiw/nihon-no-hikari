@@ -1,13 +1,7 @@
-<script lang="ts" generics="TData extends Record<string, any>, TValue = unknown">
-	import {
-		createTable,
-		tableFeatures,
-		rowSortingFeature,
-		createSortedRowModel,
-		FlexRender,
-		type ColumnDef,
-		type SortingState
-	} from '@tanstack/svelte-table';
+<script lang="ts" generics="TData extends RowData">
+	import { createTable, FlexRender, type RowData, type SortingState } from '@tanstack/svelte-table';
+	import type { ResolvedPathname } from '$app/types';
+	import { dataTableFeatures, type DataTableColumnDef } from './index';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import * as Table from '$lib/components/ui/table';
@@ -18,10 +12,12 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import type { PaginationMeta } from '$lib/models/pagination.model';
 	import { cn } from '$lib/utils';
+	import type { Snippet } from 'svelte';
 
 	let {
 		data,
 		columns,
+		headerActions,
 		meta,
 		searchPlaceholder = 'Cari data...',
 		emptyMessage = 'Tidak ada data yang ditemukan.',
@@ -33,7 +29,8 @@
 		showPagination = true
 	}: {
 		data: TData[];
-		columns: ColumnDef<any, TData, any>[];
+		columns: DataTableColumnDef<TData>[];
+		headerActions?: Snippet;
 		meta?: PaginationMeta;
 		searchPlaceholder?: string;
 		emptyMessage?: string;
@@ -47,7 +44,7 @@
 
 	let sorting = $state<SortingState>([]);
 
-	const features = tableFeatures({ rowSortingFeature, createSortedRowModel });
+	const features = dataTableFeatures;
 
 	const table = createTable({
 		features,
@@ -71,12 +68,8 @@
 		page.url.searchParams.get(searchParamKey) ?? page.url.searchParams.get('q') ?? ''
 	);
 
-	let searchValue = $state('');
+	let searchValue = $derived(initialSearch);
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-	$effect(() => {
-		searchValue = initialSearch;
-	});
 
 	function updateUrl(params: Record<string, string | number | null>) {
 		const url = new URL(page.url);
@@ -90,7 +83,7 @@
 		if (params[searchParamKey] !== undefined) {
 			url.searchParams.delete('q');
 		}
-		goto(url.toString(), {
+		goto(`${url.pathname}${url.search}` as ResolvedPathname, {
 			keepFocus: true,
 			noScroll: true,
 			replaceState: true
@@ -148,36 +141,44 @@
 </script>
 
 <div class={cn('flex flex-col gap-4', className)}>
-	{#if showSearch}
-		<div class="flex items-center justify-between gap-4">
-			<div class="relative max-w-sm flex-1">
-				<SearchIcon
-					class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-				/>
-				<Input
-					type="search"
-					value={searchValue}
-					placeholder={searchPlaceholder}
-					class="pl-9 pr-9"
-					oninput={handleSearchInput}
-				/>
-				{#if searchValue}
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						class="absolute top-1/2 right-1 size-7 -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
-						onclick={handleClearSearch}
-					>
-						<XIcon class="size-3.5" />
-						<span class="sr-only">Hapus pencarian</span>
-					</Button>
-				{/if}
+	<div class="flex items-center gap-2">
+		{#if showSearch}
+			<div class="flex w-full items-center justify-between gap-4">
+				<div class="relative max-w-md flex-1">
+					<SearchIcon
+						class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+					/>
+					<Input
+						type="search"
+						value={searchValue}
+						placeholder={searchPlaceholder}
+						class="pl-9"
+						oninput={handleSearchInput}
+					/>
+					{#if searchValue}
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							class="absolute top-1/2 right-1 size-7 -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
+							onclick={handleClearSearch}
+						>
+							<XIcon class="size-3.5" />
+							<span class="sr-only">Hapus pencarian</span>
+						</Button>
+					{/if}
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 
-	<div class="rounded-md border bg-card">
+		{#if headerActions}
+			{@render headerActions()}
+		{/if}
+	</div>
+
+	<div
+		class="rounded-lg border-2 border-taupe-950 bg-card shadow-[4px_4px_0_var(--color-taupe-800)]"
+	>
 		<Table.Root class={tableClass}>
 			<Table.Header>
 				{#each table.getHeaderGroups() as group (group.id)}
@@ -201,7 +202,7 @@
 					</Table.Row>
 				{:else}
 					{#each table.getRowModel().rows as row (row.id)}
-						<Table.Row {...(getRowAttributes ? getRowAttributes(row.original as TData) : {})}>
+						<Table.Row {...getRowAttributes ? getRowAttributes(row.original as TData) : {}}>
 							{#each row.getAllCells() as cell (cell.id)}
 								<Table.Cell>
 									<FlexRender {cell} />
@@ -216,19 +217,22 @@
 
 	{#if showPagination && displayMeta.total > 0}
 		<div
-			class="flex flex-col items-center justify-between gap-4 sm:flex-row sm:gap-2 text-sm text-muted-foreground"
+			class="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row sm:gap-2"
 		>
 			<div class="flex items-center gap-3">
 				<span>
 					Menampilkan <span class="font-medium text-foreground">{startRow}</span>
-					- <span class="font-medium text-foreground">{endRow}</span>
-					dari <span class="font-medium text-foreground">{displayMeta.total}</span> data
+					-
+					<span class="font-medium text-foreground">{endRow}</span>
+					dari
+					<span class="font-medium text-foreground">{displayMeta.total}</span>
+					data
 				</span>
 				<div class="flex items-center gap-1.5 text-xs">
 					<label for="page-size-select" class="text-muted-foreground">Per halaman:</label>
 					<select
 						id="page-size-select"
-						class="h-8 rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						class="h-8 rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 						value={displayMeta.limit}
 						onchange={handleLimitChange}
 					>
@@ -246,7 +250,7 @@
 					page={displayMeta.page}
 					onPageChange={handlePageChange}
 				>
-					{#snippet children({ pages, range: _range })}
+					{#snippet children({ pages })}
 						<Pagination.Content>
 							<Pagination.Item>
 								<Pagination.Previous />
@@ -258,7 +262,12 @@
 									</Pagination.Item>
 								{:else}
 									<Pagination.Item>
-										<Pagination.Link page={p} isActive={displayMeta.page === p.value}>
+										<Pagination.Link
+											size="icon-xs"
+											page={p}
+											class="text-xs"
+											isActive={displayMeta.page === p.value}
+										>
 											{p.value}
 										</Pagination.Link>
 									</Pagination.Item>

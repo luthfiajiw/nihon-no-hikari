@@ -4,13 +4,18 @@
 	import { Button } from '$lib/components/ui/button';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import type { UserAdminData } from '$features/user/presentation/models/user-admin-view.model';
-	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
-	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import {
+		DataTable,
+		DataTableColumnHeader,
+		type DataTableColumn,
+		type DataTableColumnDef
+	} from '$lib/components/data-table';
+	import { renderSnippet } from '@tanstack/svelte-table';
 	import type { UserAdminRecord } from '$features/user/domain/entities/user-admin.entity';
 
 	let { data, form }: { data: UserAdminData; form?: ManagementFormResult } = $props();
 
-	const columns: ColumnDef<any, UserAdminRecord, any>[] = [
+	const columns: DataTableColumnDef<UserAdminRecord>[] = [
 		{
 			accessorKey: 'display_name',
 			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Nama' }),
@@ -35,7 +40,13 @@
 	];
 </script>
 
-{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+{#snippet headerSnippet({
+	column,
+	title
+}: {
+	column: DataTableColumn<UserAdminRecord>;
+	title: string;
+})}
 	<DataTableColumnHeader {column} {title} />
 {/snippet}
 
@@ -50,8 +61,8 @@
 {#snippet roleCell({ row }: { row: UserAdminRecord })}
 	<span
 		class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium {row.role === 'Admin'
-			? 'bg-primary/10 text-primary border border-primary/20'
-			: 'bg-muted text-muted-foreground border border-border'}"
+			? 'border border-primary/20 bg-primary/10 text-primary'
+			: 'border border-border bg-muted text-muted-foreground'}"
 	>
 		{row.role}
 	</span>
@@ -63,11 +74,7 @@
 	{:else}
 		<form method="POST" action="?/changeRole" class="flex items-center gap-2">
 			<Input type="hidden" name="userId" value={row.id} />
-			<Input
-				type="hidden"
-				name="role"
-				value={row.role === 'Admin' ? 'User' : 'Admin'}
-			/>
+			<Input type="hidden" name="role" value={row.role === 'Admin' ? 'User' : 'Admin'} />
 			<Button type="submit" variant="outline" size="sm">
 				{row.role === 'Admin' ? 'Jadikan User' : 'Jadikan Admin'}
 			</Button>

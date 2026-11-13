@@ -198,7 +198,8 @@ export async function testKotoba({ page, origin, navigate, screenshotDir, fixtur
 	await navigate('Kotoba');
 	await page.getByRole('heading', { name: 'Kotoba', exact: true }).waitFor();
 	assert.equal(await rows.count(), 1);
-	await page.getByRole('button', { name: 'Edit topik Sekolah', exact: true }).click();
+	await page.getByRole('button', { name: 'Aksi topik Sekolah', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Edit topik Sekolah', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Topik Kotoba' }).waitFor();
 	await page.getByLabel('Nama Topik', { exact: false }).fill('Batal mengubah');
 	await page.getByRole('button', { name: 'Batal', exact: true }).click();
@@ -259,7 +260,8 @@ export async function testKotoba({ page, origin, navigate, screenshotDir, fixtur
 	assert.equal(fixture.uploads, 2, 'Retry must reuse successful uploads');
 	await page.reload({ waitUntil: 'networkidle' });
 	assert.equal(await rows.count(), 2, 'Created topics survive reload');
-	await page.getByRole('button', { name: 'Edit topik Topik API', exact: true }).click();
+	await page.getByRole('button', { name: 'Aksi topik Topik API', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Edit topik Topik API', exact: true }).click();
 	await page.getByRole('heading', { name: 'Edit Topik Kotoba' }).waitFor();
 	const topicId = [...fixture.topics.values()].find((topic) => topic.title === 'Topik API').id;
 	const originalWord = fixture.topics.get(topicId).vocabulary[0].id;
@@ -309,7 +311,8 @@ export async function testKotoba({ page, origin, navigate, screenshotDir, fixtur
 	);
 	await page.screenshot({ path: join(screenshotDir, 'kotoba-api-mobile.png'), fullPage: true });
 	await page.setViewportSize({ width: 1440, height: 1000 });
-	await page.getByRole('button', { name: 'Hapus topik Topik API', exact: true }).click();
+	await page.getByRole('button', { name: 'Aksi topik Topik API', exact: true }).click();
+	await page.getByRole('menuitem', { name: 'Hapus topik Topik API', exact: true }).click();
 	await page.getByRole('button', { name: 'Hapus Topik', exact: true }).click();
 	await page.getByRole('dialog').waitFor({ state: 'hidden' });
 	await page.reload({ waitUntil: 'networkidle' });

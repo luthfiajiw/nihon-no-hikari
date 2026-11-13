@@ -2,14 +2,18 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
 	import { Pencil, Plus } from 'lucide-svelte';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import type { QuestionKanaTemplatesData } from '$features/question/presentation/models/question-admin-view.model';
 	import type { QuestionKanaTemplateMetadata } from '$features/question/domain/entities/question-kana-template.entity';
-	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
-	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import {
+		DataTable,
+		DataTableColumnHeader,
+		type DataTableColumn,
+		type DataTableColumnDef
+	} from '$lib/components/data-table';
+	import { renderSnippet } from '@tanstack/svelte-table';
 
 	let { data }: { data: QuestionKanaTemplatesData } = $props();
 
@@ -19,7 +23,7 @@
 		data.templates.filter((item) => script === 'all' || item.script === script)
 	);
 
-	const columns: ColumnDef<any, QuestionKanaTemplateMetadata, any>[] = [
+	const columns: DataTableColumnDef<QuestionKanaTemplateMetadata>[] = [
 		{
 			accessorKey: 'character',
 			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Karakter' }),
@@ -51,7 +55,13 @@
 	];
 </script>
 
-{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+{#snippet headerSnippet({
+	column,
+	title
+}: {
+	column: DataTableColumn<QuestionKanaTemplateMetadata>;
+	title: string;
+})}
 	<DataTableColumnHeader {column} {title} />
 {/snippet}
 
@@ -73,8 +83,7 @@
 			variant="outline"
 			size="icon"
 			aria-label={`Edit template ${row.character} ${row.source_version}`}
-			onclick={() =>
-				goto(resolve('/(protected)/admin/kana-templates/[id]', { id: row.id }))}
+			onclick={() => goto(resolve('/(protected)/admin/kana-templates/[id]', { id: row.id }))}
 		>
 			<Pencil class="size-4" />
 		</Button>
@@ -90,32 +99,7 @@
 	<ManagementPageHeader
 		title="Template Kana"
 		description="Panduan goresan hiragana dan katakana untuk latihan menulis."
-	>
-		{#snippet actions()}
-			<Button
-				onclick={() => goto(resolve('/(protected)/admin/kana-templates/[id]', { id: 'new' }))}
-			>
-				<Plus class="size-4" /> Tambah Template
-			</Button>
-		{/snippet}
-	</ManagementPageHeader>
-
-	<Card.Root size="sm" class="px-(--card-spacing)">
-		<div class="admin-fields">
-			<div class="flex flex-col space-y-1 text-sm font-medium">
-				<label for="kana-script-filter">Filter</label>
-				<ManagementSelect
-					id="kana-script-filter"
-					bind:value={script}
-					options={[
-						{ value: 'all', label: 'Semua script' },
-						{ value: 'hiragana', label: 'Hiragana' },
-						{ value: 'katakana', label: 'Katakana' }
-					]}
-				/>
-			</div>
-		</div>
-	</Card.Root>
+	/>
 
 	<DataTable
 		data={filteredTemplates}
@@ -125,5 +109,26 @@
 		emptyMessage={data.templates.length
 			? 'Template tidak ditemukan.'
 			: 'Belum ada template kana. Tambahkan SVG KanjiVG untuk mulai.'}
-	/>
+	>
+		{#snippet headerActions()}
+			<div class="flex w-full items-center justify-between">
+				<ManagementSelect
+					aria-label="Filter script"
+					id="kana-script-filter"
+					bind:value={script}
+					class="h-9 bg-background text-muted-foreground sm:w-36"
+					options={[
+						{ value: 'all', label: 'Semua script' },
+						{ value: 'hiragana', label: 'Hiragana' },
+						{ value: 'katakana', label: 'Katakana' }
+					]}
+				/>
+				<Button
+					onclick={() => goto(resolve('/(protected)/admin/kana-templates/[id]', { id: 'new' }))}
+				>
+					<Plus class="size-4" /> Tambah Template
+				</Button>
+			</div>
+		{/snippet}
+	</DataTable>
 </div>

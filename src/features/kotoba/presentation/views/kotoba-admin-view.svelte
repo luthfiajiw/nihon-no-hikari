@@ -6,19 +6,25 @@
 	import { KotobaError } from '$features/kotoba/domain/entities/kotoba-api.entity';
 	import { mediaNeedsRefresh } from '$features/kotoba/presentation/models/kotoba-api.model';
 	import { resolve } from '$app/paths';
-	import { BookOpen, EyeOff, Pencil, Plus, Trash2 } from 'lucide-svelte';
+	import type { ResolvedPathname } from '$app/types';
+	import { BookOpen, EyeOff, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import * as Card from '$lib/components/ui/card';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { kotobaLevels } from '$features/kotoba/data/kotoba-topics';
 	import ManagementPageHeader from '$lib/components/management-page-header.svelte';
 	import ManagementSelect from '$lib/components/management-select.svelte';
 	import { getKotobaAdminState } from '$features/kotoba/presentation/contexts/kotoba-admin-context.svelte';
 	import type { KotobaAdminTopic } from '$features/kotoba/presentation/models/kotoba-admin.model';
 	import type { PaginationMeta } from '$lib/models/pagination.model';
-	import { DataTable, DataTableColumnHeader } from '$lib/components/data-table';
-	import { renderSnippet, type ColumnDef } from '@tanstack/svelte-table';
+	import {
+		DataTable,
+		DataTableColumnHeader,
+		type DataTableColumn,
+		type DataTableColumnDef
+	} from '$lib/components/data-table';
+	import { renderSnippet } from '@tanstack/svelte-table';
 
 	const kotoba = getKotobaAdminState();
 	let {
@@ -86,10 +92,14 @@
 			url.searchParams.set(key, val);
 		}
 		url.searchParams.delete('page');
-		goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+		goto(`${resolve('/(protected)/admin/kotoba')}${url.search}` as ResolvedPathname, {
+			keepFocus: true,
+			noScroll: true,
+			replaceState: true
+		});
 	}
 
-	const columns: ColumnDef<any, KotobaAdminTopic, any>[] = [
+	const columns: DataTableColumnDef<KotobaAdminTopic>[] = [
 		{
 			accessorKey: 'title',
 			header: ({ column }) => renderSnippet(headerSnippet, { column, title: 'Topik' }),
@@ -125,7 +135,13 @@
 	];
 </script>
 
-{#snippet headerSnippet({ column, title }: { column: any; title: string })}
+{#snippet headerSnippet({
+	column,
+	title
+}: {
+	column: DataTableColumn<KotobaAdminTopic>;
+	title: string;
+})}
 	<DataTableColumnHeader {column} {title} />
 {/snippet}
 
@@ -134,10 +150,10 @@
 {/snippet}
 
 {#snippet titleCell({ row }: { row: KotobaAdminTopic })}
-	<div class="min-w-0 max-w-xs space-y-1 sm:max-w-md">
+	<div class="max-w-xs min-w-0 space-y-1 sm:max-w-md">
 		<button
 			type="button"
-			class="text-left font-semibold text-foreground hover:text-primary transition-colors truncate block w-full"
+			class="block w-full truncate text-left font-semibold text-foreground transition-colors hover:text-primary"
 			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
 		>
 			{row.title}
@@ -185,27 +201,46 @@
 {/snippet}
 
 {#snippet actionsCell({ row }: { row: KotobaAdminTopic })}
-	<div class="flex items-center justify-end gap-2">
-		<Button
-			variant="outline"
-			size="sm"
-			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
-			aria-label={`Edit topik ${row.title}`}
-		>
-			<Pencil class="size-3.5" /> Edit
-		</Button>
-		<Button
-			variant="ghost"
-			size="icon"
-			class="size-8"
-			aria-label={`Hapus topik ${row.title}`}
-			onclick={() => {
-				deleting = row;
-				deleteOpen = true;
-			}}
-		>
-			<Trash2 class="size-4 text-destructive" />
-		</Button>
+	<div class="flex items-center justify-end">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props })}
+					<Button
+						variant="outline"
+						size="icon-sm"
+						aria-label={`Aksi topik ${row.title}`}
+						{...props}
+					>
+						<MoreVertical />
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" class="w-40">
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						aria-label={`Edit topik ${row.title}`}
+						onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: row.id }))}
+					>
+						<Pencil />
+						Edit
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Group>
+					<DropdownMenu.Item
+						variant="destructive"
+						aria-label={`Hapus topik ${row.title}`}
+						onclick={() => {
+							deleting = row;
+							deleteOpen = true;
+						}}
+					>
+						<Trash2 />
+						Hapus
+					</DropdownMenu.Item>
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 	</div>
 {/snippet}
 
@@ -215,13 +250,7 @@
 </svelte:head>
 
 <div class="admin-page">
-	<ManagementPageHeader title="Kotoba" description="Kelola topik dan susun kosakata untuk siswa.">
-		{#snippet actions()}
-			<Button onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: 'new' }))}>
-				<Plus class="size-4" /> Buat Topik
-			</Button>
-		{/snippet}
-	</ManagementPageHeader>
+	<ManagementPageHeader title="Kotoba" description="Kelola topik dan susun kosakata untuk siswa." />
 
 	{#if message}
 		<p class="admin-notice border-destructive text-destructive" role="alert">
@@ -237,49 +266,6 @@
 		</p>
 	{/if}
 
-	<Card.Root size="sm" class="flex-row flex-wrap items-center gap-4 px-(--card-spacing)">
-		<div class="flex items-center gap-2">
-			<span class="text-xs font-medium text-muted-foreground">Filter Level:</span>
-			<ManagementSelect
-				aria-label="Filter level JLPT"
-				value={currentLevel}
-				options={[
-					{ value: 'all', label: 'Semua level' },
-					...kotobaLevels.map((value) => ({ value, label: value }))
-				]}
-				class="h-9 bg-background text-muted-foreground sm:w-36"
-				onchange={(val: string) => updateFilter('level', val)}
-			/>
-		</div>
-		<div class="flex items-center gap-2">
-			<span class="text-xs font-medium text-muted-foreground">Filter Status:</span>
-			<ManagementSelect
-				aria-label="Filter status"
-				value={currentStatus}
-				options={[
-					{ value: 'all', label: 'Semua status' },
-					{ value: 'active', label: 'Aktif' },
-					{ value: 'inactive', label: 'Nonaktif' }
-				]}
-				class="h-9 bg-background text-muted-foreground sm:w-36"
-				onchange={(val: string) => updateFilter('status', val)}
-			/>
-		</div>
-		<div class="flex items-center gap-2">
-			<span class="text-xs font-medium text-muted-foreground">Urutkan:</span>
-			<ManagementSelect
-				aria-label="Urutkan topik"
-				value={currentSort}
-				options={[
-					{ value: 'order', label: 'Urutan topik' },
-					{ value: 'title', label: 'Nama A–Z' }
-				]}
-				class="h-9 bg-background text-muted-foreground sm:w-36"
-				onchange={(val: string) => updateFilter('sort', val)}
-			/>
-		</div>
-	</Card.Root>
-
 	<DataTable
 		data={allTopics}
 		{columns}
@@ -287,7 +273,49 @@
 		getRowAttributes={(row) => ({ 'data-topic-id': row.id })}
 		searchPlaceholder="Cari topik..."
 		emptyMessage={allTopics.length ? 'Topik tidak ditemukan' : 'Belum ada topik'}
-	/>
+	>
+		{#snippet headerActions()}
+			<div class="flex w-full items-center justify-between">
+				<div class="flex items-center gap-2">
+					<ManagementSelect
+						aria-label="Filter level JLPT"
+						value={currentLevel}
+						options={[
+							{ value: 'all', label: 'Semua level' },
+							...kotobaLevels.map((value) => ({ value, label: value }))
+						]}
+						class="h-9 bg-background text-muted-foreground sm:w-36"
+						onchange={(val: string) => updateFilter('level', val)}
+					/>
+					<ManagementSelect
+						aria-label="Filter status"
+						value={currentStatus}
+						options={[
+							{ value: 'all', label: 'Semua status' },
+							{ value: 'active', label: 'Aktif' },
+							{ value: 'inactive', label: 'Nonaktif' }
+						]}
+						class="h-9 bg-background text-muted-foreground sm:w-36"
+						onchange={(val: string) => updateFilter('status', val)}
+					/>
+					<ManagementSelect
+						aria-label="Urutkan topik"
+						value={currentSort}
+						options={[
+							{ value: 'order', label: 'Urutan topik' },
+							{ value: 'title', label: 'Nama A–Z' }
+						]}
+						class="h-9 bg-background text-muted-foreground sm:w-36"
+						onchange={(val: string) => updateFilter('sort', val)}
+					/>
+				</div>
+
+				<Button onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: 'new' }))}>
+					<Plus class="size-4" /> Buat Topik
+				</Button>
+			</div>
+		{/snippet}
+	</DataTable>
 </div>
 
 <Dialog.Root bind:open={deleteOpen}>
