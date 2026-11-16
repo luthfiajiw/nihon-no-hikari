@@ -21,7 +21,7 @@ export interface QuestionAdminRepository {
 		payload: QuestionAdminContentRecord
 	): Promise<QuestionAdminMutationResult>;
 	publishAdminContent(id: string): Promise<QuestionAdminMutationResult>;
-	removeAdminContent(id: string): Promise<void>;
+	removeAdminContent(id: string): Promise<QuestionAdminMutationResult>;
 	restoreAdminContent(id: string): Promise<void>;
 	getAdminTemplates(
 		options?: PaginationQueryOptions & { script?: string }

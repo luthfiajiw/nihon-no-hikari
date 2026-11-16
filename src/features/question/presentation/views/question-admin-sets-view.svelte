@@ -22,6 +22,11 @@
 	let notice = $state('');
 	let deleting = $state<QuestionAdminRecord | null>(null);
 	let deleteOpen = $state(false);
+	let archivedRedirectNotice = $derived(
+		!notice && page.url.searchParams.get('archived') === '1'
+			? 'Question set tidak dapat dihapus permanen dan diarsipkan karena sudah memiliki riwayat attempt siswa.'
+			: ''
+	);
 
 	async function removeQuestionSet() {
 		if (!deleting || busy) return;
@@ -29,8 +34,10 @@
 		message = '';
 		notice = '';
 		try {
-			await manageQuestionAdminContentUseCase.exec('remove', deleting.id);
-			notice = `Question set “${deleting.title}” berhasil dihapus.`;
+			const result = await manageQuestionAdminContentUseCase.exec('remove', deleting.id);
+			notice = result.archived
+				? `Question set “${deleting.title}” tidak dapat dihapus permanen dan diarsipkan karena sudah memiliki riwayat attempt siswa.`
+				: `Question set “${deleting.title}” berhasil dihapus.`;
 			deleteOpen = false;
 			deleting = null;
 			await invalidate('question:sets');
@@ -78,6 +85,7 @@
 			url.searchParams.set(key, value);
 		}
 		url.searchParams.delete('page');
+		url.searchParams.delete('archived');
 		goto(`${resolve('/(protected)/admin/question-sets')}${url.search}` as ResolvedPathname, {
 			keepFocus: true,
 			noScroll: true,
@@ -102,12 +110,12 @@
 			{message}
 		</p>
 	{/if}
-	{#if notice}
+	{#if notice || archivedRedirectNotice}
 		<p
 			class="admin-notice border-emerald-200 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
 			role="status"
 		>
-			{notice}
+			{notice || archivedRedirectNotice}
 		</p>
 	{/if}
 
@@ -157,8 +165,8 @@
 		<Dialog.Header>
 			<Dialog.Title>Hapus question set?</Dialog.Title>
 			<Dialog.Description>
-				Question set “{deleting?.title}” akan dihapus atau diarsipkan jika sudah memiliki riwayat
-				siswa.
+				Question set “{deleting?.title}” akan dihapus permanen. Penghapusan akan ditolak jika
+				question set sudah memiliki relasi dengan tabel lain atau riwayat attempt siswa.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>

@@ -70,6 +70,8 @@ const contentOperations: {
 		name: 'remove',
 		method: 'DELETE',
 		suffix: `/${encodedContentId}`,
+		response: { archived: true },
+		expected: { archived: true },
 		run: (source) => source.removeAdminContent(contentId)
 	},
 	{
@@ -167,5 +169,22 @@ describe('question administrative transport', () => {
 			'/api/v1/admin/templates/tpl%2F1',
 			expect.objectContaining({ method: 'DELETE' })
 		);
+	});
+
+	it('returns empty mutation result when remove returns 204', async () => {
+		const { source } = sourceWith(new Response(null, { status: 204 }));
+		await expect(source.removeAdminContent(contentId)).resolves.toEqual({});
+	});
+
+	it('throws HttpError with 409 conflict message when remove is blocked by relations', async () => {
+		const errorMessage =
+			'Question set tidak dapat dihapus karena sudah memiliki relasi dengan tabel lain atau riwayat attempt siswa.';
+		const { source } = sourceWith(
+			Response.json({ success: false, error: errorMessage }, { status: 409 })
+		);
+		await expect(source.removeAdminContent(contentId)).rejects.toMatchObject({
+			status: 409,
+			message: errorMessage
+		});
 	});
 });

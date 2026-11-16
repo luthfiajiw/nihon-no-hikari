@@ -158,8 +158,12 @@ export class QuestionSource {
 		return this.adminRequest(`${this.contentPath(id)}/publish`, { method: 'POST' });
 	}
 
-	async removeAdminContent(id: string): Promise<void> {
-		await this.adminRequest(this.contentPath(id), { method: 'DELETE' });
+	async removeAdminContent(id: string): Promise<QuestionAdminMutationResult> {
+		const res = await this.adminRequest<QuestionAdminMutationResult | undefined>(
+			this.contentPath(id),
+			{ method: 'DELETE' }
+		);
+		return res ?? {};
 	}
 
 	async restoreAdminContent(id: string): Promise<void> {

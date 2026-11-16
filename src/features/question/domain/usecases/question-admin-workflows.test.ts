@@ -15,7 +15,7 @@ function fixture() {
 		deleteAdminTemplate: vi.fn().mockResolvedValue(undefined),
 		saveAdminContent: vi.fn().mockResolvedValue({ id: 'created' }),
 		publishAdminContent: vi.fn().mockResolvedValue({ id: 'published-version' }),
-		removeAdminContent: vi.fn().mockResolvedValue(undefined),
+		removeAdminContent: vi.fn().mockResolvedValue({ archived: true }),
 		restoreAdminContent: vi.fn().mockResolvedValue(undefined)
 	} satisfies QuestionAdminRepository;
 }
@@ -55,7 +55,7 @@ describe('question administrative workflows', () => {
 	it('keeps archive and restore operations independent', async () => {
 		const repo = fixture();
 		const usecase = new ManageQuestionAdminContentUseCase(repo);
-		await usecase.exec('remove', 'set');
+		await expect(usecase.exec('remove', 'set')).resolves.toEqual({ archived: true });
 		await usecase.exec('restore', 'set');
 		expect(repo.removeAdminContent).toHaveBeenCalledWith('set');
 		expect(repo.restoreAdminContent).toHaveBeenCalledWith('set');

@@ -22,7 +22,7 @@ export class ManageQuestionAdminContentUseCase {
 				action === 'publish' ? 'Simpan draft terlebih dahulu.' : 'Konten tidak valid.'
 			);
 		if (action === 'publish') return this.repository.publishAdminContent(id);
-		if (action === 'remove') await this.repository.removeAdminContent(id);
+		if (action === 'remove') return (await this.repository.removeAdminContent(id)) ?? {};
 		else await this.repository.restoreAdminContent(id);
 		return {};
 	}

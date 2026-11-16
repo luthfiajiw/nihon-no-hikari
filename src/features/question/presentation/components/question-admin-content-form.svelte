@@ -251,9 +251,10 @@
 				{#if confirmDelete}
 					<form method="POST" action="?/remove">
 						<p class="mb-2 text-sm text-red-700">
-							Konten dengan riwayat siswa akan diarsipkan. Lanjutkan?
+							Question set yang sudah memiliki relasi dengan tabel lain tidak dapat dihapus.
+							Lanjutkan?
 						</p>
-						<Button type="submit" variant="destructive">Ya, hapus atau arsipkan</Button>
+						<Button type="submit" variant="destructive">Ya, hapus</Button>
 					</form>
 				{/if}
 			{/if}

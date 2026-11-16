@@ -23,7 +23,10 @@ export async function manageQuestionAdminContent(
 	} catch (cause) {
 		return managementActionFailure(cause);
 	}
-	if (action === 'remove') redirect(303, resolve('/admin/question-sets'));
+	if (action === 'remove') {
+		const suffix = result.archived ? '?archived=1' : '';
+		redirect(303, `${resolve('/admin/question-sets')}${suffix}`);
+	}
 	if (result.id && (id === 'new' || result.id !== id))
 		redirect(303, resolve('/(protected)/admin/content/question_set/[id]', { id: result.id }));
 	const messages = {

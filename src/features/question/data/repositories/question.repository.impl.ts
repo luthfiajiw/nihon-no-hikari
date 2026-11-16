@@ -60,7 +60,7 @@ export class QuestionRepositoryImpl implements QuestionRepository, QuestionAdmin
 	publishAdminContent(id: string): Promise<QuestionAdminMutationResult> {
 		return this.questionSource.publishAdminContent(id);
 	}
-	removeAdminContent(id: string): Promise<void> {
+	removeAdminContent(id: string): Promise<QuestionAdminMutationResult> {
 		return this.questionSource.removeAdminContent(id);
 	}
 	restoreAdminContent(id: string): Promise<void> {

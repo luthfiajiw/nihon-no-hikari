@@ -23,7 +23,7 @@ export type QuestionAdminContentDetail = {
 	draft: QuestionAdminContentRecord | null;
 };
 export type QuestionAdminContentAction = 'save' | 'publish' | 'remove' | 'restore';
-export type QuestionAdminMutationResult = { id?: string };
+export type QuestionAdminMutationResult = { id?: string; archived?: boolean };
 export type QuestionCourseCatalog = Partial<
 	Record<'courses' | 'modules' | 'lessons', QuestionAdminRecord[]>
 >;
