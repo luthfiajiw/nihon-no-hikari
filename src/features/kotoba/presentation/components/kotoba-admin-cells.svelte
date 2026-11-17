@@ -5,6 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { cn } from '$lib/utils';
 	import type { KotobaAdminTopic } from '$features/kotoba/presentation/models/kotoba-admin.model';
 
 	type Props =
@@ -16,44 +17,47 @@
 </script>
 
 {#if props.cell === 'actions-header'}
-	<div class="text-right">Aksi</div>
+	<div class="text-right text-sm">Aksi</div>
 {:else if props.cell === 'title'}
 	<div class="max-w-xs min-w-0 space-y-1 sm:max-w-md">
 		<button
 			type="button"
-			class="block w-full truncate text-left font-semibold text-foreground transition-colors hover:text-primary"
+			class="block w-full truncate text-left text-sm font-semibold text-foreground transition-colors hover:text-primary"
 			onclick={() => goto(resolve('/(protected)/admin/kotoba/[id]', { id: props.row.id }))}
 		>
 			{props.row.title}
 		</button>
 		{#if props.row.description}
-			<p class="line-clamp-2 text-xs text-muted-foreground">{props.row.description}</p>
+			<p class="line-clamp-2 text-sm text-muted-foreground">{props.row.description}</p>
 		{/if}
 	</div>
 {:else if props.cell === 'level'}
 	<div class="flex flex-wrap items-center gap-1.5">
-		<Badge>{props.row.level}</Badge>
-		<Badge variant="secondary">{props.row.category}</Badge>
+		<Badge class="text-sm">{props.row.level}</Badge>
+		<Badge variant="secondary" class="text-sm">{props.row.category}</Badge>
 	</div>
 {:else if props.cell === 'vocab'}
-	<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+	<div class="flex items-center gap-1.5 text-sm text-muted-foreground">
 		<BookOpen class="size-3.5" />
 		<span>{props.row.vocabularyCount ?? props.row.vocabulary.length} kosakata</span>
 	</div>
 {:else if props.cell === 'order'}
-	<span class="text-xs text-muted-foreground">Urutan {props.row.order}</span>
+	<span class="text-sm text-muted-foreground">Urutan {props.row.order}</span>
 {:else if props.cell === 'status'}
 	<div class="flex flex-wrap items-center gap-1.5">
 		<Badge
 			variant="outline"
-			class={props.row.active
-				? 'border-emerald-300 text-emerald-700 dark:text-emerald-300'
-				: 'text-muted-foreground'}
+			class={cn(
+				'text-sm',
+				props.row.active
+					? 'border-emerald-300 text-emerald-700 dark:text-emerald-300'
+					: 'text-muted-foreground'
+			)}
 		>
 			{props.row.active ? 'Aktif' : 'Nonaktif'}
 		</Badge>
 		{#if !props.row.visible}
-			<span class="flex items-center gap-1 text-xs text-muted-foreground">
+			<span class="flex items-center gap-1 text-sm text-muted-foreground">
 				<EyeOff class="size-3" /> Disembunyikan
 			</span>
 		{/if}

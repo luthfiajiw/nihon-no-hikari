@@ -49,8 +49,8 @@
 		loading ??
 			Boolean(
 				navigating.to &&
-					navigating.from &&
-					navigating.from.url.pathname === navigating.to.url.pathname
+				navigating.from &&
+				navigating.from.url.pathname === navigating.to.url.pathname
 			)
 	);
 
@@ -164,7 +164,7 @@
 						type="search"
 						value={searchValue}
 						placeholder={searchPlaceholder}
-						class="pl-9"
+						class="pl-9 text-sm"
 						oninput={handleSearchInput}
 					/>
 					{#if searchValue}
@@ -200,14 +200,14 @@
 				class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/70 backdrop-blur-[1px]"
 			>
 				<div
-					class="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-medium text-foreground shadow-sm"
+					class="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-sm"
 				>
 					<LoaderCircle class="size-4 animate-spin text-primary" />
 					<span>Memuat data...</span>
 				</div>
 			</div>
 		{/if}
-		<Table.Root class={tableClass}>
+		<Table.Root class={cn('text-sm', tableClass)}>
 			<Table.Header>
 				{#each table.getHeaderGroups() as group (group.id)}
 					<Table.Row>
@@ -224,7 +224,10 @@
 			<Table.Body>
 				{#if table.getRowModel().rows.length === 0}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center text-muted-foreground">
+						<Table.Cell
+							colspan={columns.length}
+							class="h-24 text-center text-sm text-muted-foreground"
+						>
 							{emptyMessage}
 						</Table.Cell>
 					</Table.Row>
@@ -256,11 +259,11 @@
 					<span class="font-medium text-foreground">{displayMeta.total}</span>
 					data
 				</span>
-				<div class="flex items-center gap-1.5 text-xs">
+				<div class="flex items-center gap-1.5 text-sm">
 					<label for="page-size-select" class="text-muted-foreground">Per halaman:</label>
 					<select
 						id="page-size-select"
-						class="h-8 rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						class="h-8 rounded-md border border-input bg-background px-2 text-sm font-medium text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 						value={displayMeta.limit}
 						onchange={handleLimitChange}
 					>
@@ -293,7 +296,7 @@
 										<Pagination.Link
 											size="icon-xs"
 											page={p}
-											class="text-xs"
+											class="text-sm"
 											isActive={displayMeta.page === p.value}
 										>
 											{p.value}

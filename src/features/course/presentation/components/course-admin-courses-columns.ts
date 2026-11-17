@@ -37,7 +37,7 @@ export function createCourseAdminCoursesColumns(
 			accessorFn: (row) =>
 				row.archived_at ? 'archived' : row.is_published ? 'published' : 'draft',
 			header: ({ column }) => renderComponent(DataTableColumnHeader, { column, title: 'Status' }),
-			cell: ({ row }) => renderComponent(StatusBadge, { item: row.original })
+			cell: ({ row }) => renderComponent(StatusBadge, { item: row.original, class: 'text-sm' })
 		},
 		{
 			id: 'actions',

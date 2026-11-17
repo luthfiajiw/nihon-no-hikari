@@ -19,11 +19,11 @@
 </script>
 
 {#if props.cell === 'actions-header'}
-	<div class="text-right">Aksi</div>
+	<div class="text-right text-sm">Aksi</div>
 {:else if props.cell === 'character'}
 	<span class="text-3xl font-medium">{props.row.character}</span>
 {:else if props.cell === 'script'}
-	<span class="capitalize">{props.row.script}</span>
+	<span class="text-sm capitalize">{props.row.script}</span>
 {:else if props.cell === 'actions'}
 	<div class="flex items-center justify-end">
 		<DropdownMenu.Root>

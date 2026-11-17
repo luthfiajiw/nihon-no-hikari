@@ -24,30 +24,30 @@
 </script>
 
 {#if props.cell === 'actions-header'}
-	<div class="text-right">Aksi</div>
+	<div class="text-right text-sm">Aksi</div>
 {:else if props.cell === 'title'}
 	<div class="flex max-w-xs min-w-0 items-center gap-3 sm:max-w-md">
 		<div class="min-w-0 flex-1 space-y-0.5">
 			<button
 				type="button"
-				class="block w-full truncate text-left font-semibold text-foreground transition-colors hover:text-primary"
+				class="block w-full truncate text-left text-sm font-semibold text-foreground transition-colors hover:text-primary"
 				onclick={() => goto(resolve(`/admin/courses/${props.row.id}` as Pathname))}
 			>
 				{props.row.title}
 			</button>
-			<p class="line-clamp-1 text-xs text-muted-foreground">
+			<p class="line-clamp-1 text-sm text-muted-foreground">
 				{props.row.description || 'Susun module dan lesson untuk kursus ini.'}
 			</p>
 		</div>
 	</div>
 {:else if props.cell === 'level'}
 	{#if props.row.level_code}
-		<Badge variant="secondary">{props.row.level_code}</Badge>
+		<Badge variant="secondary" class="text-sm">{props.row.level_code}</Badge>
 	{:else}
-		<span class="text-xs text-muted-foreground">-</span>
+		<span class="text-sm text-muted-foreground">-</span>
 	{/if}
 {:else if props.cell === 'counts'}
-	<div class="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+	<div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
 		<span class="flex items-center gap-1">
 			<Layers class="size-3.5" />
 			{props.row.module_count ?? 0} module
@@ -58,7 +58,7 @@
 		</span>
 	</div>
 {:else if props.cell === 'order'}
-	<span class="text-xs text-muted-foreground">Urutan {props.row.order_index ?? 0}</span>
+	<span class="text-sm text-muted-foreground">Urutan {props.row.order_index ?? 0}</span>
 {:else if props.cell === 'actions'}
 	<div class="flex items-center justify-end">
 		<DropdownMenu.Root>

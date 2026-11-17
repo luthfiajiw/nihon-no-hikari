@@ -20,7 +20,7 @@
 </script>
 
 {#if props.cell === 'actions-header'}
-	<div class="text-right">Aksi</div>
+	<div class="text-right text-sm">Aksi</div>
 {:else if props.cell === 'title'}
 	<button
 		type="button"
@@ -31,7 +31,7 @@
 			<span class="block truncate text-sm font-semibold text-foreground group-hover:text-primary">
 				{props.row.title}
 			</span>
-			<span class="block text-xs text-muted-foreground">
+			<span class="block text-sm text-muted-foreground">
 				{props.row.kind === 'final_exam' ? 'Ujian module' : 'Latihan lesson'}
 			</span>
 		</div>
@@ -45,7 +45,7 @@
 				: 'Gabungan'}
 	</span>
 {:else if props.cell === 'version'}
-	<span class="text-xs text-muted-foreground">
+	<span class="text-sm text-muted-foreground">
 		v{props.row.version ?? 1}
 	</span>
 {:else if props.cell === 'actions'}

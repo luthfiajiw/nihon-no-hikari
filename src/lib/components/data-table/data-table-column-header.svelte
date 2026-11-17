@@ -24,12 +24,12 @@
 </script>
 
 {#if !column.getCanSort()}
-	<span class={cn('text-xs font-semibold text-muted-foreground', className)}>{title}</span>
+	<span class={cn('text-sm font-semibold text-muted-foreground', className)}>{title}</span>
 {:else}
 	<Button
 		variant="ghost"
 		size="sm"
-		class={cn('-ml-3 h-8 text-xs font-semibold hover:bg-accent/60', className)}
+		class={cn('-ml-3 h-8 text-sm font-semibold hover:bg-accent/60', className)}
 		onclick={column.getToggleSortingHandler()}
 	>
 		<span>{title}</span>

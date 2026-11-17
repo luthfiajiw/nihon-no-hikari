@@ -24,7 +24,7 @@ export function createQuestionAdminSetsColumns(
 		{
 			id: 'status',
 			header: 'Status',
-			cell: ({ row }) => renderComponent(StatusBadge, { item: row.original }),
+			cell: ({ row }) => renderComponent(StatusBadge, { item: row.original, class: 'text-sm' }),
 			enableSorting: false
 		},
 		{

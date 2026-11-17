@@ -20,14 +20,14 @@
 </script>
 
 {#if props.cell === 'actions-header'}
-	<div class="text-right">Aksi</div>
+	<div class="text-right text-sm">Aksi</div>
 {:else if props.cell === 'name'}
-	<span class="font-medium text-foreground">{props.row.display_name}</span>
+	<span class="text-sm font-medium text-foreground">{props.row.display_name}</span>
 {:else if props.cell === 'email'}
-	<span class="text-muted-foreground">{props.row.email}</span>
+	<span class="text-sm text-muted-foreground">{props.row.email}</span>
 {:else if props.cell === 'role'}
 	<span
-		class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium {props.row.role ===
+		class="inline-flex items-center rounded-md px-2 py-0.5 text-sm font-medium {props.row.role ===
 		'Admin'
 			? 'border border-primary/20 bg-primary/10 text-primary'
 			: 'border border-border bg-muted text-muted-foreground'}"
