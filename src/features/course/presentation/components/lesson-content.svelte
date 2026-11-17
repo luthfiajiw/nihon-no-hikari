@@ -186,7 +186,7 @@
 
 <div class="h-full min-w-0 flex-1 overflow-hidden">
 	<ScrollArea.Root class="h-full" orientation="vertical">
-		<article class="mx-auto max-w-7xl px-6 pt-6 pb-16">
+		<article class="mx-auto max-w-341.5 px-6 pt-6 pb-10">
 			<h1
 				class="mb-7 pr-10 text-2xl leading-tight font-extrabold tracking-tight text-foreground md:pr-0"
 			>
@@ -212,7 +212,9 @@
 										<div
 											class="flex items-start justify-between gap-2 sm:items-center sm:justify-start"
 										>
-											<h3 class="min-w-0 font-semibold text-card-foreground">{questionSet.title}</h3>
+											<h3 class="min-w-0 font-semibold text-card-foreground">
+												{questionSet.title}
+											</h3>
 											{#if questionSet.is_passed}
 												<Badge
 													class="shrink-0 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
@@ -221,7 +223,9 @@
 													Lulus
 												</Badge>
 											{:else}
-												<Badge variant="outline" class="shrink-0 text-muted-foreground">Belum Lulus</Badge>
+												<Badge variant="outline" class="shrink-0 text-muted-foreground">
+													Belum Lulus
+												</Badge>
 											{/if}
 										</div>
 										{#if questionSet.skill}
@@ -256,7 +260,7 @@
 											disabled={startingQuestionSetId !== null}
 											isLoading={startingQuestionSetId === questionSet.id}
 											onclick={() => onQuestionSetSelect?.(questionSet)}
-											class="shrink-0 ml-auto sm:ml-0"
+											class="ml-auto shrink-0 sm:ml-0"
 										>
 											{questionSet.is_passed ? 'Lihat soal' : 'Kerjakan'}
 										</Button>
@@ -319,10 +323,8 @@
 					<div
 						class={cn('flex items-center gap-4 pt-4', {
 							'justify-between': Boolean(previousLessonTitle && nextLessonTitle),
-							'justify-end': Boolean(
-								(previousLessonTitle && !nextLessonTitle) ||
-								(!previousLessonTitle && nextLessonTitle)
-							)
+							'justify-start': Boolean(!nextLessonTitle),
+							'justify-end': Boolean(!previousLessonTitle && nextLessonTitle)
 						})}
 					>
 						{#if previousLessonTitle}
@@ -346,11 +348,6 @@
 						{/if}
 					</div>
 				{/if}
-				<!-- {#if !nextLessonTitle && questionSets.length === 0 && !isLessonCompleted && onCompleteLesson}
-					<Button type="button" onclick={onCompleteLesson} disabled={isNextLessonLoading}>
-						Tandai Lesson Selesai
-					</Button>
-				{/if} -->
 			</div>
 		</article>
 	</ScrollArea.Root>
