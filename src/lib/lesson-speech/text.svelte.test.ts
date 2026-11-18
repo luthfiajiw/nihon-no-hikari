@@ -107,4 +107,15 @@ describe('lesson speech text mapping', () => {
 			expect(chunk.text.isWellFormed()).toBe(true);
 		}
 	});
+
+	it('excludes rt, rp, and rtc furigana text inside ruby elements while keeping base text ranges accurate', () => {
+		const root = host(
+			'<p>今日は<ruby style="ruby-align: center"><rb>誕生日</rb><rp>(</rp><rt style="color: #8F7365; font-size: 13px; font-weight: 600">たんじょうび</rt><rp>)</rp><rtc>tanjobi</rtc></ruby>です。</p>'
+		);
+		const blocks = collectReadableBlocks(root);
+		expect(blocks).toHaveLength(1);
+		expect(blocks[0].text).toBe('今日は誕生日です。');
+		expect(blocks[0].text).not.toMatch(/たんじょうび|tanjobi|\(|\)/);
+		expect(blockRange(blocks[0], blocks[0].text.indexOf('誕生日'), 3)?.toString()).toBe('誕生日');
+	});
 });

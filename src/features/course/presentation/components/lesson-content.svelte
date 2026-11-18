@@ -98,7 +98,9 @@
 	}
 
 	let parsedContent = $derived(parseContent(content));
-	let sanitizedContent = $derived(DOMPurify.sanitize(parsedContent.content));
+	let sanitizedContent = $derived(
+		DOMPurify.sanitize(parsedContent.content, { ADD_TAGS: ['rb', 'rtc'] })
+	);
 	let activeAudio: HTMLAudioElement | null = null;
 	let activeAudioButton: HTMLButtonElement | null = null;
 	let renderedContent = '';

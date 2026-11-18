@@ -13,6 +13,7 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { BellIcon, LoaderCircle, LogOut, User } from 'lucide-svelte';
@@ -44,8 +45,8 @@
 	const isSamePageNavigation = $derived(
 		Boolean(
 			navigating.to &&
-				navigating.from &&
-				navigating.from.url.pathname === navigating.to.url.pathname
+			navigating.from &&
+			navigating.from.url.pathname === navigating.to.url.pathname
 		)
 	);
 	const showAdminPageSkeleton = $derived(
@@ -222,10 +223,13 @@
 				</div>
 
 				<div class="flex shrink-0 items-center pr-3 sm:pr-6">
-					<Button variant="ghost" size="icon">
+					<Button variant="ghost" size="icon" class="mr-2 md:mr-0">
 						<BellIcon />
 					</Button>
-					<Separator orientation="vertical" class="mr-4 ml-1 data-[orientation=vertical]:h-5" />
+					<Separator
+						orientation="vertical"
+						class="mr-4 ml-1 hidden data-[orientation=vertical]:h-5 md:block"
+					/>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
@@ -272,14 +276,9 @@
 				class="h-[calc(100svh-4rem)] min-h-0 flex-1 overflow-y-auto bg-neutral-100 group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(100svh-3rem)] dark:bg-muted"
 			>
 				{#if showAdminPageSkeleton}
-					<div class="mx-auto max-w-7xl space-y-6 p-6 md:p-8" role="status" aria-live="polite">
-						<p class="flex items-center gap-2 text-sm text-taupe-500">
-							<LoaderCircle class="size-4 animate-spin motion-reduce:animate-none" /> Membuka halaman…
-						</p>
-						<div class="h-12 w-72 rounded-xl bg-taupe-200/70"></div>
-						{#each [1, 2, 3] as row (row)}
-							<div class="h-32 rounded-2xl border border-taupe-200 bg-white"></div>
-						{/each}
+					<div class="mx-auto max-w-341.5 space-y-8 p-6 md:p-8" role="status" aria-live="polite">
+						<Skeleton class="h-16 w-72 rounded-xl" />
+						<Skeleton class="h-64 w-full rounded-2xl" />
 					</div>
 				{/if}
 				{#if isAdminRoute}

@@ -88,7 +88,7 @@
 {/snippet}
 
 <!-- Mobile Trigger & Sheet -->
-<div class="absolute top-14 right-4 md:hidden">
+<div class="absolute top-14 right-3 md:hidden">
 	<Sheet.Root bind:open={isMobileOpen}>
 		<Sheet.Trigger>
 			{#snippet child({ props })}

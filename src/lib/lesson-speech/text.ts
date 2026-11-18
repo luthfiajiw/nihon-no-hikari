@@ -19,7 +19,7 @@ export interface SpeechChunk {
 
 const readableElements = 'p,h1,h2,h3,h4,h5,h6';
 const excluded =
-	'button,input,textarea,select,option,script,style,noscript,svg,rt,rp,[hidden],[aria-hidden="true"]';
+	'button,input,textarea,select,option,script,style,noscript,svg,rt,rp,rtc,[hidden],[aria-hidden="true"]';
 
 /** Visible paragraphs and headings are readable; inline markup keeps its original DOM offsets. */
 export function collectReadableBlocks(root: HTMLElement): ReadableBlock[] {
