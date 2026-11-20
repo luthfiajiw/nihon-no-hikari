@@ -31,7 +31,18 @@ export interface UpdateLessonProgressRequest {
 	status: Extract<Status, 'unlocked' | 'in_progress' | 'completed'>;
 }
 
+export interface LessonProgress {
+	user_id: string;
+	lesson_id: string;
+	module_id: string;
+	status: Status;
+	module_status: Status;
+	completed_at: string | null;
+	updated_at: string;
+}
+
 export interface UpdateLessonProgressResponse {
 	success: boolean;
 	message: string;
+	data?: LessonProgress;
 }

@@ -229,7 +229,19 @@ describe('CourseSource', () => {
 	});
 
 	it('updates and returns lesson progress', async () => {
-		const responseData = { success: true, message: 'Progres materi berhasil diperbarui.' };
+		const responseData = {
+			success: true,
+			message: 'Progres materi berhasil diperbarui.',
+			data: {
+				user_id: 'user-1',
+				lesson_id: 'lesson/1',
+				module_id: 'module-1',
+				status: 'completed',
+				module_status: 'in_progress',
+				completed_at: null,
+				updated_at: '2026-01-01T00:00:00Z'
+			}
+		};
 		const mockFetch = vi.fn().mockResolvedValue(
 			new Response(JSON.stringify(responseData), {
 				status: 200,
@@ -238,9 +250,10 @@ describe('CourseSource', () => {
 		);
 		const source = new CourseSource(mockFetch);
 
-		await expect(source.updateLessonProgress('lesson/1', { status: 'unlocked' })).resolves.toEqual(
-			responseData
-		);
+		const result = await source.updateLessonProgress('lesson/1', { status: 'unlocked' });
+		expect(result).toEqual(responseData);
+		expect(result.data?.module_id).toBe('module-1');
+		expect(result.data?.module_status).toBe('in_progress');
 		expect(mockFetch).toHaveBeenCalledWith('/api/v1/lessons/lesson%2F1/progress', {
 			method: 'PUT',
 			headers: { Accept: 'application/json', 'Content-Type': 'application/json' },

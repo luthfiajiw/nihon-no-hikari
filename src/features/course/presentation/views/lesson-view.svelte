@@ -206,29 +206,108 @@
 		updateLessonsStatus([{ lessonId, status }]);
 	}
 
-	async function handleNextLesson(): Promise<void> {
-		if (!activeLessonId || !nextLesson || isNextLessonLoading) return;
-		if (activeLesson?.status === 'completed') {
-			if (nextLesson.status === 'locked') {
-				updateLessonStatus(nextLesson.id, 'unlocked');
+	function applyModuleStatus(moduleId: string, moduleStatus: Status | undefined): void {
+		if (!moduleStatus) return;
+
+		let updatedModule: ModuleLesson['module'] | undefined;
+		const next = moduleLessons.map((moduleLesson) => {
+			if (moduleLesson.module.id !== moduleId) return moduleLesson;
+			updatedModule = { ...moduleLesson.module, status: moduleStatus };
+			return { ...moduleLesson, module: updatedModule };
+		});
+		const moduleIndex = next.findIndex(({ module }) => module.id === moduleId);
+		if (moduleIndex < 0) return;
+
+		if (moduleStatus === 'completed') {
+			const following = next[moduleIndex + 1];
+			if (following && following.module.status === 'locked') {
+				next[moduleIndex + 1] = {
+					...following,
+					module: { ...following.module, status: 'unlocked' },
+					lessons: following.lessons.map((lesson, index) =>
+						index === 0 && lesson.status === 'locked'
+							? { ...lesson, status: 'unlocked' as Status }
+							: lesson
+					)
+				};
 			}
-			const nextModuleLesson = moduleLessons.find(({ lessons }) =>
-				lessons.some((lesson) => lesson.id === nextLesson.id)
+		}
+		moduleLessons = next;
+
+		if (updatedModule && courseLearning.course && courseLearning.module?.id === moduleId) {
+			courseLearning.select(courseLearning.course, updatedModule);
+		}
+	}
+
+	function moveToLesson(target: Lesson): void {
+		if (target.status === 'locked') {
+			updateLessonStatus(target.id, 'unlocked');
+		}
+		const targetModuleLesson = moduleLessons.find(({ lessons }) =>
+			lessons.some((lesson) => lesson.id === target.id)
+		);
+		if (
+			targetModuleLesson &&
+			courseLearning.course &&
+			courseLearning.module?.id !== targetModuleLesson.module.id
+		) {
+			courseLearning.select(courseLearning.course, targetModuleLesson.module);
+		}
+		courseLearning.selectLesson(target.id);
+	}
+
+	const isLastLessonInModule = $derived(
+		Boolean(
+			activeLesson &&
+				activeModuleLesson &&
+				activeModuleLesson.lessons[activeModuleLesson.lessons.length - 1]?.id === activeLesson.id
+		)
+	);
+	const hasIncompleteModuleExams = $derived(activeModuleExams.some((exam) => !exam.is_passed));
+	const needsLessonCompletionBeforeModuleExam = $derived(
+		Boolean(
+			isLastLessonInModule &&
+				activeModuleExams.length > 0 &&
+				activeLesson &&
+				activeLesson.status !== 'completed'
+		)
+	);
+	const nextActionTitle = $derived.by((): string | undefined => {
+		if (needsLessonCompletionBeforeModuleExam) return 'Selesaikan Materi';
+		if (nextLesson) return nextLesson.title;
+		if (activeLesson && activeLesson.status !== 'completed') return 'Selesaikan Materi';
+		if (activeLesson) return 'Kembali ke Detail Kursus';
+		return undefined;
+	});
+	const nextActionDisabled = $derived.by((): boolean => {
+		if (needsLessonCompletionBeforeModuleExam) return false;
+		if (nextLesson) {
+			return Boolean(
+				isLastLessonInModule && activeLesson?.status === 'completed' && hasIncompleteModuleExams
 			);
-			if (
-				nextModuleLesson &&
-				courseLearning.course &&
-				courseLearning.module?.id !== nextModuleLesson.module.id
-			) {
-				courseLearning.select(courseLearning.course, nextModuleLesson.module);
+		}
+		if (activeLesson && activeLesson.status !== 'completed') return false;
+		if (activeLesson) return hasIncompleteModuleExams;
+		return false;
+	});
+
+	async function handleNextLesson(): Promise<void> {
+		if (!activeLessonId || !activeLesson || isNextLessonLoading) return;
+
+		if (activeLesson.status === 'completed') {
+			if (isLastLessonInModule && hasIncompleteModuleExams) return;
+			if (nextLesson) {
+				moveToLesson(nextLesson);
+			} else {
+				await goto(resolve(`/courses/${encodeURIComponent(courseId)}` as Pathname));
 			}
-			courseLearning.selectLesson(nextLesson.id);
 			return;
 		}
 
 		const currentLessonId = activeLessonId;
-		const nextLessonId = nextLesson.id;
-		const isNextLessonLocked = nextLesson.status === 'locked';
+		const currentModuleId = activeModuleLesson?.module.id;
+		const targetLesson = nextLesson;
+		const stayOnLesson = needsLessonCompletionBeforeModuleExam || !targetLesson;
 		isNextLessonLoading = true;
 
 		try {
@@ -238,27 +317,12 @@
 
 			if (!response.success) return;
 
-			const shouldNavigateToNextLesson = activeLessonId === currentLessonId;
-			const statusUpdates: Array<{ lessonId: string; status: Status }> = [
-				{ lessonId: currentLessonId, status: 'completed' }
-			];
-			if (isNextLessonLocked) {
-				statusUpdates.push({ lessonId: nextLessonId, status: 'unlocked' });
-			}
-			updateLessonsStatus(statusUpdates);
+			const shouldNavigate = activeLessonId === currentLessonId;
+			updateLessonStatus(currentLessonId, 'completed');
+			if (currentModuleId) applyModuleStatus(currentModuleId, response.data?.module_status);
 
-			if (shouldNavigateToNextLesson) {
-				const nextModuleLesson = moduleLessons.find(({ lessons }) =>
-					lessons.some((lesson) => lesson.id === nextLessonId)
-				);
-				if (
-					nextModuleLesson &&
-					courseLearning.course &&
-					courseLearning.module?.id !== nextModuleLesson.module.id
-				) {
-					courseLearning.select(courseLearning.course, nextModuleLesson.module);
-				}
-				courseLearning.selectLesson(nextLessonId);
+			if (!stayOnLesson && targetLesson && shouldNavigate) {
+				moveToLesson(targetLesson);
 			}
 		} catch (error) {
 			lessonDetailError =
@@ -267,7 +331,6 @@
 			isNextLessonLoading = false;
 		}
 	}
-
 	async function loadLessonDetail(lessonId: string): Promise<void> {
 		const requestId = ++lessonRequestId;
 		const isLessonCompleted = moduleLessons
@@ -296,6 +359,10 @@
 				}
 
 				updateLessonStatus(lessonId, 'in_progress');
+				const progressModuleId = moduleLessons.find(({ lessons }) =>
+					lessons.some((lesson) => lesson.id === lessonId)
+				)?.module.id;
+				if (progressModuleId) applyModuleStatus(progressModuleId, progressResponse.data?.module_status);
 			}
 
 			lessonDetail = response.data;
@@ -378,11 +445,12 @@
 					{startingQuestionSetId}
 					questionSetError={questionSetAttemptError}
 					previousLessonTitle={previousLesson?.title}
-					nextLessonTitle={nextLesson?.title}
+					nextLessonTitle={nextActionTitle}
+					{nextActionDisabled}
 					onPreviousLesson={previousLesson
 						? () => handleLessonSelect(previousLesson.id)
 						: undefined}
-					onNextLesson={nextLesson ? handleNextLesson : undefined}
+					onNextLesson={nextActionTitle ? handleNextLesson : undefined}
 					onQuestionSetSelect={handleQuestionSetSelect}
 					{isNextLessonLoading}
 				/>

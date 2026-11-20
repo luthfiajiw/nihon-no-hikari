@@ -31,6 +31,7 @@
 		canStartModuleExam?: boolean;
 		previousLessonTitle?: string;
 		nextLessonTitle?: string;
+		nextActionDisabled?: boolean;
 		onPreviousLesson?: () => void;
 		onNextLesson?: () => void;
 		onQuestionSetSelect?: (questionSet: QuestionSet) => void | Promise<void>;
@@ -53,6 +54,7 @@
 		canStartModuleExam = false,
 		previousLessonTitle,
 		nextLessonTitle,
+		nextActionDisabled = false,
 		onPreviousLesson,
 		onNextLesson,
 		onQuestionSetSelect,
@@ -340,7 +342,7 @@
 							<Button
 								variant="outline"
 								type="button"
-								disabled={isNextLessonLoading || hasIncompleteQuestionSets}
+								disabled={isNextLessonLoading || hasIncompleteQuestionSets || nextActionDisabled}
 								isLoading={isNextLessonLoading}
 								onclick={onNextLesson}
 							>

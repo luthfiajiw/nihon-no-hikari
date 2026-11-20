@@ -4,7 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
-	import { onMount, tick, untrack } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicOut } from 'svelte/easing';
 	import { MediaQuery } from 'svelte/reactivity';
@@ -57,9 +57,7 @@
 	);
 	const reducedMotion = new MediaQuery('(prefers-reduced-motion: reduce)');
 	const flipDurationMs = $derived(reducedMotion.current ? 0 : 220);
-	let openModules = $state<Record<string, boolean>>(
-		untrack(() => Object.fromEntries(data.modules.map((module, index) => [module.id, index < 2])))
-	);
+	let openModules = $state<Record<string, boolean>>({});
 	let saving = $state(false);
 	let message = $state('');
 	let saveError = $state(false);
@@ -258,16 +256,18 @@
 			</Button>
 		</div>
 	</Card.Root>
-	<div class="flex items-center justify-between">
-		<h2 class="text-base font-semibold text-foreground">Struktur pembelajaran</h2>
-		<p class="text-xs text-muted-foreground">
-			{data.modules.length} module · {data.lessons.length} lesson
+	<div class="flex flex-col gap-1">
+		<div class="flex items-center justify-between">
+			<h2 class="text-base font-semibold text-foreground">Struktur pembelajaran</h2>
+			<p class="text-xs text-muted-foreground">
+				{data.modules.length} module · {data.lessons.length} lesson
+			</p>
+		</div>
+		<p id="reorder-instructions" class="text-xs text-muted-foreground">
+			Geser pegangan untuk mengubah urutan. Dengan keyboard, tekan Space atau Enter, gunakan panah
+			atas/bawah, lalu tekan lagi untuk menyimpan. Escape untuk membatalkan.
 		</p>
 	</div>
-	<p id="reorder-instructions" class="text-xs text-muted-foreground">
-		Geser pegangan untuk mengubah urutan. Dengan keyboard, tekan Space atau Enter, gunakan panah
-		atas/bawah, lalu tekan lagi untuk menyimpan. Escape untuk membatalkan.
-	</p>
 	<p class="sr-only" aria-live="polite">{announcement}</p>
 	{#if message}
 		<p
